@@ -20,7 +20,9 @@ from app.seed import seed_sources  # noqa: E402
 from app.services.resolver import build_context, resolve  # noqa: E402
 
 OUT = Path(__file__).resolve().parent.parent / "app" / "data" / "fallback.json"
-CAPABILITIES = ("next_match", "last_match", "standings", "news", "stats", "tv", "team", "teams")
+# Sem `tv`/`broadcasts`: a grade de transmissão por jogo não é reproduzível
+# offline, e um chute de backup apareceria como se fosse dado real.
+CAPABILITIES = ("next_match", "last_match", "standings", "news", "stats", "team", "teams")
 
 
 def serialize(value) -> object:
@@ -45,11 +47,6 @@ def main() -> int:
                 continue
             payload[capability] = serialize(data)
             print(f"[ok]   {capability}: {meta.source}")
-        # aliases de TV
-        if "tv" in payload and "broadcasts" not in payload:
-            payload["broadcasts"] = payload["tv"]
-        if "team" in payload and "team" not in payload:
-            pass
         OUT.write_text(
             json.dumps(payload, ensure_ascii=False, indent=2, default=str), encoding="utf-8"
         )

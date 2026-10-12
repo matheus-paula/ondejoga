@@ -20,6 +20,7 @@ SourceKind = Literal[
     "url_json",
     "static_json",
     "wikipedia",
+    "jogostv",
 ]
 Capability = Literal[
     "team", "teams", "standings", "next_match", "last_match", "live_match", "news",

@@ -471,7 +471,7 @@ Body: objeto completo no formato acima. Valida: ids não duplicados, types conhe
 ]
 ```
 
-- `kind` ∈ `"thesportsdb" | "espn" | "rss" | "football_data" | "api_football" | "url_json" | "static_json" | "wikipedia"`
+- `kind` ∈ `"thesportsdb" | "espn" | "rss" | "football_data" | "api_football" | "url_json" | "static_json" | "wikipedia" | "jogostv"`
 - `priority`: menor número = testado primeiro. Capacidades atendidas pela fonte de menor `priority` (habilitada) ganham.
 - `endpoints`: template com placeholders `{api_key} {team_id} {competition_id} {season} {year} {league} {espn_league} {event_id} {limit} {query} {date} {timezone} {locale}`. O valor de `{team_id}` é o id do provedor atual (lido de `config.team.ids`).
 - `capabilities` conhecidas: `team`, `teams`, `standings`, `next_match`, `last_match`, `live_match`, `news`, `stats`, `tv`, `broadcasts`.
@@ -507,7 +507,7 @@ Body: objeto completo no formato acima. Valida: ids não duplicados, types conhe
 - `root` aponta para o objeto ou a **lista** de registros. Quando é lista, `select` escolhe qual registro vira o jogo único:
   - `"first"` (padrão) · `"next"` (mais próximo do futuro) · `"last"` (mais recente por data) · `"finished"` (jogo encerrado mais recente — o indicado para `last_match`).
 - Capacidades de lista (`standings`, `news`, `tv`, `broadcasts`) renderizam todos os registros; as demais (`next_match`, `last_match`, `live_match`, `stats`, `team`) esperam um objeto único. Em `live_match` o adapter marca `is_live: true` e não considera fim de jogo.
-- No adapter `static_json` o `mapping.tv` aceita `{"by_competition": {"4351": [{"name": "Premiere"}], "default": [...]}}` ou uma lista direta — nesse adapter nada é buscado externamente.
+- No adapter `static_json` o `mapping.tv` aceita `{"by_competition": {"4351": [{"name": "Premiere"}], "default": [...]}}` ou uma lista direta — nesse adapter nada é buscado externamente. O kind continua disponível no CRUD para quem quiser manter uma lista à mão, mas não vem mais semead como fonte de `tv`.
 
 ### `POST /api/admin/sources` · `PUT /api/admin/sources/{id}` · `DELETE /api/admin/sources/{id}`
 
@@ -548,7 +548,7 @@ Para `static_json` não há `url`/`status_code` (nada é buscado) — `normalize
 
 ## 8. Fontes padrão (seed)
 
-Roda automaticamente na primeira subida (só quando a tabela está vazia) e nunca sobrescreve fontes do usuário. Na subida também roda uma **migração leve**: capacidades/endpoints novos do padrão (ex.: `live_match` da ESPN) são acrescentados às fontes já semeadas em versões antigas, sem tocar no que o usuário editou.
+Roda automaticamente na primeira subida (só quando a tabela está vazia) e nunca sobrescreve fontes do usuário. Na subida também roda uma **migração leve**, em três passos: capacidades/endpoints novos do padrão (ex.: `live_match` da ESPN) são acrescentados às fontes já semeadas em versões antigas; a lista estática de TV é desligada (mantida no CRUD, só fora do caminho); e uma fonte padrão entra quando o escopo fica sem nenhuma para uma capacidade — é assim que contas antigas ganham o JogosTV.
 
 | name | kind | priority | capabilities |
 |---|---|---|---|
@@ -556,20 +556,20 @@ Roda automaticamente na primeira subida (só quando a tabela está vazia) e nunc
 | ESPN | espn | 20 | team, teams, next_match, last_match, stats, broadcasts, live_match |
 | Wikipédia | wikipedia | 30 | standings |
 | Google Notícias (RSS) | rss | 40 | news |
-| TV padrão (estático) | static_json | 90 | tv |
+| JogosTV | jogostv | 50 | tv |
 
 Por que cada fonte ficou onde ficou (baseado em testes contra as APIs reais):
 - **TheSportsDB** entrega time e jogos com a chave grátis `3`, mas a tabela de classificação grátis (`lookuptable.php`) retorna só 5 linhas — por isso ela **não** cuida de `standings`.
 - **ESPN** (sem chave) é a fonte de `stats` (calculadas do histórico de jogos) e de `teams` (escudos usados para enriquecer as tabelas). A tabela de classificação do site.api retorna `{}` (quebrada) e os jogos futuros vêm do `sports.core.api`.
 - **Wikipédia** (MediaWiki, sem chave) tem a tabela completa de 20 linhas; a página é configurada por competição em `config.team.competitions[].page`.
 - **Google Notícias RSS** varre notícias pelo nome do time (`{query}`).
-- **TV padrão (estático)** é o seu próprio mapeamento de transmissoras por competição — sem chamada externa.
+- **JogosTV** lê a grade real por jogo no HTML do site (`article.game-row` com `data-channels`), casando data + nome do time. É a única fonte gratuita que cobre o Brasileirão: a ESPN devolve `broadcasts` vazio no Brasil, a TheSportsDB desligou o `eventstv.php` e as demais são pagas. Jogo sem canal confirmado devolve lista vazia — **sem grade, não existe a seção "Onde assistir"**, nunca uma lista genérica. O `mapping.pages` aponta a página de cada competição.
 
 ## 9. Resiliência (como o app se comporta quando uma API morre)
 
 1. Para cada capacidade, o resolvedor tenta as fontes habilitadas em ordem de `priority`.
 2. Cada tentativa fica em cache (TTL por fonte) e alimenta `last_status`/`last_error` da fonte + o status em memória mostrado em `/api/admin/status`.
-3. Se **todas** falharem, o app entrega os dados de backup embarcados (`api/app/data/fallback.json`) com `meta.sources[].status = "fallback"` — a tela nunca fica vazia.
+3. Se **todas** falharem, o app entrega os dados de backup embarcados (`api/app/data/fallback.json`) com `meta.sources[].status = "fallback"` — a tela nunca fica vazia. **Exceto `tv`/`broadcasts`**: essa capacidade ficou de fora do backup de propósito, porque sem grade por jogo não há como saber quem transmite e um chute apareceria na tela como se fosse dado real.
 4. `?refresh=true` em `/api/dashboard` pula o cache agregado (TTL configurável via `DASHBOARD_CACHE_TTL`).
 
 Regenerar o backup com dados frescos:

@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from ..providers.base import ProviderContext
-from ..schemas import Broadcast, Match, NewsItem, StandingTable, Stats
+from ..schemas import Match, NewsItem, StandingTable, Stats
 
 DATA_FILE = Path(__file__).resolve().parent.parent / "data" / "fallback.json"
 
@@ -47,8 +47,9 @@ def load_fallback(capability: str, ctx: ProviderContext | None = None) -> Any:
         if capability == "stats":
             payload = data.get("stats")
             return Stats.model_validate(payload) if payload else None
-        if capability in ("tv", "broadcasts"):
-            return [Broadcast.model_validate(b) for b in data.get("tv") or []]
+        # `tv`/`broadcasts` ficam de fora de propósito: sem grade por jogo não
+        # há como saber quem transmite, e um chute aqui apareceria na tela
+        # como se fosse dado real. Sem backup = sem seção "Onde assistir".
         if capability == "team":
             payload = data.get("team")
             return payload if isinstance(payload, dict) else None

@@ -62,7 +62,7 @@ ondejoga/
 | ESPN | calendário, estatísticas, escudos, jogo ao vivo | nenhuma |
 | Wikipédia (MediaWiki) | tabelas de classificação completas | nenhuma |
 | Google Notícias (RSS) | notícias | nenhuma |
-| TV estático | transmissoras por competição | você quem mapeia |
+| JogosTV | grade de transmissão por jogo | nenhuma |
 
 Todas testadas ao vivo enquanto eu montava o painel.
 
@@ -118,6 +118,11 @@ API gratuita quebra, e quebra justo quando tem jogo. O resolvedor tenta as
 fontes habilitadas em ordem de prioridade; se todas falharem, o dashboard cai
 nos dados de backup embarcados (`api/app/data/fallback.json`) e mostra um selo
 "dados de fallback" no cabeçalho. A tela não fica vazia.
+
+Quem ficou de fora desse backup foi o "Onde assistir". Essa informação vem da
+grade real do JogosTV, jogo a jogo; se eu não conseguir ler a grade da rodada,
+eu não mostro nada. Adivinhar o canal seria pior do que deixar a linha em
+branco.
 
 Para trocar a fonte que morreu, sem tocar em código:
 
@@ -260,7 +265,7 @@ Rodem offline — rede bloqueada, banco SQLite temporário —, então nada depe
 de internet para passar.
 
 ```bash
-# Backend (152 testes: contas, escopo por usuário, busca/seleção de time,
+# Backend (168 testes: contas, escopo por usuário, busca/seleção de time,
 # perfil + reset por arquivo, resolução de fontes, cache, fallback, CRUD,
 # providers, fase de copa, chaves de mata-mata, jogo ao vivo, API)
 cd api

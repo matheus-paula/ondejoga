@@ -9,18 +9,19 @@ import type { WidgetProps } from './types';
 
 function BroadcastChips({ broadcasts }: { broadcasts: Broadcast[] | null | undefined }) {
   const items = broadcasts ?? [];
+  if (items.length === 0) {
+    // Sem transmissão confirmada não há o que mostrar: a seção inteira some
+    // em vez de exibir "A definir" como se fosse um dado pendente.
+    return null;
+  }
   return (
     <div className="broadcasts">
       <span className="broadcasts-label">Onde assistir</span>
-      {items.length === 0 ? (
-        <span className="chip chip--muted">A definir</span>
-      ) : (
-        items.map((broadcast, index) => (
-          <span key={`${broadcast.name}-${index}`} className="chip">
-            {broadcast.name}
-          </span>
-        ))
-      )}
+      {items.map((broadcast, index) => (
+        <span key={`${broadcast.name}-${index}`} className="chip">
+          {broadcast.name}
+        </span>
+      ))}
     </div>
   );
 }

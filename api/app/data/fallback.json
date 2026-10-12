@@ -632,32 +632,6 @@
     ],
     "top_scorers": []
   },
-  "tv": [
-    {
-      "name": "Premiere",
-      "country": "BR",
-      "url": null,
-      "logo": null
-    },
-    {
-      "name": "SporTV",
-      "country": "BR",
-      "url": null,
-      "logo": null
-    },
-    {
-      "name": "Globo",
-      "country": "BR",
-      "url": null,
-      "logo": null
-    },
-    {
-      "name": "Zapping Sports",
-      "country": "BR",
-      "url": null,
-      "logo": null
-    }
-  ],
   "team": {
     "id": "134294",
     "name": "Cruzeiro",
@@ -788,32 +762,6 @@
       "name": "Vitória",
       "short_name": "Vitória",
       "logo": "https://a.espncdn.com/i/teamlogos/soccer/500/3457.png"
-    }
-  ],
-  "broadcasts": [
-    {
-      "name": "Premiere",
-      "country": "BR",
-      "url": null,
-      "logo": null
-    },
-    {
-      "name": "SporTV",
-      "country": "BR",
-      "url": null,
-      "logo": null
-    },
-    {
-      "name": "Globo",
-      "country": "BR",
-      "url": null,
-      "logo": null
-    },
-    {
-      "name": "Zapping Sports",
-      "country": "BR",
-      "url": null,
-      "logo": null
     }
   ]
 }

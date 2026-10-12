@@ -128,7 +128,7 @@ def test_build_provider_rejects_unknown_kind() -> None:
 def test_registered_kinds_cover_crud_options() -> None:
     assert set(PROVIDERS) >= {
         "thesportsdb", "espn", "rss", "football_data", "api_football",
-        "url_json", "static_json", "wikipedia",
+        "url_json", "static_json", "wikipedia", "jogostv",
     }
 
 

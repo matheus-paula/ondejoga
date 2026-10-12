@@ -51,15 +51,15 @@ describe('widget next_match', () => {
     expect(screen.getByText('faltam 3d 2h')).toBeInTheDocument();
   });
 
-  it('mostra "A definir" quando broadcasts é vazio', () => {
+  it('esconde a seção de transmissão quando broadcasts é vazio', () => {
     const data = makeDashboard(futureKickoff());
     const match = data.next_match;
     if (!match) throw new Error('fixture inválida: next_match ausente');
     data.next_match = { ...match, broadcasts: [] };
     render(<NextMatchWidget widget={widget()} data={data} config={configFixture} />);
 
-    expect(screen.getByText('Onde assistir')).toBeInTheDocument();
-    expect(screen.getByText('A definir')).toBeInTheDocument();
+    expect(screen.queryByText('Onde assistir')).not.toBeInTheDocument();
+    expect(screen.queryByText('A definir')).not.toBeInTheDocument();
     expect(screen.queryByText('Premiere')).not.toBeInTheDocument();
   });
 

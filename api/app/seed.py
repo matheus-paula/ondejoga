@@ -37,6 +37,21 @@ RSS_ENDPOINTS = {
     "news": "rss/search?q={query}&hl=pt-BR&gl=BR&ceid=BR:pt-419",
 }
 
+JOGOSTV_ENDPOINTS = {
+    "tv": "{page}",
+}
+
+# Página do JogosTV por competição (as mesmas ids usadas no resto do app).
+JOGOSTV_PAGES = {
+    "4351": "/jogos-do-brasileirao-serie-a",
+    "4350": "/jogos-do-brasileirao-serie-b",
+    "4328": "/jogos-do-brasileirao-serie-c",
+    "4725": "/jogos-da-copa-do-brasil",
+    "4501": "/jogos-da-copa-libertadores",
+    "4503": "/jogos-da-copa-sudamericana",
+    "default": "/jogos-do-brasileirao-serie-a",
+}
+
 DEFAULT_SOURCES: list[dict] = [
     {
         "name": "TheSportsDB",
@@ -110,46 +125,23 @@ DEFAULT_SOURCES: list[dict] = [
         "notes": "Busca no Google Notícias pelo nome do time ({query}). Substitua por qualquer RSS.",
     },
     {
-        "name": "TV padrão (estático)",
-        "kind": "static_json",
+        "name": "JogosTV",
+        "kind": "jogostv",
         "enabled": True,
-        "priority": 90,
+        "priority": 50,
         "capabilities": ["tv"],
-        "base_url": "",
+        "base_url": "https://www.jogostv.com.br",
         "api_key": None,
         "headers": {},
-        "endpoints": {},
-        "mapping": {
-            "tv": {
-                "by_competition": {
-                    "4351": [
-                        {"name": "Premiere", "country": "BR"},
-                        {"name": "SporTV", "country": "BR"},
-                        {"name": "Globo", "country": "BR"},
-                        {"name": "Zapping Sports", "country": "BR"},
-                    ],
-                    "4725": [
-                        {"name": "Premiere", "country": "BR"},
-                        {"name": "SporTV", "country": "BR"},
-                        {"name": "Globo", "country": "BR"},
-                    ],
-                    "4501": [
-                        {"name": "Paramount+", "country": "BR"},
-                        {"name": "SporTV", "country": "BR"},
-                        {"name": "ESPN Brasil", "country": "BR"},
-                    ],
-                    "default": [
-                        {"name": "Premiere", "country": "BR"},
-                        {"name": "SporTV", "country": "BR"},
-                    ],
-                }
-            }
-        },
-        "cache_ttl_seconds": 86400,
-        "timeout_seconds": 2,
+        "endpoints": JOGOSTV_ENDPOINTS,
+        "mapping": {"pages": JOGOSTV_PAGES},
+        "cache_ttl_seconds": 3600,
+        "timeout_seconds": 15,
         "notes": (
-            "Lista de transmissoras por competição. Edite quando quiser — "
-            "os dados são apenas o seu mapeamento, sem chamada externa."
+            "Grade real por jogo, lida do HTML do JogosTV (a única fonte "
+            "gratuita que cobre o Brasileirão). A página de cada competição "
+            "fica em 'mapping.pages'. Quando o jogo aparece sem transmissão "
+            "confirmada, nada é exibido — sem chute e sem lista genérica."
         ),
     },
 ]
@@ -185,11 +177,66 @@ def _upgrade_defaults(db: Session, rows: list[ApiSource]) -> int:
     return changed
 
 
+def _disable_legacy_tv(db: Session, rows: list[ApiSource]) -> int:
+    """Desliga a lista estática de TV que era a fonte padrão de transmissão.
+
+    Ela repetia os mesmos canais para todos os jogos do campeonato — chute
+    apresentado como dado real. A grade por jogo agora vem do JogosTV; a fonte
+    antiga continua cadastrada (e editável), só desligada.
+    """
+    changed = 0
+    for row in rows:
+        if row.name != "TV padrão (estático)" or row.kind != "static_json":
+            continue
+        if not row.enabled:
+            continue
+        row.enabled = False
+        changed += 1
+    if changed:
+        db.commit()
+    return changed
+
+
+def _ensure_capability_coverage(db: Session, rows: list[ApiSource],
+                                user_id: int | None = None) -> int:
+    """Cadastra a fonte padrão quando o escopo ficou sem nenhuma para a capacidade.
+
+    `seed_sources` só semeia escopo vazio, então contas já em uso não ganhavam
+    fonte nova: quando a lista estática de TV foi desligada, o escopo ficaria
+    sem nada para `tv`. Entra só o padrão que cobre uma capacidade órfã, e
+    nunca se o escopo já tiver uma fonte daquele `kind` — assim fonte que o
+    usuário desligou ou renomeou não vira duplicata.
+    """
+    covered = {
+        cap
+        for row in rows
+        if row.enabled
+        for cap in (row.capabilities or [])
+    }
+    kinds = {row.kind for row in rows}
+    added = 0
+    for payload in DEFAULT_SOURCES:
+        if not payload.get("enabled"):
+            continue
+        if payload["kind"] in kinds:
+            continue
+        if not [c for c in payload["capabilities"] if c not in covered]:
+            continue
+        db.add(ApiSource(**payload, user_id=user_id))
+        covered.update(payload["capabilities"])
+        kinds.add(payload["kind"])
+        added += 1
+    if added:
+        db.commit()
+    return added
+
+
 def seed_sources(db: Session, user_id: int | None = None) -> int:
     """Insere as fontes padrão apenas quando esse escopo não tem nenhuma.
 
     `user_id=None` = escopo global (visitante anônimo / app inteiro).
-    Escopos já semeados recebem apenas as capacidades novas (ver `_upgrade_defaults`).
+    Escopo já semeado só recebe o que falta: capacidades novas, a fonte que
+    cobre uma capacidade órfã e o desligamento da lista estática de TV.
     """
     rows = list(
         db.scalars(
@@ -202,14 +249,17 @@ def seed_sources(db: Session, user_id: int | None = None) -> int:
         db.commit()
         return len(DEFAULT_SOURCES)
     _upgrade_defaults(db, rows)
+    _disable_legacy_tv(db, rows)
+    _ensure_capability_coverage(db, rows, user_id)
     return 0
 
 
 def upgrade_scopes(db: Session) -> int:
-    """Migração de startup: completa capacidades novas em todos os escopos.
+    """Migração de startup: atualiza todos os escopos já existentes.
 
-    `seed_sources` cuida do escopo que está sendo aberto; aqui garantimos que
-    contas já existentes também ganhem os recursos novos (ex.: `live_match`).
+    `seed_sources` cuida do escopo que está sendo aberto; aqui as contas já
+    cadastradas ganham capacidades novas (ex.: `live_match`), deixam a lista
+    estática de TV desligada e recebem a fonte que cobre o que ficou órfão.
     """
     owner_ids = list(db.scalars(select(ApiSource.user_id).distinct()).all())
     changed = 0
@@ -218,4 +268,6 @@ def upgrade_scopes(db: Session) -> int:
             db.scalars(select(ApiSource).where(ApiSource.owner_filter(owner))).all()
         )
         changed += _upgrade_defaults(db, rows)
+        changed += _disable_legacy_tv(db, rows)
+        changed += _ensure_capability_coverage(db, rows, owner)
     return changed

@@ -163,25 +163,37 @@ def test_update_missing_source_returns_404(auth_client) -> None:
     assert auth_client.delete("/api/admin/sources/99999").status_code == 404
 
 
-def test_test_source_runs_offline_for_static_json(client) -> None:
-    sources = client.get("/api/admin/sources").json()
-    static = next(s for s in sources if s["kind"] == "static_json")
+def _create_static_tv(client) -> dict:
+    """A lista estática não vem mais no seed — cria na hora para testar o CRUD."""
+    payload = client.post("/api/admin/sources", json={
+        "name": "TV manual",
+        "kind": "static_json",
+        "capabilities": ["tv"],
+        "mapping": {"tv": [{"name": "Premiere"}, {"name": "SporTV"}]},
+    })
+    assert payload.status_code == 201, payload.text
+    return payload.json()
 
-    payload = client.post("/api/admin/sources/test", json={"id": static["id"], "capability": "tv"})
+
+def test_test_source_runs_offline_for_static_json(auth_client) -> None:
+    static = _create_static_tv(auth_client)
+
+    payload = auth_client.post(
+        "/api/admin/sources/test", json={"id": static["id"], "capability": "tv"}
+    )
     body = payload.json()
     assert payload.status_code == 200
     assert body["ok"] is True
     assert {b["name"] for b in body["normalized"]} >= {"Premiere", "SporTV"}
 
 
-def test_test_source_validates_capability(client) -> None:
-    sources = client.get("/api/admin/sources").json()
-    static = next(s for s in sources if s["kind"] == "static_json")
+def test_test_source_validates_capability(auth_client) -> None:
+    static = _create_static_tv(auth_client)
 
-    assert client.post(
+    assert auth_client.post(
         "/api/admin/sources/test", json={"id": static["id"], "capability": "voar"}
     ).status_code == 422
-    assert client.post("/api/admin/sources/test", json={}).status_code == 422
+    assert auth_client.post("/api/admin/sources/test", json={}).status_code == 422
 
 
 def test_status_reports_capabilities_and_fallbacks(client) -> None:

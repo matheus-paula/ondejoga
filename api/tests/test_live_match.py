@@ -368,7 +368,16 @@ def test_upgrade_scopes_migrates_every_owner(db) -> None:
         )
     db.commit()
 
-    assert upgrade_scopes(db) == 2
+    upgrade_scopes(db)
     rows = db.scalars(select(ApiSource)).all()
-    assert len(rows) == 2
-    assert all("live_match" in row.capabilities for row in rows)
+
+    espn = [row for row in rows if row.kind == "espn"]
+    assert len(espn) == 2  # uma por escopo (global + conta 7)
+    assert all("live_match" in row.capabilities for row in espn)
+    # capacidade que ficou órfã ganha a fonte padrão (aqui, a de transmissão)
+    for owner in (None, 7):
+        assert {"jogostv"} <= {row.kind for row in rows if row.user_id == owner}
+    # segunda passada é idempotente: nada novo a cada reinício
+    before = len(db.scalars(select(ApiSource)).all())
+    upgrade_scopes(db)
+    assert len(db.scalars(select(ApiSource)).all()) == before

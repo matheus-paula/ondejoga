@@ -5,6 +5,7 @@ from .api_football import ApiFootballProvider
 from .base import Provider, ProviderContext, ProviderError, SourceConfig
 from .espn import ESPNProvider
 from .football_data import FootballDataProvider
+from .jogostv import JogoTVProvider
 from .rss import RSSProvider
 from .static_json import StaticJsonProvider
 from .thesportsdb import TheSportsDBProvider
@@ -20,6 +21,7 @@ PROVIDERS: dict[str, type[Provider]] = {
     "url_json": UrlJsonProvider,
     "static_json": StaticJsonProvider,
     "wikipedia": WikipediaProvider,
+    "jogostv": JogoTVProvider,
 }
 
 __all__ = [
