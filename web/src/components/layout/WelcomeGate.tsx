@@ -1,5 +1,3 @@
-import { useState } from 'react';
-import { AuthModal } from './AuthModal';
 import { Icon, type IconName } from '../ui/Icon';
 
 type Mode = 'login' | 'register';
@@ -26,16 +24,11 @@ const HIGHLIGHTS: Array<{ icon: IconName; title: string; text: string }> = [
  * Portão de boas-vindas: aparece quando **ninguém** está logado.
  *
  * Sem conta não há time padrão nem painel — o visitante é orientado a criar
- * uma conta (ou entrar) antes de qualquer coisa.
+ * uma conta (ou entrar) antes de qualquer coisa. O modal de conta fica com o
+ * `DashboardView` (ele precisa sobreviver ao registro para cobrar o time).
  */
-export function WelcomeGate() {
-  const [open, setOpen] = useState(false);
-  const [mode, setMode] = useState<Mode>('register');
-
-  const openAuth = (next: Mode) => {
-    setMode(next);
-    setOpen(true);
-  };
+export function WelcomeGate({ onOpenAuth }: { onOpenAuth: (mode: Mode) => void }) {
+  const openAuth = (next: Mode) => onOpenAuth(next);
 
   return (
     <div className="welcome" data-testid="welcome-gate">
@@ -91,8 +84,6 @@ export function WelcomeGate() {
           Sua conta fica somente neste servidor — nenhuma terceira parte envolvida.
         </p>
       </div>
-
-      <AuthModal open={open} onClose={() => setOpen(false)} initialMode={mode} />
     </div>
   );
 }

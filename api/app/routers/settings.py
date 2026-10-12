@@ -32,7 +32,8 @@ def get_config_endpoint(
     db: Session = Depends(get_db),
     user: User | None = Depends(current_user_optional),
 ) -> dict:
-    return store.get_config(db, user_id=user.id if user else None)
+    # `owned=false` => o usuário ainda não escolheu o time (portão de onboarding).
+    return store.config_payload(db, user_id=user.id if user else None)
 
 
 @router.put("/config")
@@ -44,9 +45,10 @@ def put_config(
     user = _require_user(user)
     patch = payload.model_dump(exclude_unset=True)
     try:
-        return store.save_config(db, patch, user_id=user.id)
+        store.save_config(db, patch, user_id=user.id)
     except ValidationError as exc:
         raise HTTPException(status_code=422, detail=exc.errors()) from exc
+    return store.config_payload(db, user_id=user.id)
 
 
 @router.get("/layout")

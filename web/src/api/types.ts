@@ -23,6 +23,8 @@ export type WidgetOptions = Record<string, unknown>;
 export interface TeamIds {
   thesportsdb?: string;
   espn?: string;
+  /** Slug da liga na ESPN (ex.: `bra.1`); vem do time escolhido. */
+  espn_league?: string;
   football_data?: string;
   api_football?: string;
 }
@@ -53,6 +55,30 @@ export interface AppConfig {
   locale: string;
   refresh_interval_seconds?: number;
   default_theme?: ThemePref;
+  /**
+   * `false` = o usuário ainda não escolheu o time (herda o global) e cai no
+   * portão de onboarding; ausente/`true` = já tem time próprio.
+   */
+  owned?: boolean;
+}
+
+/** Sugestão da busca de times (`GET /api/teams/search`). */
+export interface TeamCandidate {
+  provider: string;
+  id: string;
+  name: string;
+  short_name?: string | null;
+  logo?: string | null;
+  country?: string | null;
+  league?: string | null;
+}
+
+/** Senha temporária gravada em `RESET-<usuario>.txt` na raiz do volume. */
+export interface ResetFileResult {
+  username: string;
+  file: string;
+  path: string;
+  password: string;
 }
 
 /* ---------- contas ---------- */

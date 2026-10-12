@@ -38,9 +38,15 @@ interface LayoutContextValue {
   config: AppConfig;
   loading: boolean;
   error: string | null;
+  /**
+   * `version` do AuthContext a que a `config` atual pertence (`null` = ainda
+   * nenhuma carga terminou). Enquanto não bate com a sessão atual, a config é
+   * de outro escopo (ex.: anônima logo após o F5) e não deve guiar o painel.
+   */
+  loadedVersion: number | null;
   /** Layout salvo no servidor. */
   saved: Layout | null;
-  /** Rascunho local (aplicações otimistas do drawer "Personalizar"). */
+  /** Rascunho local (aplicações otimistas da tela de Configurações). */
   draft: Layout | null;
   dirty: boolean;
   saving: boolean;
@@ -76,6 +82,7 @@ export function LayoutProvider({ children }: { children: ReactNode }) {
   const [saved, setSaved] = useState<Layout | null>(null);
   const [draft, setDraft] = useState<Layout | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadedVersion, setLoadedVersion] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [notice, setNotice] = useState<Notice | null>(null);
@@ -112,6 +119,8 @@ export function LayoutProvider({ children }: { children: ReactNode }) {
       } else {
         setError(errorMessage(layoutResult.reason));
       }
+      // O escopo desta carga: config/layout valem para esta `version` da conta.
+      setLoadedVersion(authVersion);
       setLoading(false);
     })();
     return () => {
@@ -288,6 +297,7 @@ export function LayoutProvider({ children }: { children: ReactNode }) {
       config,
       loading,
       error,
+      loadedVersion,
       saved,
       draft,
       dirty,
@@ -312,6 +322,7 @@ export function LayoutProvider({ children }: { children: ReactNode }) {
       config,
       loading,
       error,
+      loadedVersion,
       saved,
       draft,
       dirty,

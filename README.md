@@ -28,8 +28,8 @@ ip -4 route get 1.1.1.1 | grep -oP 'src \K[\d.]+'
 - Rodou e não sabe se subiu? `docker compose ps` (os três serviços devem
   aparecer `healthy`) e `docker compose logs -f api`
 
-Painel em `/` · administração das fontes em `/#/admin` · documentação OpenAPI em
-`/api/docs`.
+Painel em `/` · configurações da conta em `/#/configuracoes` · administração das
+fontes em `/#/admin` · documentação OpenAPI em `/api/docs`.
 
 ## O que tem dentro
 
@@ -47,6 +47,8 @@ o registro das fontes e as contas.
 ondejoga/
 ├── docker-compose.yml      # sobe tudo (compose v2+)
 ├── .env.example            # variáveis opcionais (porta, credenciais, cache)
+├── RESET-<usuario>.txt     # senha temporária gerada pelo reset (só aparece
+│                           #   depois que você pedir; apague após usar)
 ├── docs/API_CONTRACT.md    # contrato backend ↔ frontend
 ├── api/                    # FastAPI + provedores + testes pytest
 └── web/                    # React + Vite + vitest + e2e Playwright (web/e2e)
@@ -66,23 +68,49 @@ ondejoga/
 
 A **API** funciona sem login no escopo global, mas a **interface** não mostra um
 time pronto: sem sessão o painel abre numa tela de boas-vindas com **Criar
-conta** e **Já tenho conta** — só depois de entrar é que o dashboard carrega. Para
-ter um painel seu, clique em **Criar conta** (ou `POST /api/auth/register`):
+conta** e **Já tenho conta** — só depois de entrar é que o dashboard carrega.
+
+### Ao criar a conta, escolha o time
+
+O registro é um passo a dois: **Criar conta** → **"Qual é o seu time?"**. O
+modal de escolha **não tem fechar nem Escape** — a busca (TheSportsDB) filtra
+enquanto você digita, você clica no resultado e confirma. Nesse momento o
+backend monta o time inteiro sozinho:
+
+- `ids` de **todos** provedores (TheSportsDB, ESPN, …) — cada API tem sua
+  numeração;
+- cor/escudo/nome/cidade/estado;
+- as `competitions` do time (ligas do cadastro + Copa do Brasil automática para
+  o Brasil), que alimentam o widget **Tabelas**.
+
+Até isso acontecer, `GET /api/config` responde `"owned": false` e o front **não**
+busca `GET /api/dashboard` — ninguém vê dados de um time que não escolheu. Vale
+também para contas antigas: ao entrar sem time, o portão cobra a escolha antes de
+mostrar o painel.
+
+### Sessão e privacidade
 
 - a sessão é um cookie httpOnly de 30 dias (`ondejoga_session`, só em `/api`);
 - quem se registra recebe uma **cópia** da config, do layout e das fontes — a
   partir daí **só ele** mexe no que é dele; nada vaza para os outros usuários;
 - cada usuário pode ter um time, uma cor e um layout diferentes — inclusive no
-  mesmo navegador (troque de conta e o painel muda junto).
+  mesmo navegador (troque de conta e o painel muda junto);
+- o F5 recarrega tudo **no escopo da conta** (o primeiro load é anônimo; quando a
+  sessão é resolvida, config/layout recarregam).
 
 | Ação | anônimo | logado |
 |---|---|---|
 | ver o dashboard | escopo global | o **seu** escopo |
 | salvar config/layout/fontes | `401` | o **seu** escopo |
+| `PUT /api/auth/profile` · `POST /api/auth/reset-file` · `POST /api/config/team` | `401` | a **sua** conta |
 
 ```bash
 curl -c jar -X POST http://localhost:3999/api/auth/register \
   -H 'Content-Type: application/json' -d '{"username":"matheus","password":"segredo123"}'
+# o passo de time é feito pela interface; via API:
+curl -b jar http://localhost:3999/api/teams/search?q=cruzeiro
+curl -b jar -X POST http://localhost:3999/api/config/team \
+  -H 'Content-Type: application/json' -d '{"provider":"thesportsdb","id":"134294"}'
 curl -b jar http://localhost:3999/api/auth/me
 curl -b jar -X POST http://localhost:3999/api/auth/logout
 ```
@@ -109,7 +137,11 @@ Tudo é configuração — a interface se rearranja sozinha.
 
 ### Trocar o time
 
-`PUT /api/config` (merge parcial) ou editar direto no banco:
+Pelo painel: engrenagem **Configurar** → `/#/configuracoes` → seção **Time** →
+busque e confirme (mesma busca do onboarding; o backend remonta `ids`,
+cores e `competitions`).
+
+Ou por API — `PUT /api/config` (merge parcial):
 
 ```bash
 curl -X PUT http://localhost:3999/api/config -H 'Content-Type: application/json' -d '{
@@ -133,8 +165,9 @@ curl -X PUT http://localhost:3999/api/config -H 'Content-Type: application/json'
 
 ### Reorganizar os cards
 
-`/#/admin` → painel **Personalizar** (arraste, reordene, renomeie, oculte, troque
-tamanho e cor de destaque) — ou por API:
+Painel → **Configurar** → `/#/configuracoes` → seção **Widgets** (arraste,
+reordene, renomeie, oculte, troque tamanho, opções e cor de destaque) — ou por
+API:
 
 ```bash
 curl -X PUT http://localhost:3999/api/layout -H 'Content-Type: application/json' -d '{
@@ -176,6 +209,47 @@ O widget **Tabelas** é navegável em abas:
 - nas fases finais a tabela é uma **chave**: confronto a confronto, com escudos,
   placar agregado, pênaltis, jogos e o vencedor destacado.
 
+### Tela de Configurações (`/#/configuracoes`)
+
+O painel antigo (gaveta lateral) virou uma **página inteira** acessível pela
+engrenagem **Configurar** (e por `#/configuracoes` direto). Seções:
+
+| Seção | O que faz |
+|---|---|
+| **Conta** | trocar nome de usuário e senha (exige a senha atual) |
+| **Time** | buscar e trocar de time (recompõe ids, cores e competições) |
+| **Aparência** | tema (Sistema/Claro/Escuro), cor de destaque e intervalo de refresh |
+| **Widgets** | mostrar/ocultar, reordenar, renomear, tamanho e opções de cada card |
+| **Atualização** | força `GET /api/dashboard?refresh=true` e restaura o layout padrão |
+| **Fontes** | CRUD de APIs (mesmo que o `/#/admin`, agora na sua conta) |
+
+#### Esqueci a senha: reset pelo arquivo
+
+Sem e-mail no projeto, o reset é por **arquivo na raiz do volume** — abra
+`/#/configuracoes` → **Conta** → *Gerar senha temporária* e confirme. O backend:
+
+1. gera a senha temporária (ex.: `42c6-eed2-4720-ca4b`);
+2. grava `RESET-<usuario>.txt` na **raiz da pasta do projeto** (no Docker é o
+   diretório do `docker-compose.yml`), dono = dono da pasta e modo `0600` — dá
+   para ler no host sem `sudo`;
+3. troca a senha e derruba as **outras** sessões da conta.
+
+A senha aparece na tela e também no arquivo:
+
+```text
+OndeJoga — senha temporária
+===========================
+Usuário: matheus
+Senha temporária: 42c6-eed2-4720-ca4b
+Gerado em: 2026-10-12 00:08:00 UTC
+
+Entre no OndeJoga com essa senha e troque-a em Configurações → Conta.
+Depois de usar, apague este arquivo.
+```
+
+`RESET-*.txt` já está no `.gitignore`. Quem prefere API: `POST /api/auth/reset-file`
+(devolve arquivo + senha no corpo).
+
 ### Tema
 
 - **A cor vem do time**: o tema claro e o escuro são derivados de
@@ -204,25 +278,36 @@ Testes rodam offline (rede bloqueada, banco SQLite temporário) — nada depende
 internet para passar.
 
 ```bash
-# Backend (138 testes: contas, escopo por usuário, resolução de fontes, cache,
-# fallback, CRUD, providers, fase de copa, chaves de mata-mata, imagens de
-# notícia, jogo ao vivo, API)
+# Backend (152 testes: contas, escopo por usuário, busca/seleção de time,
+# perfil + reset por arquivo, resolução de fontes, cache, fallback, CRUD,
+# providers, fase de copa, chaves de mata-mata, jogo ao vivo, API)
 cd api
 python -m venv .venv && .venv/bin/pip install -r requirements-dev.txt
 .venv/bin/python -m pytest
 
-# Frontend (49 testes: widgets, abas de competição/fase, chaves, tema derivado
-# do time, contas + tela de boas-vindas, drawer, admin, cliente HTTP, Tempo Real)
+# Frontend (58 testes: widgets, abas de competição/fase, chaves, tema derivado
+# do time, onboarding com escolha obrigatória de time, tela de Configurações,
+# admin, cliente HTTP, Tempo Real)
 cd web
 npm install
 npm test        # vitest
 npm run build   # checagem de tipos + build de produção
 
-# E2E (Playwright, 9 cenários contra o stack de verdade)
+# E2E (Playwright, 11 cenários contra o stack de verdade: portão, registro +
+# escolha de time, painel, tela de Configurações e reset por arquivo)
 npm run test:e2e:install                  # uma vez: baixa o Chromium
 docker compose up -d --build              # stack em http://localhost:3999
 npm run test:e2e                          # E2E_BASE_URL p/ outra porta/host
 ```
+
+### Front-end com Tailwind (opcional, incremental)
+
+Os estilos legados continuam em CSS puro (com variáveis do tema). Telas novas
+podem usar **Tailwind v4**: `@tailwindcss/vite` está ligado em `vite.config.ts`
+e `web/src/styles/tailwind.css` (importado antes de tudo em `main.tsx`) define
+só `@theme` + `@utilities` — **sem preflight**, ou seja, o visual existente não
+muda. `@source` varre `src/**/*.{ts,tsx}`, então basta escrever classes
+`bg-*`, `text-*`, `flex`… nos arquivos novos.
 
 ## Solução de problemas
 

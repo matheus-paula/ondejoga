@@ -19,3 +19,6 @@ htmlcov/
 .env
 *.log
 .DS_Store
+
+# Arquivos de reset de senha gerados na raiz do volume (senha temporária)
+RESET-*.txt

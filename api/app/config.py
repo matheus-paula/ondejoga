@@ -3,11 +3,16 @@ from __future__ import annotations
 
 import os
 from functools import lru_cache
+from pathlib import Path
 
 APP_NAME = "OndeJoga API"
 APP_VERSION = "1.0.0"
 
 DEFAULT_DATABASE_URL = "postgresql+psycopg://ondejoga:ondejoga@db:5432/ondejoga"
+
+# Raiz do projeto local (fora do container é a pasta do compose; no container a
+# imagem tem o código em /app, então o compose define RESET_DIR explicitamente).
+_PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 
 def _bool(name: str, default: str = "1") -> bool:
@@ -35,6 +40,8 @@ def get_settings() -> dict:
         ),
         # Cookie de sessão: ligue só atrás de HTTPS.
         "cookie_secure": _bool("COOKIE_SECURE", "0"),
+        # Raiz do volume do projeto: arquivos gerados (RESET-<usuario>.txt).
+        "reset_dir": os.getenv("RESET_DIR") or str(_PROJECT_ROOT),
         "version": APP_VERSION,
     }
 

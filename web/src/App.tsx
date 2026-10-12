@@ -3,6 +3,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import { LayoutProvider } from './context/LayoutContext';
 import { DashboardView } from './views/Dashboard';
+import { SettingsView } from './views/Settings';
 import { Admin } from './views/Admin';
 
 /** Roteamento interno minúsculo via `window.location.hash` (sem biblioteca). */
@@ -18,12 +19,15 @@ function useHashRoute(): string {
 
 export default function App() {
   const hash = useHashRoute();
-  const isAdmin = hash.startsWith('#/admin');
+
+  let view = <DashboardView />;
+  if (hash.startsWith('#/admin')) view = <Admin />;
+  else if (hash.startsWith('#/configuracoes')) view = <SettingsView />;
 
   return (
     <ThemeProvider>
       <AuthProvider>
-        <LayoutProvider>{isAdmin ? <Admin /> : <DashboardView />}</LayoutProvider>
+        <LayoutProvider>{view}</LayoutProvider>
       </AuthProvider>
     </ThemeProvider>
   );

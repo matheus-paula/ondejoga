@@ -29,6 +29,12 @@ Body: `{ "username": "matheus", "password": "..." }` (username ≥ 3, senha ≥ 
 
 `409` se o usuário já existir. Devolve o cookie de sessão junto.
 
+> **Onboarding obrigatório:** logo após o registro (e sempre que uma conta não
+> tem time escolhido) o front abre o modal `Qual é o seu time?` **sem botão de
+> fechar e sem Escape**. Só depois de `POST /api/config/team` o painel é
+> montado — enquanto `GET /api/config` responde `"owned": false`, o front não
+> busca `GET /api/dashboard`.
+
 ### `POST /api/auth/login`
 
 Body: `{ "username": "matheus", "password": "..." }` → mesmo formato. `401` em
@@ -39,10 +45,46 @@ credenciais inválidas.
 ### `GET /api/auth/me`
 
 ```json
-{ "authenticated": true, "user": { "id": 1, "username": "matheus", "created_at": "..." } }
+{ "authenticated": true, "user": { "id": 1, "username": "matheus", "team_name": "Cruzeiro" } }
 ```
 
 Sem cookie válido: `{ "authenticated": false, "user": null }` (nunca 401).
+`team_name` vem de `config.user.team.name` (vazio se a conta ainda não escolheu time).
+
+### `PUT /api/auth/profile` (exige login)
+
+```json
+{ "username": "novo_nome", "password": "senha_atual", "new_password": "nova_senha" }
+```
+
+Os três campos são opcionais; ao menos um é obrigatório (`400` caso contrário).
+Trocar senha ou nome **derruba as outras sessões** (a atual é preservada).
+`409` se o nome já existir, `401` se a senha atual estiver errada, `422` se a
+validação falhar (nome ≥ 3, senha nova ≥ 6).
+
+```json
+{ "user": { "id": 1, "username": "novo_nome", "team_name": "Cruzeiro" } }
+```
+
+### `POST /api/auth/reset-file` (exige login)
+
+Gera uma senha temporária, grava `RESET-<username>.txt` **na raiz do volume do
+projeto** (`RESET_DIR`, no Docker = `/ondejoga` = pasta do `docker-compose.yml`)
+e troca a senha da conta. O arquivo é escrito **antes** da troca: se a gravação
+falhar, a conta continua acessível com a senha atual.
+
+```json
+{
+  "username": "matheus",
+  "file": "RESET-matheus.txt",
+  "path": "/ondejoga/RESET-matheus.txt",
+  "password": "42c6-eed2-4720-ca4b"
+}
+```
+
+Arquivo gravado com modo `0600` e dono = dono da pasta montada (no Docker o
+processo é root e faz `chown` para o uid/gid da pasta, então o host lê sem
+`sudo`). As outras sessões da conta são destruídas; a atual permanece.
 
 ### Efeito no restante da API
 
@@ -114,6 +156,11 @@ Configuração do time/aplicação (persistida no PostgreSQL).
 ```
 
 `PUT /api/config` aceita o mesmo objeto parcial (merge profundo) e devolve o objeto completo.
+
+`GET /api/config` inclui `"owned": true|false` — `true` quando a config pertence
+ao escopo do usuário logado, `false` quando é a global (ex.: conta recém-criada,
+que ainda não escolheu time). É o campo que decide se o portão de escolha de
+time abre.
 
 Detalhes importantes:
 - `ids` guarda o id do time em **cada** provedor (cada API usa sua própria numeração). O resolvedor escolhe o id certo conforme a fonte que atende a capacidade.
@@ -288,7 +335,51 @@ Notas:
 
 `GET /api/dashboard?limit=8&refresh=true` — `refresh=true` ignora o cache agregado.
 
-## 5. Layout / widgets
+## 5. Times (busca e seleção)
+
+### `GET /api/teams/search?q=cruzeiro` (público)
+
+Busca de times para o onboarding e para trocar de time. `q` com ≥ 2 caracteres
+(`422` abaixo disso), `502` se todas as fontes caírem.
+
+```json
+{
+  "query": "cruzeiro",
+  "results": [
+    {
+      "provider": "thesportsdb",
+      "id": "134294",
+      "name": "Cruzeiro",
+      "short_name": "CRU",
+      "logo": "https://r2.thesportsdb.com/images/media/team/badge/upsvvu1473538059.png",
+      "country": "Brazil",
+      "league": "Brazilian Serie A"
+    }
+  ]
+}
+```
+
+Só times de futebol (fontes do tipo `team_search`), ordenados pelo começo do
+nome, limitado a 20 resultados. Cache 120s.
+
+### `POST /api/config/team` (exige login)
+
+```json
+{ "provider": "thesportsdb", "id": "134294" }
+```
+
+Monta o `config.team` completo a partir do id (lookup + IDs de cada provedor +
+`competitions` derivadas das ligas do time, com Copa do Brasil automática para o
+Brasil), grava no escopo do usuário e devolve o `config_payload`
+(`config` + `owned`). `404` se o id não existir, `502` se a fonte estiver fora.
+
+- Escolher **outro** time troca tudo (nome, cores, ids, competitions) e invalida
+  o cache do dashboard do usuário.
+- Escolher o **mesmo** time preserva cidade/estado/competitions editados à mão.
+- A troca só é permitida com sessão (`401`).
+
+
+## 6. Layout / widgets
 
 ### `GET /api/layout`
 
@@ -346,7 +437,7 @@ Body: objeto completo no formato acima. Valida: ids não duplicados, types conhe
 
 ### `POST /api/layout/reset` → devolve o layout padrão.
 
-## 6. CRUD de APIs (fontes de dados)
+## 7. CRUD de APIs (fontes de dados)
 
 ### `GET /api/admin/sources`
 
@@ -455,7 +546,7 @@ Para `static_json` não há `url`/`status_code` (nada é buscado) — `normalize
 }
 ```
 
-## 7. Fontes padrão (seed)
+## 8. Fontes padrão (seed)
 
 Roda automaticamente na primeira subida (só quando a tabela está vazia) e nunca sobrescreve fontes do usuário. Na subida também roda uma **migração leve**: capacidades/endpoints novos do padrão (ex.: `live_match` da ESPN) são acrescentados às fontes já semeadas em versões antigas, sem tocar no que o usuário editou.
 
@@ -474,7 +565,7 @@ Por que cada fonte ficou onde ficou (baseado em testes contra as APIs reais):
 - **Google Notícias RSS** varre notícias pelo nome do time (`{query}`).
 - **TV padrão (estático)** é o seu próprio mapeamento de transmissoras por competição — sem chamada externa.
 
-## 8. Resiliência (como o app se comporta quando uma API morre)
+## 9. Resiliência (como o app se comporta quando uma API morre)
 
 1. Para cada capacidade, o resolvedor tenta as fontes habilitadas em ordem de `priority`.
 2. Cada tentativa fica em cache (TTL por fonte) e alimenta `last_status`/`last_error` da fonte + o status em memória mostrado em `/api/admin/status`.

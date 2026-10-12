@@ -22,6 +22,8 @@ os.environ["ALLOW_NETWORK"] = "0"
 os.environ["DASHBOARD_CACHE_TTL"] = "0"
 os.environ["DEFAULT_CACHE_TTL"] = "300"
 os.environ["CORS_ORIGINS"] = "*"
+# Arquivos de reset de senha (RESET-<usuario>.txt) saem para uma pasta temporária.
+os.environ["RESET_DIR"] = str(_TMP / "resets")
 
 import pytest  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402

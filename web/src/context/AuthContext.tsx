@@ -19,6 +19,10 @@ interface AuthContextValue {
   register: (username: string, password: string) => Promise<void>;
   login: (username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  /** Recarrega a sessão (/api/auth/me) — usado após trocar o perfil. */
+  refresh: () => Promise<void>;
+  /** Substitui o usuário local (ex.: novo nome após renomear a conta). */
+  setUser: (user: AuthUser) => void;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -39,7 +43,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     void (async () => {
       try {
         const status = await api.me();
-        if (active) setUser(status.user ?? null);
+        if (active) {
+          setUser(status.user ?? null);
+          // O primeiro load de config/layout é anônimo: sessão existente no F5
+          // bumpa a versão para recarregar no escopo da conta.
+          if (status.user) setVersion((v) => v + 1);
+        }
       } catch {
         /* sem sessão: segue anônimo */
       } finally {
@@ -81,9 +90,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setVersion((v) => v + 1);
   }, []);
 
+  const refresh = useCallback(async () => {
+    try {
+      const status = await api.me();
+      setUser(status.user ?? null);
+    } catch {
+      /* sem sessão: mantém o estado atual */
+    }
+  }, []);
+
   const value = useMemo<AuthContextValue>(
-    () => ({ user, loading, version, register, login, logout }),
-    [user, loading, version, register, login, logout],
+    () => ({ user, loading, version, register, login, logout, refresh, setUser }),
+    [user, loading, version, register, login, logout, refresh],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

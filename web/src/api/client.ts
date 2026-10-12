@@ -7,9 +7,11 @@ import type {
   Dashboard,
   Layout,
   LiveMatch,
+  ResetFileResult,
   SourcePayload,
   SourceTestRequest,
   SourceTestResult,
+  TeamCandidate,
 } from './types';
 
 /** Erro HTTP normalizado: sempre temos `status` + `detail` legível. */
@@ -111,10 +113,25 @@ export const api = {
     }),
   logout: () => request<{ ok: boolean }>('/api/auth/logout', { method: 'POST' }),
   me: () => request<AuthStatus>('/api/auth/me'),
+  /** Troca usuário e/ou senha (a senha atual sempre é exigida). */
+  updateProfile: (payload: { current_password: string; username?: string; new_password?: string }) =>
+    request<{ user: AuthUser }>('/api/auth/profile', { method: 'PUT', ...json(payload) }),
+  /** Gera senha temporária em `RESET-<usuario>.txt` na raiz do volume. */
+  resetPasswordFile: () =>
+    request<ResetFileResult>('/api/auth/reset-file', { method: 'POST' }),
 
   getConfig: () => request<AppConfig>('/api/config'),
   putConfig: (config: Partial<AppConfig>) =>
     request<AppConfig>('/api/config', { method: 'PUT', ...json(config) }),
+
+  /** Busca times (TheSportsDB) para o onboarding e a troca de time. */
+  searchTeams: (query: string) =>
+    request<{ query: string; results: TeamCandidate[] }>(
+      `/api/teams/search?q=${encodeURIComponent(query)}`,
+    ),
+  /** Escolhe o time do usuário; devolve a config já salva dele. */
+  setMyTeam: (provider: string, id: string) =>
+    request<AppConfig>('/api/config/team', { method: 'POST', ...json({ provider, id }) }),
 
   getLayout: () => request<Layout>('/api/layout'),
   putLayout: (layout: Layout) =>

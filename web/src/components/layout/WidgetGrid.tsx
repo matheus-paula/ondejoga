@@ -27,7 +27,7 @@ export function WidgetGrid() {
 
   if (widgets.length === 0) {
     return (
-      <EmptyState message="Nenhum widget visível. Use “Personalizar” para ativar widgets." />
+      <EmptyState message="Nenhum widget visível. Ative-os em Configurações → Widgets." />
     );
   }
 

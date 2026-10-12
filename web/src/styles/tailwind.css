@@ -1,0 +1,15 @@
+/* Tailwind CSS v4 — uso incremental (novas telas: Configurações, TeamPicker).
+
+   Importamos só `theme` + `utilities`, SEM `preflight`: o reset global não
+   mexe em nada do CSS que já existe (tokens/base/layout/widgets/admin).
+
+   Como o CSS sem camada (`base.css`, `layout.css`…) vence CSS em `@layer`,
+   as classes utilitárias não sobrescrevem os estilos atuais dos componentes
+   legados — elas só estilizam elementos novos das telas novas. Assim dá para
+   usar `flex`, `gap-*`, `rounded-*`, `bg-[var(--surface)]` etc. com segurança. */
+@layer theme, base, components, utilities;
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' layer(utilities);
+
+/* Só o código-fonte do app gera utilitários (evita varrer node_modules). */
+@source '../**/*.{ts,tsx}';

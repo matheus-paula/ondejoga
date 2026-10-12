@@ -27,6 +27,11 @@ services:
       DASHBOARD_CACHE_TTL: ${DASHBOARD_CACHE_TTL:-60}
       DEFAULT_CACHE_TTL: ${DEFAULT_CACHE_TTL:-300}
       CORS_ORIGINS: ${CORS_ORIGINS:-*}
+      # Raiz do projeto (volume montado abaixo): é para cá que o reset de
+      # senha grava o arquivo RESET-<usuario>.txt com a senha temporária.
+      RESET_DIR: /ondejoga
+    volumes:
+      - .:/ondejoga
     expose:
       - "8000"
     depends_on:

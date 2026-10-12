@@ -1,0 +1,252 @@
+/* Telas novas: Configurações (#/configuracoes) e o seletor de time.
+
+   Estas são as **primeiras** telas escritas com o Tailwind instalado no
+   projeto (`src/styles/tailwind.css`), então o que é estrutura/layout já vem
+   das utilitárias no JSX. Este arquivo guarda só o que é visual específico e
+   reaproveitável — cartões, escudos e o resultado da busca de time. */
+
+/* ------------------------------------------------------------------ */
+/* Página de Configurações                                             */
+/* ------------------------------------------------------------------ */
+.settings-page {
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+.settings-main {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 24px 16px 64px;
+}
+
+.settings-main > h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+
+/* Cartão de uma seção (Conta, Time, Aparência, Widgets…). */
+.settings-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.settings-section > h2 {
+  font-size: 1.05rem;
+  font-weight: 650;
+  margin: 0 0 4px;
+}
+
+.settings-section > h3 {
+  font-size: 0.95rem;
+  font-weight: 650;
+  margin: 0 0 4px;
+}
+
+.settings-lead {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin: 0 0 16px;
+}
+
+.settings-lead code,
+.settings-reset code {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1px 5px;
+  font-size: 0.8em;
+}
+
+/* Formulário da conta + linha de botões de uma seção. */
+.settings-form {
+  display: grid;
+  gap: 16px;
+}
+
+.settings-grid {
+  display: grid;
+  gap: 12px;
+}
+
+/* Os utilitários do Tailwind cuidam do grid responsivo; esta classe fica como
+   âncora caso alguém queira um ajuste fino sem mexer no JSX. */
+.settings-grid > .field {
+  min-width: 0;
+}
+
+.settings-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+/* Bloco "Esqueci a senha" (reset via arquivo). */
+.settings-reset {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.settings-confirm {
+  background: var(--warn-bg);
+  border: 1px solid var(--warn);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  margin-top: 8px;
+}
+
+.settings-confirm > p {
+  margin: 0 0 10px;
+  font-size: 0.875rem;
+  color: var(--text);
+}
+
+.settings-confirm .settings-actions {
+  margin-top: 0;
+}
+
+.settings-reset-file {
+  margin-top: 12px;
+  background: var(--success-bg);
+  border: 1px solid var(--success);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  font-size: 0.875rem;
+}
+
+.settings-reset-file p {
+  margin: 0 0 4px;
+}
+
+.settings-reset-file p:last-child {
+  margin-bottom: 0;
+}
+
+/* ------------------------------------------------------------------ */
+/* Time atual (Configurações → Time)                                   */
+/* ------------------------------------------------------------------ */
+.settings-team-current {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  margin-bottom: 16px;
+}
+
+.settings-team-badge {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  flex: none;
+}
+
+.settings-team-badge--placeholder {
+  display: inline-block;
+  background: var(--border);
+  border-radius: 50%;
+}
+
+.settings-team-name {
+  margin: 0;
+  font-weight: 650;
+}
+
+.settings-team-meta {
+  margin: 2px 0 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* ------------------------------------------------------------------ */
+/* Seletor de time (busca)                                             */
+/* ------------------------------------------------------------------ */
+.team-picker {
+  display: grid;
+  gap: 12px;
+}
+
+.team-picker-status {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  min-height: 1.1rem;
+}
+
+.team-picker-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.team-picker-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  cursor: pointer;
+  text-align: left;
+  color: var(--text);
+  font: inherit;
+  transition: border-color var(--transition), background var(--transition);
+}
+
+.team-picker-item:hover {
+  background: var(--row-hover);
+}
+
+.team-picker-item.is-selected {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.team-picker-badge {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  flex: none;
+}
+
+.team-picker-badge--placeholder {
+  display: inline-block;
+  background: var(--border);
+  border-radius: 50%;
+}
+
+.team-picker-name {
+  display: grid;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  min-width: 0;
+}
+
+.team-picker-name strong {
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
+.team-picker-confirm {
+  justify-self: start;
+}
+
+/* Passo de time dentro do modal de conta. */
+.auth-team {
+  display: grid;
+  gap: 12px;
+}

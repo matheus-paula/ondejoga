@@ -9,9 +9,11 @@ import activity from '@iconify-icons/lucide/activity';
 import calendar from '@iconify-icons/lucide/calendar';
 import check from '@iconify-icons/lucide/check';
 import chevronDown from '@iconify-icons/lucide/chevron-down';
+import chevronLeft from '@iconify-icons/lucide/chevron-left';
 import chevronUp from '@iconify-icons/lucide/chevron-up';
 import externalLink from '@iconify-icons/lucide/external-link';
 import info from '@iconify-icons/lucide/info';
+import key from '@iconify-icons/lucide/key';
 import layoutGrid from '@iconify-icons/lucide/layout-grid';
 import listOrdered from '@iconify-icons/lucide/list-ordered';
 import logIn from '@iconify-icons/lucide/log-in';
@@ -38,9 +40,11 @@ export const ICONS = {
   calendar,
   check,
   chevronDown,
+  chevronLeft,
   chevronUp,
   externalLink,
   info,
+  key,
   layoutGrid,
   listOrdered,
   logIn,

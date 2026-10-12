@@ -1,3 +1,4 @@
+import { useId } from 'react';
 import type { ThemePref } from '../../api/types';
 import { useTheme } from '../../context/ThemeContext';
 import { Icon, type IconName } from './Icon';
@@ -15,6 +16,9 @@ interface Props {
 
 export function ThemeToggle({ onSelect }: Props) {
   const { pref, setPref } = useTheme();
+  // Uma instância por grupo: painel e Configurações podem existir ao mesmo
+  // tempo na página e dois grupos com o mesmo `name` se misturariam.
+  const groupName = `theme-preference-${useId()}`;
 
   return (
     <fieldset className="theme-toggle">
@@ -26,7 +30,7 @@ export function ThemeToggle({ onSelect }: Props) {
         >
           <input
             type="radio"
-            name="theme-preference"
+            name={groupName}
             value={option.value}
             checked={pref === option.value}
             onChange={() => {

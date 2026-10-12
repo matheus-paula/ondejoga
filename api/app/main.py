@@ -8,7 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from .config import APP_NAME, APP_VERSION, get_settings
 from .db import get_sessionmaker, init_db
-from .routers import admin, auth, data, settings
+from .routers import admin, auth, data, settings, teams
 from .seed import seed_sources, upgrade_scopes
 from .services.auth import purge_expired
 
@@ -51,6 +51,7 @@ def create_app() -> FastAPI:
     app.include_router(settings.router)
     app.include_router(admin.router)
     app.include_router(auth.router)
+    app.include_router(teams.router)
 
     @app.get("/api")
     def info() -> dict:
@@ -72,6 +73,10 @@ def create_app() -> FastAPI:
                 "/api/auth/register",
                 "/api/auth/login",
                 "/api/auth/me",
+                "/api/auth/profile",
+                "/api/auth/reset-file",
+                "/api/teams/search",
+                "/api/config/team",
                 "/api/admin/sources",
                 "/api/admin/status",
             ],

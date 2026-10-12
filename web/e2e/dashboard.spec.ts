@@ -71,16 +71,30 @@ test('tabela de competição em abas, com a fase atual selecionada', async ({ pa
   }
 });
 
-test('drawer de personalização abre e o tema alterna', async ({ page }) => {
+test('tela de Configurações abre pelo botão e o tema alterna', async ({ page }) => {
   await page.getByRole('button', { name: 'Configurar' }).click();
-  const drawer = page.getByRole('dialog', { name: 'Personalizar' });
-  await expect(drawer).toBeVisible();
 
-  // fecha
-  await drawer.getByRole('button', { name: 'Fechar personalização' }).click();
-  await expect(drawer).toHaveCount(0);
+  // rota interna + seções da tela cheia (substituiu a gaveta)
+  await expect(page).toHaveURL(/#\/configuracoes$/);
+  const settings = page.getByTestId('settings-page');
+  await expect(settings).toBeVisible();
+  for (const title of ['Conta', 'Time', 'Aparência', 'Widgets']) {
+    await expect(settings.getByRole('heading', { name: title, level: 2 })).toBeVisible();
+  }
 
-  // alterna claro/escuro
+  // o time atual aparece preenchido (Cruzeiro, escolhido no onboarding)
+  await expect(settings.getByText('Cruzeiro').first()).toBeVisible();
+
+  // volta ao painel
+  await settings.getByRole('button', { name: 'Voltar ao painel' }).click();
+  await expect(page).toHaveURL(/#\/$/);
+  await expect(page.getByRole('heading', { name: 'Próximo Jogo' })).toBeVisible();
+});
+
+test('tema alterna claro/escuro na tela de Configurações', async ({ page }) => {
+  await page.getByRole('button', { name: 'Configurar' }).click();
+  await expect(page.getByTestId('settings-page')).toBeVisible();
+
   const html = page.locator('html');
   const initial = await html.getAttribute('data-theme');
   await page.getByRole('radio', { name: /Escuro/ }).check();

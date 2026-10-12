@@ -6,7 +6,6 @@ import { useLayout } from '../../context/LayoutContext';
 import { updatedAgoLabel } from '../../lib/format';
 import { Icon } from '../ui/Icon';
 import { ThemeToggle } from '../ui/ThemeToggle';
-import { AuthModal } from './AuthModal';
 import { SourceStatusBadge } from './SourceStatusBadge';
 
 function UpdatedAgo({ timestamp }: { timestamp: number | null }) {
@@ -26,15 +25,20 @@ function UpdatedAgo({ timestamp }: { timestamp: number | null }) {
   );
 }
 
-interface HeaderProps {
-  onOpenSettings: () => void;
+/** Abre a tela de Configurações (rota interna `#/configuracoes`). */
+function openSettings() {
+  window.location.hash = '#/configuracoes';
 }
 
-export function Header({ onOpenSettings }: HeaderProps) {
+/**
+ * Cabeçalho do painel. O modal de conta vive no `DashboardView` (precisa
+ * sobreviver ao registro para cobrar o time), então aqui só fica o atalho para
+ * Configurações — que agora é uma tela cheia, não uma gaveta.
+ */
+export function Header() {
   const { config } = useLayout();
   const { data, lastUpdatedAt } = useDashboard();
   const { user, logout } = useAuth();
-  const [authOpen, setAuthOpen] = useState(false);
   const team = data?.team ?? config.team;
   const location = [team.city, team.state].filter(Boolean).join(' · ');
   const style = { '--team-color': team.primary_color ?? 'var(--accent)' } as CSSProperties;
@@ -72,22 +76,15 @@ export function Header({ onOpenSettings }: HeaderProps) {
               Sair
             </button>
           </span>
-        ) : (
-          <button type="button" className="btn btn--ghost" onClick={() => setAuthOpen(true)}>
-            <Icon name="logIn" size={15} />
-            Entrar
-          </button>
-        )}
-        {/* Configurações só fazem sentido para quem tem conta (cada um tem o
-            próprio layout). Visitante cai no onboarding de criação de conta. */}
+        ) : null}
+        {/* Só faz sentido para quem tem conta (cada um tem o próprio layout). */}
         {user ? (
-          <button type="button" className="btn btn--primary" onClick={onOpenSettings}>
+          <button type="button" className="btn btn--primary" onClick={openSettings}>
             <Icon name="settings" size={15} />
             Configurar
           </button>
         ) : null}
       </div>
-      <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
     </header>
   );
 }

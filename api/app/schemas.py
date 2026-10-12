@@ -390,3 +390,38 @@ class UserOut(Strict):
 class AuthStatus(Strict):
     authenticated: bool
     user: UserOut | None = None
+
+
+class ProfileUpdate(Strict):
+    """Troca de usuário e/ou senha (a senha atual sempre é exigida)."""
+
+    current_password: str = Field(min_length=1, max_length=200)
+    username: str | None = Field(default=None, min_length=3, max_length=40)
+    new_password: str | None = Field(default=None, min_length=6, max_length=200)
+
+
+class ResetFileResponse(Strict):
+    """Senha temporária gravada em arquivo na raiz do volume do projeto."""
+
+    username: str
+    file: str
+    path: str
+    password: str
+
+
+# --------------------------------------------------------------------------- #
+# Busca/seleção de time (onboarding + troca de time)
+# --------------------------------------------------------------------------- #
+class TeamCandidate(Strict):
+    provider: str
+    id: str
+    name: str
+    short_name: str | None = None
+    logo: str | None = None
+    country: str | None = None
+    league: str | None = None
+
+
+class SelectTeamRequest(Strict):
+    provider: Literal["thesportsdb"] = "thesportsdb"
+    id: str = Field(min_length=1, max_length=32)

@@ -7,14 +7,17 @@ from __future__ import annotations
 
 import hashlib
 import hmac
+import os
 import re
 import secrets
 from copy import deepcopy
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
+from ..config import get_settings
 from ..models import ApiSource, User, UserSession, utcnow
 from ..seed import seed_sources
 from ..services.store import DEFAULT_LAYOUT, has_own_layout, save_layout
@@ -97,6 +100,28 @@ def authenticate(db: Session, username: str, password: str) -> User:
     return user
 
 
+def set_password(db: Session, user: User, new_password: str) -> None:
+    """Troca a senha do usuário (validando o tamanho mínimo)."""
+    user.password_hash = hash_password(validate_password(new_password))
+    db.commit()
+    db.refresh(user)
+
+
+def change_username(db: Session, user: User, username: str) -> None:
+    """Renomeia a conta, reclamando se o usuário já estiver em uso."""
+    username = validate_username(username)
+    if username == user.username:
+        return
+    exists = db.scalars(
+        select(User).where(User.username == username, User.id != user.id)
+    ).first()
+    if exists is not None:
+        raise AuthError("já existe uma conta com esse usuário", 409)
+    user.username = username
+    db.commit()
+    db.refresh(user)
+
+
 def _seed_user_scope(db: Session, user_id: int) -> None:
     """Dá ao novo usuário o mesmo ponto de partida do app (fontes + layout)."""
     seed_sources(db, user_id=user_id)
@@ -150,11 +175,72 @@ def destroy_session(db: Session, token: str | None) -> None:
     db.commit()
 
 
+def destroy_other_sessions(db: Session, user_id: int, keep_token: str | None = None) -> int:
+    """Encerra todas as sessões do usuário menos a atual (troca de senha)."""
+    stmt = delete(UserSession).where(UserSession.user_id == user_id)
+    if keep_token:
+        stmt = stmt.where(UserSession.token_hash != token_digest(keep_token))
+    result = db.execute(stmt)
+    db.commit()
+    return result.rowcount or 0
+
+
 def purge_expired(db: Session) -> int:
     """Limpa sessões vencidas (chamada no startup)."""
     result = db.execute(delete(UserSession).where(UserSession.expires_at < utcnow()))
     db.commit()
     return result.rowcount or 0
+
+
+# --------------------------------------------------------------------------- #
+# Reset de senha via arquivo (autoatendimento no servidor)
+# --------------------------------------------------------------------------- #
+def temporary_password() -> str:
+    """Senha temporária legível: 4 grupos de 4 dígitos hex (~64 bits)."""
+    raw = secrets.token_hex(8)
+    return "-".join(raw[i : i + 4] for i in range(0, 16, 4))
+
+
+def reset_file_path(username: str) -> Path:
+    directory = Path(get_settings().get("reset_dir") or ".")
+    return directory / f"RESET-{username}.txt"
+
+
+def write_reset_file(user: User, password: str) -> Path:
+    """Grava `RESET-<usuario>.txt` na raiz do volume do projeto.
+
+    O arquivo é escrito **antes** da senha ser trocada: se a gravação falhar, a
+    conta continua acessível com a senha atual.
+
+    No Docker o processo roda como root e o volume é da máquina anfitriã; o
+    dono do arquivo passa a ser o dono da pasta montada para que o usuário
+    consiga ler o arquivo no host sem `sudo`.
+    """
+    path = reset_file_path(user.username)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    stamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
+    path.write_text(
+        "OndeJoga — senha temporária\n"
+        "===========================\n"
+        f"Usuário: {user.username}\n"
+        f"Senha temporária: {password}\n"
+        f"Gerado em: {stamp}\n"
+        "\n"
+        "Entre no OndeJoga com essa senha e troque-a em Configurações → Conta.\n"
+        "Depois de usar, apague este arquivo.\n",
+        encoding="utf-8",
+    )
+    try:
+        owner = path.parent.stat()
+        if (owner.st_uid, owner.st_gid) != (os.getuid(), os.getgid()):
+            os.chown(path, owner.st_uid, owner.st_gid)
+    except (OSError, AttributeError):  # sem permissão/sem suporte a chown
+        pass
+    try:
+        path.chmod(0o600)  # legível só pelo dono da pasta do projeto
+    except OSError:
+        pass
+    return path
 
 
 # --------------------------------------------------------------------------- #

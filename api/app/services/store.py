@@ -195,6 +195,18 @@ def _own_config(db: Session, user_id: int | None) -> dict:
     return deep_merge(DEFAULT_CONFIG, base)
 
 
+def config_payload(db: Session, user_id: int | None = None) -> dict:
+    """Config + flag `owned` (o escopo já escolheu/salvou o time).
+
+    `owned=false` significa que o usuário ainda herda a config global e, no
+    onboarding, precisa escolher o próprio time.
+    """
+    value = get_config(db, user_id)
+    if isinstance(value, dict):
+        return {**value, "owned": has_own_config(db, user_id)}
+    return value
+
+
 def _merge_missing_widgets(layout: dict) -> dict:
     """Acrescenta widgets novos do padrão a layouts já gravados (upgrade).
 
@@ -257,8 +269,13 @@ def has_own_layout(db: Session, user_id: int | None) -> bool:
 
 
 def has_own_config(db: Session, user_id: int | None) -> bool:
-    """True quando o usuário já personalizou a config (para o front não sobrescrever)."""
-    return _load(db, CONFIG_KEY, user_id) is not None
+    """True quando o escopo já tem config própria (linha própria na tabela).
+
+    Checagem **estrita** pela chave escopada: quem nunca escolheu o time herda
+    a config global, mas não é dono de nada — é isso que o portão de
+    onboarding usa para exigir a escolha do time.
+    """
+    return db.get(Setting, _scoped_key(CONFIG_KEY, user_id)) is not None
 
 
 def visible_widgets(layout: dict) -> list[WidgetConfig]:
