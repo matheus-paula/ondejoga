@@ -1,22 +1,23 @@
 # OndeJoga ⚽
 
-Dashboard do **seu time** — próximo jogo, último resultado, **jogo ao vivo em tempo
-real** (widget "Tempo Real", só enquanto o time está em campo), tabelas dos
-campeonatos disputados, notícias e estatísticas — com **dark/light theme**,
-**contas** (cada um acompanha o seu time, em privado) e um **CRUD de APIs** para
-trocar as fontes de dados quando uma API cair.
+Painel do time no navegador: próximo jogo, último resultado, placar ao vivo
+(enquanto o jogo roda), tabelas dos campeonatos, notícias e estatísticas.
 
-Vem configurado para o **Cruzeiro-MG**, mas trocar de time é uma edição de
-configuração (nada de código).
+Fiz porque queria um endereço só, na rede de casa, que abrisse no celular e na
+TV da sala — sem app de terceiro, sem anúncio e sem depender de conta em site
+esportivo.
 
-## Subir tudo com um comando
+Vem de fábrica apontado para o Cruzeiro (meu time). Trocar é configuração,
+não código.
+
+## Rodando
 
 ```bash
 docker compose up --build
 ```
 
-Pronto: **http://localhost:3999** — ou pelo IP da máquina na rede local, para
-acessar de outro aparelho. Só **uma porta** é publicada.
+Abre em http://localhost:3999. Para acessar de outro aparelho da casa, use o IP
+da máquina — só essa porta fica exposta:
 
 ```bash
 # descobre o IP que a máquina usa na rede local (Linux)
@@ -24,90 +25,86 @@ ip -4 route get 1.1.1.1 | grep -oP 'src \K[\d.]+'
 # => http://172.19.33.101:3999   (nesta máquina)
 ```
 
-- Porta ocupada? `APP_PORT=4000 docker compose up --build`
-- Rodou e não sabe se subiu? `docker compose ps` (os três serviços devem
-  aparecer `healthy`) e `docker compose logs -f api`
+Porta ocupada: `APP_PORT=4000 docker compose up --build`. Não sabe se subiu
+mesmo? `docker compose ps` — os três serviços têm que aparecer `healthy` — e
+`docker compose logs -f api` se algo travar.
 
-Painel em `/` · configurações da conta em `/#/configuracoes` · administração das
-fontes em `/#/admin` · documentação OpenAPI em `/api/docs`.
+Onde fica cada coisa: painel em `/`, configurações da conta em `/#/configuracoes`,
+cadastro de fontes em `/#/admin`, Swagger em `/api/docs`.
 
-## O que tem dentro
+## Os três serviços
 
 | Serviço | Imagem | O que faz | Porta |
 |---|---|---|---|
-| `web` | nginx | Serve o bundle do React e faz proxy de `/api` para a API | **3999 → 80** (única exposta) |
-| `api` | python:3.12-slim | FastAPI: resolve fontes, cache, fallback, CRUD | interna (8000) |
-| `db` | postgres:16-alpine | Guarda **só** configuração (`settings`, `api_sources`, `users`, `user_sessions`) | interna (5432) |
+| `web` | nginx | Serve o bundle do React e faz proxy de `/api` | **3999 → 80** (única exposta) |
+| `api` | python:3.12-slim | FastAPI: resolve as fontes, cache, fallback, CRUD | interna (8000) |
+| `db` | postgres:16-alpine | Só configuração e contas | interna (5432) |
 
-Os dados esportivos **não** ficam no banco — vêm das APIs a cada refresh (com
-cache em memória). O PostgreSQL existe apenas para persistir suas configurações,
-o registro das fontes e as contas.
+Dado esportivo não vai pro banco. Ele vem das APIs a cada refresh e vive no
+cache em memória. O PostgreSQL guarda apenas config, layout, fontes cadastradas
+e usuários.
 
 ```
 ondejoga/
 ├── docker-compose.yml      # sobe tudo (compose v2+)
-├── .env.example            # variáveis opcionais (porta, credenciais, cache)
-├── RESET-<usuario>.txt     # senha temporária gerada pelo reset (só aparece
-│                           #   depois que você pedir; apague após usar)
+├── .env.example            # variáveis opcionais
+├── RESET-<usuario>.txt     # senha temporária do reset (só aparece se você pedir)
 ├── docs/API_CONTRACT.md    # contrato backend ↔ frontend
 ├── api/                    # FastAPI + provedores + testes pytest
 └── web/                    # React + Vite + vitest + e2e Playwright (web/e2e)
 ```
 
-## Fontes de dados (todas verificadas ao vivo)
+## De onde vem o dado
 
-| Fonte | Capacidades | Chave |
+| Fonte | Dá o quê | Chave |
 |---|---|---|
-| TheSportsDB | time, próximo jogo, último jogo | grátis (`3`) |
-| ESPN | calendário/resultados, estatísticas, escudos dos times, **jogo ao vivo** (Tempo Real) | nenhuma |
+| TheSportsDB | time, próximo jogo, último jogo | a grátis (`3`) |
+| ESPN | calendário, estatísticas, escudos, jogo ao vivo | nenhuma |
 | Wikipédia (MediaWiki) | tabelas de classificação completas | nenhuma |
 | Google Notícias (RSS) | notícias | nenhuma |
-| TV estático | transmissoras por competição | nenhuma (é o seu mapeamento) |
+| TV estático | transmissoras por competição | você quem mapeia |
 
-## Contas (cada um com o seu time)
+Todas testadas ao vivo enquanto eu montava o painel.
 
-A **API** funciona sem login no escopo global, mas a **interface** não mostra um
-time pronto: sem sessão o painel abre numa tela de boas-vindas com **Criar
-conta** e **Já tenho conta** — só depois de entrar é que o dashboard carrega.
+## Conta, time e privacidade
 
-### Ao criar a conta, escolha o time
+A API responde sem login no escopo global, mas a interface não mostra time
+nenhum para visitante: sem sessão aparece a tela de boas-vindas, com *Criar
+conta* e *Já tenho conta*.
 
-O registro é um passo a dois: **Criar conta** → **"Qual é o seu time?"**. O
-modal de escolha **não tem fechar nem Escape** — a busca (TheSportsDB) filtra
-enquanto você digita, você clica no resultado e confirma. Nesse momento o
-backend monta o time inteiro sozinho:
+Quem se registra passa por dois passos — os dados de acesso e depois **"Qual é
+o seu time?"**. Esse segundo modal não tem botão de fechar nem Escape: você
+busca, clica no resultado e confirma, e só aí o painel abre. Enquanto isso não
+acontece, o `GET /api/config` responde `owned: false` e o front nem chega a
+chamar o dashboard. Vale para conta antiga também: entrar sem time, o portão
+cobra a escolha.
 
-- `ids` de **todos** provedores (TheSportsDB, ESPN, …) — cada API tem sua
-  numeração;
-- cor/escudo/nome/cidade/estado;
-- as `competitions` do time (ligas do cadastro + Copa do Brasil automática para
-  o Brasil), que alimentam o widget **Tabelas**.
+Na confirmação o backend monta o time inteiro: os ids de cada provedor (cada
+API tem sua própria numeração), cor, escudo, cidade e as competições do clube
+(ligas do cadastro, mais Copa do Brasil automática para time brasileiro). É
+isso que alimenta o widget de Tabelas.
 
-Até isso acontecer, `GET /api/config` responde `"owned": false` e o front **não**
-busca `GET /api/dashboard` — ninguém vê dados de um time que não escolheu. Vale
-também para contas antigas: ao entrar sem time, o portão cobra a escolha antes de
-mostrar o painel.
+Sobre a sessão:
 
-### Sessão e privacidade
-
-- a sessão é um cookie httpOnly de 30 dias (`ondejoga_session`, só em `/api`);
-- quem se registra recebe uma **cópia** da config, do layout e das fontes — a
-  partir daí **só ele** mexe no que é dele; nada vaza para os outros usuários;
-- cada usuário pode ter um time, uma cor e um layout diferentes — inclusive no
-  mesmo navegador (troque de conta e o painel muda junto);
-- o F5 recarrega tudo **no escopo da conta** (o primeiro load é anônimo; quando a
-  sessão é resolvida, config/layout recarregam).
+- cookie httpOnly de 30 dias (`ondejoga_session`), só em `/api`;
+- ao registrar você recebe uma cópia da config, do layout e das fontes — depois
+  disso só você mexe no que é seu, e nada vaza para os outros usuários;
+- dá para ter contas com times, cores e layouts diferentes no mesmo navegador;
+- o F5 recarrega tudo no escopo da sua conta (o primeiro load é anônimo; quando
+  a sessão é resolvida, config e layout recarregam).
 
 | Ação | anônimo | logado |
 |---|---|---|
-| ver o dashboard | escopo global | o **seu** escopo |
-| salvar config/layout/fontes | `401` | o **seu** escopo |
-| `PUT /api/auth/profile` · `POST /api/auth/reset-file` · `POST /api/config/team` | `401` | a **sua** conta |
+| ver o dashboard | escopo global | o seu escopo |
+| salvar config/layout/fontes | `401` | o seu escopo |
+| `PUT /api/auth/profile` · `POST /api/auth/reset-file` · `POST /api/config/team` | `401` | a sua conta |
+
+Pela linha de comando:
 
 ```bash
 curl -c jar -X POST http://localhost:3999/api/auth/register \
   -H 'Content-Type: application/json' -d '{"username":"matheus","password":"segredo123"}'
-# o passo de time é feito pela interface; via API:
+# o passo do time é feito pela interface; via API seria:
 curl -b jar http://localhost:3999/api/teams/search?q=cruzeiro
 curl -b jar -X POST http://localhost:3999/api/config/team \
   -H 'Content-Type: application/json' -d '{"provider":"thesportsdb","id":"134294"}'
@@ -115,33 +112,28 @@ curl -b jar http://localhost:3999/api/auth/me
 curl -b jar -X POST http://localhost:3999/api/auth/logout
 ```
 
-### E quando uma API cair?
+## E quando uma API cair?
 
-O resolvedor tenta as fontes habilitadas em ordem de prioridade. Se **todas**
-falharem, o dashboard entrega os dados de backup embarcados
-(`api/app/data/fallback.json`) e mostra um selo "dados de fallback" no cabeçalho.
-A tela nunca fica vazia.
+API gratuita quebra, e quebra justo quando tem jogo. O resolvedor tenta as
+fontes habilitadas em ordem de prioridade; se todas falharem, o dashboard cai
+nos dados de backup embarcados (`api/app/data/fallback.json`) e mostra um selo
+"dados de fallback" no cabeçalho. A tela não fica vazia.
 
-Para trocar uma fonte que morreu, sem tocar em código:
+Para trocar a fonte que morreu, sem tocar em código:
 
 1. `/#/admin` → **Nova fonte** (ou `POST /api/admin/sources`) — escolha o `kind`
    (`url_json` aceita qualquer REST API com `mapping` declarativo);
-2. **Testar** a fonte e conferir o payload normalizado;
-3. Ajuste a `priority` para ela assumir e desabilite a fonte quebrada.
+2. use **Testar** e confira o payload normalizado;
+3. suba a `priority` para ela assumir e desabilite a fonte quebrada.
 
-Detalhes de cada endpoint em [`docs/API_CONTRACT.md`](docs/API_CONTRACT.md).
-
-## Personalizar (máxima flexibilidade)
-
-Tudo é configuração — a interface se rearranja sozinha.
+## Personalizar
 
 ### Trocar o time
 
-Pelo painel: engrenagem **Configurar** → `/#/configuracoes` → seção **Time** →
-busque e confirme (mesma busca do onboarding; o backend remonta `ids`,
-cores e `competitions`).
+No painel, engrenagem **Configurar** → seção **Time**: busca e confirma, mesma
+coisa do onboarding — o backend remonta ids, cores e competições.
 
-Ou por API — `PUT /api/config` (merge parcial):
+Ou à mão, via `PUT /api/config` (faz merge parcial):
 
 ```bash
 curl -X PUT http://localhost:3999/api/config -H 'Content-Type: application/json' -d '{
@@ -158,16 +150,14 @@ curl -X PUT http://localhost:3999/api/config -H 'Content-Type: application/json'
 }'
 ```
 
-- `ids` guarda o id do time **em cada provedor** (cada API usa numeração própria).
-- `competitions[].page` (opcional) é o título da página da Wikipédia com a
-  classificação; `{season}` vira o ano corrente. Sem `page`, a competição fica
-  fora da seção de tabelas.
+`ids` guarda o id do time em cada provedor. `competitions[].page` é o título da
+página da Wikipédia com a classificação (`{season}` vira o ano corrente); sem
+`page`, a competição fica de fora da seção de tabelas.
 
-### Reorganizar os cards
+### Os cards
 
-Painel → **Configurar** → `/#/configuracoes` → seção **Widgets** (arraste,
-reordene, renomeie, oculte, troque tamanho, opções e cor de destaque) — ou por
-API:
+Em **Configurar** → **Widgets** você arrasta, reordena, renomeia, oculta, troca
+tamanho, opções e cor de destaque. Por API:
 
 ```bash
 curl -X PUT http://localhost:3999/api/layout -H 'Content-Type: application/json' -d '{
@@ -179,62 +169,56 @@ curl -X PUT http://localhost:3999/api/layout -H 'Content-Type: application/json'
 curl -X POST http://localhost:3999/api/layout/reset   # volta ao padrão
 ```
 
-Widgets disponíveis: `my_team` (identidade do clube + estatísticas, num cartão só),
+Widgets: `my_team` (identidade do clube + estatísticas no mesmo cartão),
 `next_match`, `last_match`, `live_match`, `standings`, `news`, `stats`, `form`.
-`team_header` e `stats` continuam aceitos em layouts antigos. Tamanhos: `sm`,
-`md`, `lg`, `full`.
+Layouts gravados em versão antiga continuam aceitos (`team_header` e `stats`),
+e ganham os widgets novos do padrão no fim, sem mexer no que você já
+personalizou. Tamanhos: `sm`, `md`, `lg`, `full`.
 
-Os cartões de jogo são **padronizados**: mesmo escudo (44px) nos dois lados do
-Próximo/Último Jogo e do Tempo Real, e o placar sempre **colado ao "×"**
-(`escudo nome 2 × 0 nome escudo`), nunca junto ao nome do clube.
+Os cartões de jogo são padronizados: mesmo escudo (44px) dos dois lados, e o
+placar sempre colado ao "×" (`escudo nome 2 × 0 nome escudo`), nunca junto ao
+nome do clube.
 
-O widget **Tempo Real** (`live_match`) aparece **só enquanto o time estiver em
-campo** — placar atual, período/cronômetro (ex.: "87'"), estádio e o selo
-pulsante "AO VIVO". Quando não há jogo ele nem é renderizado (o front consulta
-`GET /api/live-match` a cada 20s com jogo rolando, 60s parado; a resposta é
-`null` quando o time não está jogando). Instalações antigas recebem o widget
-automaticamente no fim do layout, sem mexer no que você já personalizou.
+O **Tempo Real** (`live_match`) só aparece enquanto o time está em campo —
+placar, período/cronômetro (ex.: "87'"), estádio e o selo AO VIVO. Sem jogo ele
+nem é renderizado; o front consulta `GET /api/live-match` a cada 20s com jogo
+rolando e 60s parado, e a resposta é `null` quando o time não está jogando.
 
-Cada tabela **descreve a competição**: nome, logo, formato (pontos corridos ou
-mata-mata), grupo (em fase de grupos) e, nas copas, a **fase atual do seu time**
-(por exemplo "Quartas de final"), sem tabela vazia.
+O **Tabelas** é navegável em abas:
 
-O widget **Tabelas** é navegável em abas:
+- por competição — só aparecem as em que o time está ativo (as eliminadas somem
+  por padrão; desligue com `hide_eliminated`);
+- por fase — cada fase do mata-mata vira uma aba, sempre abrindo na fase atual
+  do seu time;
+- por grupo — chips "Grupo A…H" quando a fase tem várias tabelas;
+- nas fases finais a tabela vira chave: confronto a confronto, com escudos,
+  placar agregado, pênaltis e o vencedor destacado.
 
-- **competição** → só aparece nas competições em que o time está ativo
-  (as eliminadas somem por padrão; desligue com a opção `hide_eliminated`);
-- **fase** → cada fase do mata-mata vira uma aba (grupos, oitavas, quartas,
-  semis, final), sempre abrindo na **fase atual do time**;
-- **grupo** → chips "Grupo A…H" quando a fase tem várias tabelas;
-- nas fases finais a tabela é uma **chave**: confronto a confronto, com escudos,
-  placar agregado, pênaltis, jogos e o vencedor destacado.
+### Configurações da conta (`/#/configuracoes`)
 
-### Tela de Configurações (`/#/configuracoes`)
-
-O painel antigo (gaveta lateral) virou uma **página inteira** acessível pela
-engrenagem **Configurar** (e por `#/configuracoes` direto). Seções:
+O painel de personalização virou página inteira (antes era uma gaveta lateral),
+abraçando tudo que é da conta:
 
 | Seção | O que faz |
 |---|---|
-| **Conta** | trocar nome de usuário e senha (exige a senha atual) |
-| **Time** | buscar e trocar de time (recompõe ids, cores e competições) |
-| **Aparência** | tema (Sistema/Claro/Escuro), cor de destaque e intervalo de refresh |
-| **Widgets** | mostrar/ocultar, reordenar, renomear, tamanho e opções de cada card |
-| **Atualização** | força `GET /api/dashboard?refresh=true` e restaura o layout padrão |
-| **Fontes** | CRUD de APIs (mesmo que o `/#/admin`, agora na sua conta) |
+| **Conta** | trocar nome de usuário e senha (precisa da senha atual) |
+| **Time** | buscar e trocar de time |
+| **Aparência** | tema, cor de destaque e intervalo de refresh |
+| **Widgets** | mostrar/ocultar, reordenar, renomear, tamanho, opções |
+| **Atualização** | força `GET /api/dashboard?refresh=true` e restaura o layout |
+| **Fontes** | o mesmo CRUD do `/#/admin`, agora no seu escopo |
 
-#### Esqueci a senha: reset pelo arquivo
+#### Esqueci a senha
 
-Sem e-mail no projeto, o reset é por **arquivo na raiz do volume** — abra
-`/#/configuracoes` → **Conta** → *Gerar senha temporária* e confirme. O backend:
+Não tem e-mail aqui (não quis configurar SMTP pra isso). O reset é um arquivo:
+em **Conta** → *Gerar senha temporária*, confirme, e o backend gera a senha,
+grava `RESET-<usuario>.txt` na raiz da pasta do projeto e troca a senha da
+conta, derrubando as outras sessões. O arquivo é gravado antes da troca — se
+algo falhar no meio, sua senha continua valendo.
 
-1. gera a senha temporária (ex.: `42c6-eed2-4720-ca4b`);
-2. grava `RESET-<usuario>.txt` na **raiz da pasta do projeto** (no Docker é o
-   diretório do `docker-compose.yml`), dono = dono da pasta e modo `0600` — dá
-   para ler no host sem `sudo`;
-3. troca a senha e derruba as **outras** sessões da conta.
-
-A senha aparece na tela e também no arquivo:
+O `RESET-*.txt` nasce com dono igual ao da pasta e modo `0600`, então dá para
+ler no host sem `sudo` (no Docker a pasta do projeto é o volume). Ele já está
+no `.gitignore`.
 
 ```text
 OndeJoga — senha temporária
@@ -247,18 +231,16 @@ Entre no OndeJoga com essa senha e troque-a em Configurações → Conta.
 Depois de usar, apague este arquivo.
 ```
 
-`RESET-*.txt` já está no `.gitignore`. Quem prefere API: `POST /api/auth/reset-file`
-(devolve arquivo + senha no corpo).
+Quem prefere API: `POST /api/auth/reset-file`, que devolve arquivo e senha.
 
 ### Tema
 
-- **A cor vem do time**: o tema claro e o escuro são derivados de
-  `team.primary_color` (contraste calculado, nada de azul ilegível sobre branco).
-  `accent: "auto"` (padrão) segue o time; escolhendo uma cor no painel, ela fica
-  fixa.
-- Escuro/claro pelo botão no cabeçalho (preferência guardada no navegador);
-- `layout.theme.default` (`system` | `light` | `dark`) define o padrão para quem
-  nunca escolheu.
+A cor vem do time: claro e escuro são derivados de `team.primary_color`, com
+contraste calculado (nada de azul ilegível sobre branco). `accent: "auto"` é o
+padrão e segue o time; se você escolher uma cor na tela, ela fica fixa.
+Escuro/claro pelo botão do cabeçalho (guardado no navegador), e
+`layout.theme.default` (`system` | `light` | `dark`) define o padrão para quem
+nunca escolheu.
 
 ### Variáveis de ambiente (`.env`, todas opcionais)
 
@@ -274,8 +256,8 @@ Depois de usar, apague este arquivo.
 
 ## Testes
 
-Testes rodam offline (rede bloqueada, banco SQLite temporário) — nada depende de
-internet para passar.
+Rodem offline — rede bloqueada, banco SQLite temporário —, então nada depende
+de internet para passar.
 
 ```bash
 # Backend (152 testes: contas, escopo por usuário, busca/seleção de time,
@@ -300,28 +282,28 @@ docker compose up -d --build              # stack em http://localhost:3999
 npm run test:e2e                          # E2E_BASE_URL p/ outra porta/host
 ```
 
-### Front-end com Tailwind (opcional, incremental)
+### Tailwind, se quiser
 
-Os estilos legados continuam em CSS puro (com variáveis do tema). Telas novas
-podem usar **Tailwind v4**: `@tailwindcss/vite` está ligado em `vite.config.ts`
-e `web/src/styles/tailwind.css` (importado antes de tudo em `main.tsx`) define
-só `@theme` + `@utilities` — **sem preflight**, ou seja, o visual existente não
-muda. `@source` varre `src/**/*.{ts,tsx}`, então basta escrever classes
-`bg-*`, `text-*`, `flex`… nos arquivos novos.
+Os estilos legados continuam em CSS puro, com as variáveis do tema. Para tela
+nova dá para usar Tailwind v4: `@tailwindcss/vite` está ligado no
+`vite.config.ts` e o `web/src/styles/tailwind.css` define só `@theme` +
+`@utilities`, sem preflight — ou seja, o visual atual não muda. `@source` varre
+`src/**/*.{ts,tsx}`, então é só escrever as classes nos arquivos novos.
 
-## Solução de problemas
+## Quando der ruim
 
-| Sintoma | Causa / solução |
+| Sintoma | O que fazer |
 |---|---|
 | `port is already allocated` | `APP_PORT=4000 docker compose up --build` |
-| Dashboard mostra "dados de fallback" | Uma ou mais fontes externas fora. Veja o motivo em `/#/admin` → **Status** ou `GET /api/admin/status` |
+| Dashboard mostra "dados de fallback" | Uma ou mais fontes fora. Confira em `/#/admin` → **Status** ou `GET /api/admin/status` |
 | `api` reiniciando | `docker compose logs api` — quase sempre é o banco: `docker compose logs db` |
 | Quer regenerar o backup offline | `cd api && DATABASE_URL=sqlite:////tmp/o.db ALLOW_NETWORK=1 .venv/bin/python -m scripts.generate_fallback` |
 | Resetar tudo | `docker compose down -v && docker compose up --build` (apaga o volume do banco) |
 
-## Arquitetura em uma frase
+## Como funciona por dentro
 
-O backend é um **resolvedor de fontes**: cada informação do dashboard
-(`next_match`, `standings`, `news`, …) tem uma fila de fontes habilitadas, cada
-qual com um adapter que normaliza o payload bruto para o formato canônico
-(`docs/API_CONTRACT.md`) — por isso trocar de API é configuração, não refactor.
+O backend é um resolvedor de fontes: cada informação do dashboard
+(`next_match`, `standings`, `news`, …) tem uma fila de fontes habilitadas, e
+cada fonte tem um adapter que normaliza o payload bruto para o formato
+canônico descrito em [`docs/API_CONTRACT.md`](docs/API_CONTRACT.md). Por isso
+trocar de API é configuração, não refatoração.
