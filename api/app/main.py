@@ -69,6 +69,7 @@ def create_app() -> FastAPI:
                 "/api/news",
                 "/api/stats",
                 "/api/config",
+                "/api/config/restore",
                 "/api/layout",
                 "/api/auth/register",
                 "/api/auth/login",

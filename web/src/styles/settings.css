@@ -130,6 +130,63 @@
 }
 
 /* ------------------------------------------------------------------ */
+/* Manutenção (voltar ao padrão)                                       */
+/* ------------------------------------------------------------------ */
+.restore-options {
+  border: 0;
+  margin: 0 0 16px;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.restore-options > legend {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 0;
+  margin-bottom: 8px;
+}
+
+.restore-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  cursor: pointer;
+}
+
+/* Marcado = a área fica no tom destrutivo, para não passar despercebido. */
+.restore-option:has(input:checked) {
+  border-color: var(--danger);
+  background: var(--danger-bg);
+}
+
+.restore-option input {
+  margin: 3px 0 0;
+  flex: none;
+}
+
+.restore-option-text {
+  display: grid;
+  gap: 2px;
+}
+
+.restore-option-label {
+  font-size: 0.875rem;
+  color: var(--text);
+}
+
+.restore-option-help {
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--text-muted);
+}
+
+/* ------------------------------------------------------------------ */
 /* Time atual (Configurações → Time)                                   */
 /* ------------------------------------------------------------------ */
 .settings-team-current {

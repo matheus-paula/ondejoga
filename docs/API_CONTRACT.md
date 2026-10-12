@@ -91,7 +91,7 @@ processo é root e faz `chown` para o uid/gid da pasta, então o host lê sem
 | Ação | anônimo | logado |
 |---|---|---|
 | `GET /api/config` · `/dashboard` · `/standings` … | escopo global | **seu** escopo (herda do global o que você nunca editou) |
-| `PUT /api/config` · `PUT /api/layout` · `POST /api/layout/reset` | **401** | grava no **seu** escopo |
+| `PUT /api/config` · `PUT /api/layout` · `POST /api/layout/reset` · `POST /api/config/restore` | **401** | grava no **seu** escopo |
 | `GET/POST/PUT/DELETE /api/admin/sources` | `GET` global; escrita **401** | suas próprias fontes |
 
 Ao registrar, o usuário recebe `seed_sources` (cópia das fontes padrão) e o
@@ -436,6 +436,28 @@ Brasil), grava no escopo do usuário e devolve o `config_payload`
 Body: objeto completo no formato acima. Valida: ids não duplicados, types conhecidos, sizes válidos. Devolve o layout salvo.
 
 ### `POST /api/layout/reset` → devolve o layout padrão.
+
+### `POST /api/config/restore` (exige login)
+
+Volta ao padrão **só o que a pessoa marcar**. É o recurso de manutenção para quando o painel quebra e não fica óbvio o que foi mexido.
+
+```json
+{ "current_password": "segredo123", "items": ["sources", "layout", "config"] }
+```
+
+| item | o que zera |
+|---|---|
+| `sources` | apaga as fontes do **seu** escopo e recria as de fábrica (as fontes globais, do visitante, não são tocadas) |
+| `layout` | volta os widgets à ordem, tamanho e visibilidade padrão |
+| `config` | apaga a config do usuário: tema, idioma, fuso, intervalo de atualização e o time. `owned` vira `false` e o portão de onboarding volta a exigir a escolha do time |
+
+A senha atual é sempre exigida (`401` quando errada); seleção vazia ou item desconhecido dá `422`. Resposta:
+
+```json
+{ "reset": ["sources", "layout"], "sources_count": 5 }
+```
+
+`users` e `user_sessions` ficam intactos — conta, senha e a sessão aberta sobrevivem. O cache e o status em memória são limpos junto, senão a tela continuaria exibindo o que veio das fontes antigas.
 
 ## 7. CRUD de APIs (fontes de dados)
 

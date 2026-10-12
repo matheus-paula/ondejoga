@@ -1,6 +1,6 @@
 import { useCallback, useState, type CSSProperties, type FormEvent } from 'react';
 import { api, ApiError } from '../api/client';
-import type { AppConfig, ResetFileResult } from '../api/types';
+import type { AppConfig, ResetFileResult, RestoreItem } from '../api/types';
 import { useAuth } from '../context/AuthContext';
 import { useLayout } from '../context/LayoutContext';
 import { useTheme } from '../context/ThemeContext';
@@ -422,6 +422,136 @@ function WidgetsSection() {
 }
 
 /* -------------------------------------------------------------------------- */
+/* Seção: Manutenção (voltar ao padrão)                                        */
+/* -------------------------------------------------------------------------- */
+const RESTORE_OPTIONS: { id: RestoreItem; label: string; help: string }[] = [
+  {
+    id: 'sources',
+    label: 'Fontes de API',
+    help: 'Apaga as fontes de dados da sua conta e recria as originais (JogosTV, ESPN, TheSportsDB…). Resolve fonte remapeada, quebrada ou em loop de erro.',
+  },
+  {
+    id: 'layout',
+    label: 'Layout dos widgets',
+    help: 'Volta os cards do painel à ordem, tamanho e visibilidade padrão.',
+  },
+  {
+    id: 'config',
+    label: 'Time e preferências',
+    help: 'Zera tema, idioma, fuso, intervalo de atualização e o time escolhido. O painel volta a pedir a escolha do time.',
+  },
+];
+
+function MaintenanceSection() {
+  const { user } = useAuth();
+  const layout = useLayout();
+  const [items, setItems] = useState<RestoreItem[]>([]);
+  const [password, setPassword] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [done, setDone] = useState<Notice | null>(null);
+
+  // Zerar configuração é operação de conta; sem login não existe o que zerar.
+  if (!user) return null;
+
+  const toggle = (id: RestoreItem) => {
+    setError(null);
+    setItems((current) =>
+      current.includes(id) ? current.filter((item) => item !== id) : [...current, id],
+    );
+  };
+
+  const restoreNow = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!items.length || !password) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const result = await api.restoreSettings({ current_password: password, items });
+      setPassword('');
+      // Ação concluída: volta ao repouso. Deixar marcado seria deixar um botão
+      // destrutivo armado para repetir sem querer.
+      setItems([]);
+      const restored = result.reset
+        .map((id) => RESTORE_OPTIONS.find((option) => option.id === id)?.label ?? id)
+        .join(', ');
+      // Deixa visível que as fontes voltaram prontas, sem ninguém cadastrando nada.
+      const sources = result.reset.includes('sources')
+        ? ` ${result.sources_count} fontes de fábrica reinstaladas.`
+        : '';
+      setDone({ tone: 'success', message: `Restaurado: ${restored}.${sources}` });
+      layout.retry(); // recarrega config e layout no escopo desta conta
+    } catch (err) {
+      setError(err instanceof ApiError ? err.detail : 'Não consegui restaurar.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <section className="settings-section" aria-labelledby="settings-restore-title">
+      <h2 id="settings-restore-title">Manutenção</h2>
+      <p className="settings-lead">
+        Se algo no painel parou de funcionar, marque o que precisa voltar ao original. Conta,
+        senha e sessão continuam valendo.
+      </p>
+
+      <form onSubmit={(event) => void restoreNow(event)}>
+        <fieldset className="restore-options">
+          <legend>O que restaurar</legend>
+          {RESTORE_OPTIONS.map((option) => (
+            <label key={option.id} className="restore-option">
+              <input
+                type="checkbox"
+                checked={items.includes(option.id)}
+                onChange={() => toggle(option.id)}
+                disabled={busy}
+              />
+              <span className="restore-option-text">
+                <span className="restore-option-label">{option.label}</span>
+                <span className="restore-option-help">{option.help}</span>
+              </span>
+            </label>
+          ))}
+        </fieldset>
+
+        <label className="field">
+          <span>Sua senha atual</span>
+          <input
+            type="password"
+            // Sem autofill de propósito: digitar a senha é a confirmação.
+            autoComplete="off"
+            required
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            disabled={busy}
+          />
+        </label>
+
+        {error ? (
+          <p className="auth-error" role="alert">
+            {error}
+          </p>
+        ) : null}
+
+        <div className="settings-actions">
+          <button
+            type="submit"
+            className="btn btn--danger"
+            disabled={busy || !items.length || !password}
+          >
+            <Icon name="refreshCw" size={15} />
+            {busy ? 'Restaurando…' : 'Restaurar selecionado'}
+          </button>
+        </div>
+      </form>
+
+      {done ? <Toast notice={done} onClose={() => setDone(null)} /> : null}
+    </section>
+  );
+}
+
+/* -------------------------------------------------------------------------- */
 /* Tela                                                                        */
 /* -------------------------------------------------------------------------- */
 export function SettingsView() {
@@ -487,6 +617,8 @@ export function SettingsView() {
             Gerenciar fontes
           </a>
         </section>
+
+        <MaintenanceSection />
       </main>
 
       {teamNotice ? <Toast notice={teamNotice} onClose={() => setTeamNotice(null)} /> : null}

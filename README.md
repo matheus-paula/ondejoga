@@ -131,6 +131,14 @@ Para trocar a fonte que morreu, sem tocar em código:
 2. use **Testar** e confira o payload normalizado;
 3. suba a `priority` para ela assumir e desabilite a fonte quebrada.
 
+Se você mexeu em tanta fonte que já não sabe mais o que está errado, não
+precisa desfazer nada item por item: em Configurações, seção **Manutenção**,
+marque o que quer zerar (fontes de API, layout dos widgets, time e
+preferências), digite sua senha e pronto. As fontes voltam de fábrica e já
+funcionam — TheSportsDB para time e jogos, ESPN para estatísticas, jogo ao
+vivo e escudos, Wikipédia para as tabelas, Google Notícias para notícias e
+JogosTV para o "Onde assistir". Conta, senha e sessão continuam valendo.
+
 ## Personalizar
 
 ### Trocar o time
@@ -265,16 +273,17 @@ Rodem offline — rede bloqueada, banco SQLite temporário —, então nada depe
 de internet para passar.
 
 ```bash
-# Backend (168 testes: contas, escopo por usuário, busca/seleção de time,
-# perfil + reset por arquivo, resolução de fontes, cache, fallback, CRUD,
-# providers, fase de copa, chaves de mata-mata, jogo ao vivo, API)
+# Backend (184 testes: contas, escopo por usuário, busca/seleção de time,
+# perfil + reset por arquivo, restauração de configuração, resolução de
+# fontes, cache, fallback, CRUD, providers, fase de copa, chaves de mata-mata,
+# jogo ao vivo, API)
 cd api
 python -m venv .venv && .venv/bin/pip install -r requirements-dev.txt
 .venv/bin/python -m pytest
 
-# Frontend (58 testes: widgets, abas de competição/fase, chaves, tema derivado
-# do time, onboarding com escolha obrigatória de time, tela de Configurações,
-# admin, cliente HTTP, Tempo Real)
+# Frontend (62 testes: widgets, abas de competição/fase, chaves, tema derivado
+# do time, onboarding com escolha obrigatória de time, tela de Configurações
+# com a restauração, admin, cliente HTTP, Tempo Real)
 cd web
 npm install
 npm test        # vitest

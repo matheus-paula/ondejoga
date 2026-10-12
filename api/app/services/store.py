@@ -263,6 +263,21 @@ def reset_layout(db: Session, user_id: int | None = None) -> dict:
     return value
 
 
+def reset_config(db: Session, user_id: int) -> None:
+    """Apaga a config particular do usuário.
+
+    Sem linha própria o escopo volta a herdar a global e `owned` vira falso —
+    é isso que faz o portão de onboarding exigir o time de novo. Por isso
+    "zerar o time" e "zerar as preferências" são a mesma operação: as duas
+    moram nessa linha.
+    """
+    row = db.get(Setting, _scoped_key(CONFIG_KEY, user_id))
+    if row is None:
+        return
+    db.delete(row)
+    db.commit()
+
+
 def has_own_layout(db: Session, user_id: int | None) -> bool:
     """True quando já existe layout gravado nesse escopo."""
     return db.get(Setting, _scoped_key(LAYOUT_KEY, user_id)) is not None

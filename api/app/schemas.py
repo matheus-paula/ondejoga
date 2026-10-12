@@ -401,6 +401,18 @@ class ProfileUpdate(Strict):
     new_password: str | None = Field(default=None, min_length=6, max_length=200)
 
 
+# Itens que podem ser zerados pelo "restaurar" de Configurações.
+# `config` cobre tema/idioma/fuso **e** o time, porque moram na mesma linha.
+RestoreItem = Literal["sources", "layout", "config"]
+
+
+class RestoreRequest(Strict):
+    """Volta parte da configuração ao padrão; a senha atual é sempre exigida."""
+
+    current_password: str = Field(min_length=1, max_length=200)
+    items: list[RestoreItem] = Field(min_length=1)
+
+
 class ResetFileResponse(Strict):
     """Senha temporária gravada em arquivo na raiz do volume do projeto."""
 

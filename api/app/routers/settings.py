@@ -12,8 +12,10 @@ from sqlalchemy.orm import Session
 from ..db import get_db
 from ..deps import current_user_optional
 from ..models import User
-from ..schemas import AppConfig, Layout
+from ..schemas import AppConfig, Layout, RestoreRequest
 from ..services import store
+from ..services.auth import verify_password
+from ..services.restore import restore
 
 router = APIRouter(prefix="/api", tags=["config"])
 
@@ -85,3 +87,20 @@ def reset_layout(
     user = _require_user(user)
     store.reset_layout(db, user_id=user.id)
     return store.layout_payload(db, user_id=user.id)
+
+
+@router.post("/config/restore")
+def restore_settings(
+    payload: RestoreRequest,
+    db: Session = Depends(get_db),
+    user: User | None = Depends(current_user_optional),
+) -> dict:
+    """Zera fontes, layout e/ou preferências escolhidas (exige a senha atual).
+
+    Conta, senha e sessão não são mexidas; só o que a pessoa marcou volta ao
+    padrão de fábrica.
+    """
+    user = _require_user(user)
+    if not verify_password(payload.current_password, user.password_hash):
+        raise HTTPException(status_code=401, detail="senha atual incorreta")
+    return restore(db, user, list(payload.items))

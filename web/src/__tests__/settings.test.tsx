@@ -38,6 +38,16 @@ function createFetchMock() {
         password: 'a1b2-c3d4-e5f6-7890',
       });
     }
+    if (url === '/api/config/restore' && method === 'POST') {
+      const body = JSON.parse(String(init?.body)) as {
+        current_password: string;
+        items: string[];
+      };
+      if (body.current_password !== 'segredo123') {
+        return jsonResponse({ detail: 'senha atual incorreta' }, 401);
+      }
+      return jsonResponse({ reset: body.items, sources_count: 5 });
+    }
     if (url === '/api/layout' && method === 'POST') return jsonResponse(layoutFixture);
     if (url === '/api/layout' && method === 'PUT') {
       return jsonResponse(JSON.parse(String(init?.body)) as Layout);
@@ -79,7 +89,14 @@ describe('tela de Configurações', () => {
     expect(await screen.findByTestId('settings-page')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Configurações' })).toBeInTheDocument();
 
-    for (const section of ['Conta', 'Time', 'Aparência', 'Widgets', 'Fontes de dados']) {
+    for (const section of [
+      'Conta',
+      'Time',
+      'Aparência',
+      'Widgets',
+      'Fontes de dados',
+      'Manutenção',
+    ]) {
       expect(screen.getByRole('heading', { name: section, level: 2 })).toBeInTheDocument();
     }
 
@@ -140,6 +157,91 @@ describe('tela de Configurações', () => {
 
     expect(await screen.findByTestId('temp-password')).toHaveTextContent('a1b2-c3d4-e5f6-7890');
     expect(within(screen.getByTestId('reset-file')).getByText(/RESET-tester\.txt/)).toBeInTheDocument();
+  });
+
+  it('só restaura o que a pessoa marcou e só com a senha atual', async () => {
+    renderSettings();
+    await screen.findByTestId('settings-page');
+
+    const submit = screen.getByRole('button', { name: /Restaurar selecionado/ });
+    expect(submit).toBeDisabled(); // nada marcado e sem senha
+
+    fireEvent.click(screen.getByRole('checkbox', { name: /Fontes de API/ }));
+    expect(submit).toBeDisabled(); // marcado, mas ainda sem senha
+
+    fireEvent.change(screen.getByLabelText('Sua senha atual'), {
+      target: { value: 'segredo123' },
+    });
+    expect(submit).toBeEnabled();
+    fireEvent.click(submit);
+
+    await waitFor(() => {
+      const call = fetchMock.mock.calls.find(
+        ([url, init]) => String(url) === '/api/config/restore' && init?.method === 'POST',
+      );
+      expect(call).toBeDefined();
+      const body = JSON.parse(String((call?.[1] as RequestInit)?.body)) as {
+        current_password: string;
+        items: string[];
+      };
+      expect(body).toEqual({ current_password: 'segredo123', items: ['sources'] });
+    });
+  });
+
+  it('envia vários itens de uma vez e confirma o que foi restaurado', async () => {
+    renderSettings();
+    await screen.findByTestId('settings-page');
+
+    fireEvent.click(screen.getByRole('checkbox', { name: /Fontes de API/ }));
+    fireEvent.click(screen.getByRole('checkbox', { name: /Layout dos widgets/ }));
+    fireEvent.change(screen.getByLabelText('Sua senha atual'), {
+      target: { value: 'segredo123' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /Restaurar selecionado/ }));
+
+    await waitFor(() => {
+      const call = fetchMock.mock.calls.find(
+        ([url, init]) => String(url) === '/api/config/restore' && init?.method === 'POST',
+      );
+      const body = JSON.parse(String((call?.[1] as RequestInit)?.body)) as { items: string[] };
+      expect(body.items).toEqual(['sources', 'layout']);
+    });
+
+    expect(await screen.findByText(/Restaurado: Fontes de API, Layout dos widgets/))
+      .toBeInTheDocument();
+    // deixa claro que as fontes voltaram prontas, sem cadastro manual
+    expect(screen.getByText(/5 fontes de fábrica reinstaladas/)).toBeInTheDocument();
+  });
+
+  it('mostra o erro quando a senha está errada', async () => {
+    renderSettings();
+    await screen.findByTestId('settings-page');
+
+    fireEvent.click(screen.getByRole('checkbox', { name: /Layout dos widgets/ }));
+    fireEvent.change(screen.getByLabelText('Sua senha atual'), {
+      target: { value: 'errada' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /Restaurar selecionado/ }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('senha atual incorreta');
+    // senha errada não zera nada: os itens continuam marcados para tentar de novo
+    expect(screen.getByRole('checkbox', { name: /Layout dos widgets/ })).toBeChecked();
+  });
+
+  it('descarrega a seleção depois de restaurar', async () => {
+    renderSettings();
+    await screen.findByTestId('settings-page');
+
+    fireEvent.click(screen.getByRole('checkbox', { name: /Fontes de API/ }));
+    fireEvent.change(screen.getByLabelText('Sua senha atual'), {
+      target: { value: 'segredo123' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /Restaurar selecionado/ }));
+
+    await screen.findByText(/Restaurado: Fontes de API/);
+    // concluído: nada fica marcado nem o botão armado
+    expect(screen.getByRole('checkbox', { name: /Fontes de API/ })).not.toBeChecked();
+    expect(screen.getByRole('button', { name: /Restaurar selecionado/ })).toBeDisabled();
   });
 
   it('busca o time e salva a troca via POST /api/config/team', async () => {

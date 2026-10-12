@@ -81,6 +81,17 @@ export interface ResetFileResult {
   password: string;
 }
 
+/* ---------- restaurar (manutenção) ---------- */
+
+/** Itens que o "restaurar" de Configurações consegue zerar. */
+export type RestoreItem = 'sources' | 'layout' | 'config';
+
+export interface RestoreResult {
+  reset: RestoreItem[];
+  /** Quantas fontes o reset apagou (se `sources` estava marcado). */
+  sources_count: number;
+}
+
 /* ---------- contas ---------- */
 
 export interface AuthUser {

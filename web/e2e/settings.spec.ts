@@ -75,3 +75,43 @@ test('gera RESET-<usuario>.txt na raiz do projeto e a senha temporária entra', 
     if (fs.existsSync(file)) fs.unlinkSync(file);
   }
 });
+
+test('restaura só o que foi marcado, com senha, e devolve o portão do time', async ({
+  page,
+}) => {
+  const username = uniqueUser('e2e');
+  const password = 'senha123';
+
+  await page.goto('/');
+  await register(page, username, password);
+
+  await page.getByRole('button', { name: 'Configurar' }).click();
+  const settings = page.getByTestId('settings-page');
+  await expect(settings).toBeVisible();
+
+  const submit = settings.getByRole('button', { name: /Restaurar selecionado/ });
+  await expect(submit).toBeDisabled(); // nada marcado e sem senha
+
+  // senha errada: avisa e não restaura
+  await settings.getByRole('checkbox', { name: /Fontes de API/ }).check();
+  await expect(submit).toBeDisabled(); // marcado, mas ainda sem senha
+  await settings.getByLabel('Sua senha atual').fill('senha-errada');
+  await submit.click();
+  await expect(settings.getByRole('alert')).toContainText('senha atual incorreta');
+
+  // senha certa: as fontes voltam de fábrica
+  await settings.getByLabel('Sua senha atual').fill(password);
+  await submit.click();
+  await expect(settings.getByText(/Restaurado: Fontes de API/)).toBeVisible();
+
+  // zerar o time é separado: volta o portão de onboarding no painel
+  await settings.getByRole('checkbox', { name: /Time e preferências/ }).check();
+  await settings.getByLabel('Sua senha atual').fill(password);
+  await submit.click();
+  await expect(settings.getByText(/Restaurado: Time e preferências/)).toBeVisible();
+
+  await page.goto('/');
+  await expect(page.getByRole('dialog', { name: 'Qual é o seu time?' })).toBeVisible();
+  // a conta segue viva — dá para só escolher o time de novo e voltar
+  await expect(page.getByTestId('welcome-gate')).toHaveCount(0);
+});

@@ -8,6 +8,8 @@ import type {
   Layout,
   LiveMatch,
   ResetFileResult,
+  RestoreItem,
+  RestoreResult,
   SourcePayload,
   SourceTestRequest,
   SourceTestResult,
@@ -119,6 +121,10 @@ export const api = {
   /** Gera senha temporária em `RESET-<usuario>.txt` na raiz do volume. */
   resetPasswordFile: () =>
     request<ResetFileResult>('/api/auth/reset-file', { method: 'POST' }),
+
+  /** Zera os itens escolhidos de volta ao padrão; a senha atual é exigida. */
+  restoreSettings: (payload: { current_password: string; items: RestoreItem[] }) =>
+    request<RestoreResult>('/api/config/restore', { method: 'POST', ...json(payload) }),
 
   getConfig: () => request<AppConfig>('/api/config'),
   putConfig: (config: Partial<AppConfig>) =>
