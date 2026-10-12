@@ -1,0 +1,49 @@
+# OndeJoga — sobe tudo com um comando:  docker compose up --build
+# Única porta publicada: ${APP_PORT:-3999} (interface do Nginx).
+name: ondejoga
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-ondejoga}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ondejoga}
+      POSTGRES_DB: ${POSTGRES_DB:-ondejoga}
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  api:
+    build: ./api
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-ondejoga}:${POSTGRES_PASSWORD:-ondejoga}@db:5432/${POSTGRES_DB:-ondejoga}
+      # Permite (1) ou bloqueia (0) chamadas externas às APIs de dados.
+      ALLOW_NETWORK: ${ALLOW_NETWORK:-1}
+      DASHBOARD_CACHE_TTL: ${DASHBOARD_CACHE_TTL:-60}
+      DEFAULT_CACHE_TTL: ${DEFAULT_CACHE_TTL:-300}
+      CORS_ORIGINS: ${CORS_ORIGINS:-*}
+    expose:
+      - "8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  web:
+    build: ./web
+    ports:
+      # Porta única da aplicação na rede local. Troque se estiver ocupada:
+      #   APP_PORT=4000 docker compose up --build
+      - "${APP_PORT:-3999}:80"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  dbdata:

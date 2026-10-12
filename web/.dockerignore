@@ -1,0 +1,10 @@
+node_modules
+dist
+.vite
+*.log
+
+# Testes e2e: só rodam na máquina do desenvolvedor, não no container
+e2e
+playwright.config.ts
+playwright-report
+test-results

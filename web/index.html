@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="description" content="Painel do time: próximo jogo, tabela, notícias e estatísticas." />
+    <title>OndeJoga — Painel do time</title>
+    <script>
+      // Aplica o tema salvo antes do primeiro paint para evitar "flash" da cor errada.
+      (function () {
+        try {
+          var pref = localStorage.getItem('ondejoga.theme') || 'system';
+          var dark =
+            pref === 'dark' ||
+            (pref === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+          var accent = localStorage.getItem('ondejoga.accent');
+          if (accent) document.documentElement.style.setProperty('--accent', accent);
+        } catch (e) {
+          /* sem localStorage: segue o tema padrão */
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

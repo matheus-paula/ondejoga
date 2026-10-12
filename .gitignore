@@ -1,0 +1,21 @@
+# Dependências e artefatos de build
+node_modules/
+dist/
+api/.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.vite/
+
+# Testes E2E (Playwright)
+web/playwright-report/
+web/test-results/
+
+# Python
+.coverage
+htmlcov/
+
+# Ambiente local
+.env
+*.log
+.DS_Store

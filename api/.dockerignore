@@ -1,0 +1,7 @@
+# Contexto limpo: nada de venv, cache ou dados locais no build.
+.venv
+__pycache__
+*.pyc
+.pytest_cache
+.coverage
+htmlcov
