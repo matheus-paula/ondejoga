@@ -41,14 +41,17 @@ JOGOSTV_ENDPOINTS = {
     "tv": "{page}",
 }
 
-# Página do JogosTV por competição (as mesmas ids usadas no resto do app).
+# Página do JogosTV por competição (as mesmas ids da TheSportsDB, que é de
+# onde o `team.competitions` vem). Cuidado ao adivinhar: 4350 é a Liga MX e
+# 4503 a Copa do Mundo de Clubes — cada id errado manda o time pra página de
+# outro campeonato.
 JOGOSTV_PAGES = {
     "4351": "/jogos-do-brasileirao-serie-a",
-    "4350": "/jogos-do-brasileirao-serie-b",
-    "4328": "/jogos-do-brasileirao-serie-c",
+    "4404": "/jogos-do-brasileirao-serie-b",
+    "4625": "/jogos-do-brasileirao-serie-c",
     "4725": "/jogos-da-copa-do-brasil",
     "4501": "/jogos-da-copa-libertadores",
-    "4503": "/jogos-da-copa-sudamericana",
+    "4724": "/jogos-da-copa-sudamericana",
     "default": "/jogos-do-brasileirao-serie-a",
 }
 

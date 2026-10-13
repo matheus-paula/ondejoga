@@ -100,6 +100,12 @@ export interface AuthUser {
   team_name?: string;
 }
 
+/** Login e registro devolvem o token junto: é a reserva do cookie no iframe. */
+export interface SessionPayload {
+  user: AuthUser;
+  token: string;
+}
+
 export interface AuthStatus {
   authenticated: boolean;
   user?: AuthUser | null;

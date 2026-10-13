@@ -7,7 +7,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { api, ApiError } from '../api/client';
+import { api, ApiError, setSessionToken } from '../api/client';
 import type { AuthUser } from '../api/types';
 
 interface AuthContextValue {
@@ -63,6 +63,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const register = useCallback(async (username: string, password: string) => {
     try {
       const result = await api.register(username, password);
+      // Guarda o token: dentro de um iframe de outro site (Home Assistant) o
+      // cookie SameSite=Lax não é enviado e a sessão só anda pelo header.
+      setSessionToken(result.token);
       setUser(result.user);
       setVersion((v) => v + 1);
     } catch (err) {
@@ -73,6 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(async (username: string, password: string) => {
     try {
       const result = await api.login(username, password);
+      setSessionToken(result.token);
       setUser(result.user);
       setVersion((v) => v + 1);
     } catch (err) {
@@ -86,6 +90,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch {
       /* logout é idempotente */
     }
+    setSessionToken(null);
     setUser(null);
     setVersion((v) => v + 1);
   }, []);
@@ -94,6 +99,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const status = await api.me();
       setUser(status.user ?? null);
+      // Sem sessão (o cliente já limpou o token vencido) não vale manter o
+      // usuário antigo na tela: senão o app seguiria pedindo "crie uma conta".
+      if (!status.user) setSessionToken(null);
     } catch {
       /* sem sessão: mantém o estado atual */
     }

@@ -75,6 +75,27 @@ LOOKUPS: dict[str, dict] = {
         ]
     },
     "4040": {"teams": None},
+    # A TheSportsDB devolve a Copa Sudamericana como **4724**; 4503 é a Copa do
+    # Mundo de Clubes. Com o id errado a competição ficava fora da lista.
+    "134282": {
+        "teams": [
+            {
+                "idTeam": "134282",
+                "strTeam": "Vasco da Gama",
+                "strTeamShort": "VAS",
+                "strSport": "Soccer",
+                "strLeague": "Brazilian Serie A",
+                "idLeague": "4351",
+                "strLeague2": "Copa Sudamericana",
+                "idLeague2": "4724",
+                "strLocation": "Rio de Janeiro",
+                "strColour1": "#000000",
+                "strColour2": "#FFFFFF",
+                "strBadge": "https://img.example/vasco.png",
+                "strCountry": "Brazil",
+            }
+        ]
+    },
 }
 
 ESPN_PAYLOAD = {
@@ -217,6 +238,25 @@ def test_time_inexistente_responde_404(auth_client, monkeypatch):
     response = auth_client.post("/api/config/team", json={"provider": "thesportsdb", "id": "4040"})
     assert response.status_code == 404
     assert "não encontrado" in response.json()["detail"]
+
+
+def test_sul_americana_ganha_pagina_e_entra_no_painel(auth_client, monkeypatch):
+    """Sem `page` a competição nunca vira tabela, e aí nunca vira aba.
+
+    O Vasco joga a Copa Sul-Americana e ela simplesmente não aparecia: o id
+    4724 não estava no mapa de competições conhecidas, então a Wikipédia nem
+    era consultada.
+    """
+    patch_network(monkeypatch)
+    response = auth_client.post(
+        "/api/config/team", json={"provider": "thesportsdb", "id": "134282"}
+    )
+    assert response.status_code == 200
+
+    comps = {c["id"]: c for c in response.json()["team"]["competitions"]}
+    assert comps["4724"]["name"] == "Copa Sul-Americana"
+    assert comps["4724"]["page"] == "Fase de grupos da Copa Sul-Americana de {season}"
+    assert comps["4724"]["knockout_page"] == "Copa Sul-Americana de {season}"
 
 
 # --------------------------------------------------------------------------- #

@@ -78,3 +78,26 @@ test('sai e entra de volta com a conta existente', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Próximo Jogo' })).toBeVisible();
   await expect(page.getByTestId('welcome-gate')).toHaveCount(0);
 });
+
+test('sessão sobrevive sem cookie — é o caso do iframe do Home Assistant', async ({
+  page,
+  context,
+}) => {
+  const username = uniqueUser('e2e');
+  await page.goto('/');
+  await register(page, username);
+  await expect(page.getByRole('heading', { name: 'Próximo Jogo' })).toBeVisible();
+
+  // A reserva do cookie é o token no corpo do login. Guardado em localStorage,
+  // ele viaja como Authorization: Bearer — que não sofre com SameSite.
+  const token = await page.evaluate(() => window.localStorage.getItem('ondejoga_token'));
+  expect(token).toBeTruthy();
+
+  // Embarcar o app em site de outro host faz o navegador descartar o cookie.
+  await context.clearCookies();
+  await page.reload();
+
+  await expect(page.getByRole('heading', { name: 'Próximo Jogo' })).toBeVisible();
+  await expect(page.getByTestId('welcome-gate')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: /Sair/ })).toBeVisible();
+});

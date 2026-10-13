@@ -13,6 +13,7 @@ from app.providers.wikipedia import (
     GROUP_PHASE_LABEL,
     GROUP_PHASE_ORDER,
     _is_bracket_table,
+    _is_visual_bracket_table,
     _parse_bracket_rows,
     _split_total,
     bracket_team_state,
@@ -76,6 +77,39 @@ def test_login_logout_cycle(client: TestClient) -> None:
 
     bad = client.post("/api/auth/login", json={"username": "cruzeirense", "password": "errada"})
     assert bad.status_code == 401
+
+
+def test_session_token_no_body_keeps_session_without_cookie(client: TestClient) -> None:
+    """O login devolve o token no corpo para ser usado como `Bearer`.
+
+    O cookie `SameSite=Lax` não é enviado dentro de um iframe de outro site —
+    é o caso do OndeJoga embutido no Home Assistant. Sem a reserva, o login
+    "pegava" só de fachada: o usuário aparecia logado, o portão pedia o time
+    de novo e a escolha devolvia 401 pedindo conta nova.
+    """
+    created = client.post(
+        "/api/auth/register", json={"username": "homeassist", "password": "senha123"}
+    )
+    assert created.status_code == 201
+    token = created.json()["token"]
+    assert token
+
+    # Imita o navegador que engoliu o cookie cross-site: sem header, anônimo.
+    client.cookies.clear()
+    assert client.get("/api/auth/me").json()["authenticated"] is False
+
+    me = client.get("/api/auth/me", headers={"Authorization": f"Bearer {token}"})
+    assert me.json()["authenticated"] is True
+    assert me.json()["user"]["username"] == "homeassist"
+
+    # Escrita também passa só pelo header (era o 401 que travava o HA).
+    saved = client.put(
+        "/api/layout",
+        json={"widgets": []},
+        headers={"Authorization": f"Bearer {token}"},
+    )
+    assert saved.status_code == 200
+    assert client.get("/api/layout").status_code == 200  # sem token, segue anônimo
 
 
 def test_writes_require_account(client: TestClient) -> None:
@@ -385,6 +419,63 @@ def test_bracket_team_state_reports_eliminated_and_alive() -> None:
     # quem não aparece em nenhuma chave fica indefinido
     assert bracket_team_state(stages, "Santos") == (None, None)
     assert bracket_team_state([], "Cruzeiro") == (None, None)
+
+
+# O outro formato de mata-mata da Wikipédia: chaveamento em grade, com cada
+# time numa linha, os dois jogos ao lado e o agregado em negrito. É assim que
+# vêm as quartas da Copa do Brasil — e sem ler este formato o Cruzeiro seguia
+# "vivo" na tela depois de cair para o Atlético Mineiro.
+_VISUAL_BRACKET_PAGE = """
+<html><body>
+<h3>Quartas de final</h3>
+<table border="0" cellpadding="0" cellspacing="0">
+<tr><td colspan="4">Quartas de final</td><td colspan="4">Semifinais</td></tr>
+<tr><td>&#160;</td><td><i><a href="/i">Internacional</a></i></td><td>0</td><td>1</td><td><b>1</b></td></tr>
+<tr><td>&#160;</td><td><b><a href="/g">Grêmio</a></b></td><td>0</td><td>3</td><td><b>3</b></td></tr>
+<tr><td></td><td></td><td><a href="/g">Grêmio</a></td><td></td><td></td></tr>
+<tr><td>&#160;</td><td><i><a href="/c">Cruzeiro</a></i></td><td>1</td><td>1</td><td><b>2</b></td></tr>
+<tr><td>&#160;</td><td><b><a href="/a">Atlético Mineiro</a></b></td><td>1</td><td>2</td><td><b>3</b></td></tr>
+</table>
+</body></html>
+"""
+
+
+def test_grade_de_mata_mata_vira_chave_com_vencedor() -> None:
+    stages = iter_bracket_stages(_VISUAL_BRACKET_PAGE)
+
+    assert [(rank, label, len(ties)) for rank, label, ties in stages] == [
+        (10, "Quartas de final", 2)
+    ]
+    cruz = stages[0][2][1]
+    assert (cruz.home.name, cruz.away.name) == ("Cruzeiro", "Atlético Mineiro")
+    assert cruz.aggregate == "2–3"
+    assert cruz.legs == ["1–1", "1–2"]
+    # o classificado é o que está em negrito na grade
+    assert cruz.winner == "away"
+    assert cruz.decided is True
+
+
+def test_grade_marca_quem_caiu_e_ignora_quem_so_avancou() -> None:
+    stages = iter_bracket_stages(_VISUAL_BRACKET_PAGE)
+
+    # Cruzeiro perdeu as quartas: a competição sai do painel dele
+    assert bracket_team_state(stages, "Cruzeiro") == (False, 10)
+    assert bracket_team_state(stages, "Grêmio") == (True, 10)
+    # a linha de "quem avançou" (só nome, sem placar) não é confronto
+    assert bracket_team_state(stages, "Athletico") == (None, None)
+
+
+def test_grade_nao_confunde_tabela_de_classificacao() -> None:
+    page = """
+    <html><body><h3>Oitavas de final</h3>
+    <table class="wikitable">
+    <tr><th>Pos</th><th>Equipe</th><th>Pts</th><th>J</th></tr>
+    <tr><td>1</td><td><a href="/c">Cruzeiro</a></td><td>9</td><td>6</td></tr>
+    <tr><td>2</td><td><a href="/p">Palmeiras</a></td><td>6</td><td>6</td></tr>
+    </table></body></html>
+    """
+    assert _is_visual_bracket_table(page.split("<table")[1].split("</table>")[0]) is False
+    assert iter_bracket_stages(page) == []
 
 
 def test_phase_order_puts_groups_before_any_knockout_phase() -> None:

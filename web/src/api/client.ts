@@ -10,6 +10,7 @@ import type {
   ResetFileResult,
   RestoreItem,
   RestoreResult,
+  SessionPayload,
   SourcePayload,
   SourceTestRequest,
   SourceTestResult,
@@ -68,9 +69,39 @@ async function toDetail(res: Response): Promise<string> {
   return res.statusText ? `Erro ${res.status}: ${res.statusText}` : `Erro ${res.status}`;
 }
 
+/**
+ * Token de sessão guardado no cliente.
+ *
+ * Existe porque o cookie `SameSite=Lax` não sobrevive dentro de um iframe de
+ * outro site — o caso real é o OndeJoga embutido no Home Assistant: o
+ * navegador não envia o cookie em requisição cross-site e o login "pegava" só
+ * de fachada. Sem HTTPS não dá para trocar por `None; Secure`, então o mesmo
+ * token via `Authorization: Bearer` é a reserva (`api/app/deps.py` aceita os
+ * dois).
+ */
+const TOKEN_KEY = 'ondejoga_token';
+
+export function getSessionToken(): string | null {
+  try {
+    return window.localStorage.getItem(TOKEN_KEY);
+  } catch {
+    return null; // storage inacessível => fica só no cookie
+  }
+}
+
+export function setSessionToken(token: string | null): void {
+  try {
+    if (token) window.localStorage.setItem(TOKEN_KEY, token);
+    else window.localStorage.removeItem(TOKEN_KEY);
+  } catch {
+    /* sem storage: o cookie continua sendo o caminho */
+  }
+}
+
 /** Requisição JSON base: lança `ApiError` normalizado em qualquer falha. */
 export async function request<T>(path: string, init?: RequestInit): Promise<T> {
   let res: Response;
+  const token = getSessionToken();
   try {
     res = await fetch(path, {
       // envia/recebe o cookie de sessão (httpOnly) junto com a requisição
@@ -79,6 +110,8 @@ export async function request<T>(path: string, init?: RequestInit): Promise<T> {
       headers: {
         Accept: 'application/json',
         ...(init?.body ? { 'Content-Type': 'application/json' } : {}),
+        // Reserva do cookie: em iframe de outro site é o header que segura.
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...(init?.headers ?? {}),
       },
     });
@@ -87,6 +120,11 @@ export async function request<T>(path: string, init?: RequestInit): Promise<T> {
   }
 
   if (!res.ok) {
+    // Sessão recusada: esquece o token para não seguir mandando credencial
+    // vencida. Login/registro ficam de fora — 401 lá é senha errada.
+    if (res.status === 401 && !path.startsWith('/api/auth/')) {
+      setSessionToken(null);
+    }
     throw new ApiError(await toDetail(res), res.status);
   }
 
@@ -104,12 +142,12 @@ function json(body: unknown): RequestInit {
 export const api = {
   // --- contas ----------------------------------------------------------- //
   register: (username: string, password: string) =>
-    request<{ user: AuthUser }>('/api/auth/register', {
+    request<SessionPayload>('/api/auth/register', {
       method: 'POST',
       ...json({ username, password }),
     }),
   login: (username: string, password: string) =>
-    request<{ user: AuthUser }>('/api/auth/login', {
+    request<SessionPayload>('/api/auth/login', {
       method: 'POST',
       ...json({ username, password }),
     }),

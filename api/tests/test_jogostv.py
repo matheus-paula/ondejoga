@@ -19,7 +19,7 @@ from app.providers.jogostv import (
     pick_row,
 )
 from app.providers.base import ProviderContext, ProviderError
-from app.seed import seed_sources, upgrade_scopes
+from app.seed import JOGOSTV_PAGES, seed_sources, upgrade_scopes
 
 # Rodada com o marcado real do JogosTV: jogo confirmado, jogo sem transmissão,
 # jogo só com o marcador "Canal a confirmar", jogo em outra data e dois times
@@ -297,3 +297,19 @@ def test_disabling_a_source_does_not_resurrect_the_static_list(db) -> None:
     rows = list(db.scalars(select(ApiSource)).all())
     assert len([row for row in rows if row.kind == "jogostv"]) == 1
     assert not [row for row in rows if row.kind == "static_json"]
+
+
+def test_paginas_do_jogostv_usam_os_ids_reais_da_thesportsdb() -> None:
+    """Id trocado manda o time para a página de outro campeonato.
+
+    A lista é indexada pelo mesmo id que vem da TheSportsDB no
+    `team.competitions` — e 4350 é a Liga MX, 4328 a Premier League e 4503 a
+    Copa do Mundo de Clubes. Nenhuma delas é campeonato brasileiro.
+    """
+    assert JOGOSTV_PAGES["4351"] == "/jogos-do-brasileirao-serie-a"
+    assert JOGOSTV_PAGES["4404"] == "/jogos-do-brasileirao-serie-b"
+    assert JOGOSTV_PAGES["4625"] == "/jogos-do-brasileirao-serie-c"
+    assert JOGOSTV_PAGES["4725"] == "/jogos-da-copa-do-brasil"
+    assert JOGOSTV_PAGES["4501"] == "/jogos-da-copa-libertadores"
+    assert JOGOSTV_PAGES["4724"] == "/jogos-da-copa-sudamericana"
+    assert not ({"4350", "4328", "4503"} & set(JOGOSTV_PAGES))

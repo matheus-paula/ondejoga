@@ -54,6 +54,18 @@ def _set_cookie(response: Response, token: str) -> None:
     )
 
 
+def _session_payload(user: User, token: str) -> dict:
+    """Resposta de login/registro com o token também no corpo.
+
+    O cookie `SameSite=Lax` morre dentro de um iframe de outro site (ex.:
+    OndeJoga embutido no Home Assistant) — o navegador não o envia em
+    requisições cross-site. Como não dá para usar `None; Secure` sem HTTPS,
+    o mesmo token via `Authorization: Bearer` é a reserva que segura a
+    sessão nesse arranjo. `deps._token_from` já aceita os dois.
+    """
+    return {"user": public_user(user), "token": token}
+
+
 @router.post("/register", status_code=201)
 def register(payload: RegisterRequest, response: Response, db: Session = Depends(get_db)):
     try:
@@ -62,7 +74,7 @@ def register(payload: RegisterRequest, response: Response, db: Session = Depends
         raise HTTPException(status_code=exc.status, detail=exc.message) from exc
     token = create_session(db, user)
     _set_cookie(response, token)
-    return {"user": public_user(user)}
+    return _session_payload(user, token)
 
 
 @router.post("/login")
@@ -73,7 +85,7 @@ def login(payload: LoginRequest, response: Response, db: Session = Depends(get_d
         raise HTTPException(status_code=exc.status, detail=exc.message) from exc
     token = create_session(db, user)
     _set_cookie(response, token)
-    return {"user": public_user(user)}
+    return _session_payload(user, token)
 
 
 @router.post("/logout")

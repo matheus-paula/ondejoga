@@ -87,6 +87,10 @@ isso que alimenta o widget de Tabelas.
 Sobre a sessão:
 
 - cookie httpOnly de 30 dias (`ondejoga_session`), só em `/api`;
+- o mesmo token também volta no corpo do login e é usado como
+  `Authorization: Bearer` — é o que segura o login quando você embute o app
+  dentro do Home Assistant, porque lá o navegador descarta o cookie por ser
+  outro site;
 - ao registrar você recebe uma cópia da config, do layout e das fontes — depois
   disso só você mexe no que é seu, e nada vaza para os outros usuários;
 - dá para ter contas com times, cores e layouts diferentes no mesmo navegador;
@@ -273,15 +277,15 @@ Rodem offline — rede bloqueada, banco SQLite temporário —, então nada depe
 de internet para passar.
 
 ```bash
-# Backend (184 testes: contas, escopo por usuário, busca/seleção de time,
-# perfil + reset por arquivo, restauração de configuração, resolução de
-# fontes, cache, fallback, CRUD, providers, fase de copa, chaves de mata-mata,
-# jogo ao vivo, API)
+# Backend (190 testes: contas, sessão por Bearer, escopo por usuário,
+# busca/seleção de time, perfil + reset por arquivo, restauração de
+# configuração, resolução de fontes, cache, fallback, CRUD, providers, fase de
+# copa, chaves de mata-mata, jogo ao vivo, API)
 cd api
 python -m venv .venv && .venv/bin/pip install -r requirements-dev.txt
 .venv/bin/python -m pytest
 
-# Frontend (62 testes: widgets, abas de competição/fase, chaves, tema derivado
+# Frontend (67 testes: widgets, abas de competição/fase, chaves, tema derivado
 # do time, onboarding com escolha obrigatória de time, tela de Configurações
 # com a restauração, admin, cliente HTTP, Tempo Real)
 cd web
@@ -289,8 +293,9 @@ npm install
 npm test        # vitest
 npm run build   # checagem de tipos + build de produção
 
-# E2E (Playwright, 11 cenários contra o stack de verdade: portão, registro +
-# escolha de time, painel, tela de Configurações e reset por arquivo)
+# E2E (Playwright, 13 cenários contra o stack de verdade: portão, registro +
+# escolha de time, sessão sem cookie, painel, tela de Configurações e reset
+# por arquivo)
 npm run test:e2e:install                  # uma vez: baixa o Chromium
 docker compose up -d --build              # stack em http://localhost:3999
 npm run test:e2e                          # E2E_BASE_URL p/ outra porta/host

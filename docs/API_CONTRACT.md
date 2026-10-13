@@ -19,12 +19,20 @@ A sessão é um cookie httpOnly `ondejoga_session` (`path=/api`,
 `SameSite=Lax`, 30 dias). O banco guarda apenas o SHA-256 do token. Senhas usam
 PBKDF2-HMAC-SHA256 (260 mil iterações + sal por usuário).
 
+O mesmo token sai no corpo do login/registro e é aceito como
+`Authorization: Bearer <token>` — reserva do cookie para quando o navegador não
+o envia, que é o caso do app embutido num iframe de site diferente (Home
+Assistant). `deps._token_from` tenta cookie primeiro, depois o header.
+
 ### `POST /api/auth/register`
 
 Body: `{ "username": "matheus", "password": "..." }` (username ≥ 3, senha ≥ 6)
 
 ```json
-{ "user": { "id": 1, "username": "matheus", "created_at": "2026-10-11T14:00:00Z" } }
+{
+  "user": { "id": 1, "username": "matheus", "created_at": "2026-10-11T14:00:00Z" },
+  "token": "eyJhbGciOiJIUzI1NiJ9..."
+}
 ```
 
 `409` se o usuário já existir. Devolve o cookie de sessão junto.

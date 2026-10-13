@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { api, ApiError } from '../api/client';
+import { api, ApiError, getSessionToken, setSessionToken } from '../api/client';
 import { jsonResponse, layoutFixture } from '../test/fixtures';
 
 describe('cliente de API', () => {
@@ -73,5 +73,66 @@ describe('cliente de API', () => {
         headers: expect.objectContaining({ 'Content-Type': 'application/json' }),
       }),
     );
+  });
+
+  // Reserva do cookie: dentro de um iframe de outro site (Home Assistant) o
+  // navegador não envia o SameSite=Lax e a sessão só anda pelo header.
+  it('manda Authorization: Bearer quando há token guardado', async () => {
+    setSessionToken('tok123');
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse(layoutFixture));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await api.getLayout();
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/layout',
+      expect.objectContaining({
+        headers: expect.objectContaining({ Authorization: 'Bearer tok123' }),
+      }),
+    );
+  });
+
+  it('não manda Authorization quando não há token guardado', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse(layoutFixture));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await api.getLayout();
+
+    expect((fetchMock.mock.calls[0][1] as RequestInit).headers).not.toHaveProperty(
+      'Authorization',
+    );
+  });
+
+  it('login devolve o token no corpo, que fica guardado no cliente', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(jsonResponse({ user: { id: 1, username: 'ana' }, token: 'tok9' })),
+    );
+
+    const result = await api.login('ana', 'senha123');
+    expect(result.token).toBe('tok9');
+    expect(result.user.username).toBe('ana');
+
+    setSessionToken(result.token);
+    expect(getSessionToken()).toBe('tok9');
+  });
+
+  it('esquece o token quando o servidor recusa a sessão', async () => {
+    setSessionToken('velho');
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(jsonResponse({ detail: 'entre ou crie uma conta primeiro' }, 401)),
+    );
+
+    await expect(api.getLayout()).rejects.toBeInstanceOf(ApiError);
+    expect(getSessionToken()).toBeNull();
+  });
+
+  it('senha errada no login não apaga a sessão guardada', async () => {
+    setSessionToken('deOutraConta');
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ detail: 'senha incorreta' }, 401)));
+
+    await expect(api.login('ana', 'errada')).rejects.toBeInstanceOf(ApiError);
+    expect(getSessionToken()).toBe('deOutraConta');
   });
 });

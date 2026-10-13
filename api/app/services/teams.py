@@ -54,11 +54,24 @@ ESPN_LEAGUES: dict[str, str] = {
 }
 
 # Competições com nome amigável + página da Wikipédia (as mesmas do DEFAULT).
+# Ids da TheSportsDB. Sem `page` a competição não vira tabela, e aí não vira
+# aba no painel — então qualquer campeonato que um time brasileiro jogue
+# precisa estar aqui. A Wikipédia escreve "Sul-Americana"; a TSD, "Sudamericana".
 KNOWN_COMPETITIONS: dict[str, dict[str, str]] = {
     "4351": {
         "name": "Brasileirão Série A",
         "kind": "league",
         "page": "Campeonato Brasileiro de Futebol de {season} - Série A",
+    },
+    "4404": {
+        "name": "Brasileirão Série B",
+        "kind": "league",
+        "page": "Campeonato Brasileiro de Futebol de {season} - Série B",
+    },
+    "4625": {
+        "name": "Brasileirão Série C",
+        "kind": "league",
+        "page": "Campeonato Brasileiro de Futebol de {season} - Série C",
     },
     "4725": {
         "name": "Copa do Brasil",
@@ -71,6 +84,13 @@ KNOWN_COMPETITIONS: dict[str, dict[str, str]] = {
         # A página principal é a de grupos; o mata-mata fica em outra.
         "page": "Fase de grupos da Copa Libertadores da América de {season}",
         "knockout_page": "Fase final da Copa Libertadores da América de {season}",
+    },
+    "4724": {
+        "name": "Copa Sul-Americana",
+        "kind": "league",
+        # Mesma divisão da Libertadores: grupos numa página, mata-mata em outra.
+        "page": "Fase de grupos da Copa Sul-Americana de {season}",
+        "knockout_page": "Copa Sul-Americana de {season}",
     },
 }
 

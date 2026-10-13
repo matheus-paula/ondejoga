@@ -418,6 +418,78 @@ def _parse_bracket_rows(block: str) -> list[BracketTie]:
     return out
 
 
+def _visual_bracket_rows(block: str) -> list[tuple[str, bool, list[str]]]:
+    """`(time, em negrito?, placares)` das linhas de um chaveamento em grade.
+
+    A Wikipédia monta mata-mata de dois jeitos. O de tabela tem cabeçalho
+    "Equipe 1 | Total | Equipe 2"; o de grade põe cada time numa linha, com os
+    dois jogos e o agregado ao lado, e destaca o classificado em negrito.
+    Sem este segundo, fases como as quartas da Copa do Brasil passavam em
+    branco — o time caía e continuava aparecendo como vivo na tela.
+    """
+    out: list[tuple[str, bool, list[str]]] = []
+    for tr in _TR_RE.findall(block):
+        cells = _CELL_RE.findall(tr)
+        if len(cells) < 5:
+            continue
+        name = _team_name(cells[1])
+        if not name:
+            continue
+        # As linhas de "quem avançou" trazem só o nome na coluna da fase
+        # seguinte, sem placar: não são confronto e ficam de fora.
+        legs = [_text(cell) for cell in cells[2:4]]
+        if not all(re.fullmatch(r"\d{1,2}", leg) for leg in legs):
+            continue
+        out.append((name, bool(_BOLD_RE.search(cells[1])), [*legs, _text(cells[4])]))
+    return out
+
+
+def _is_visual_bracket_table(block: str) -> bool:
+    """A grade tem pelo menos um confronto (duas linhas de time) e não é tabela."""
+    return not _is_standings_table(block) and len(_visual_bracket_rows(block)) >= 2
+
+
+def _parse_visual_bracket(block: str) -> list[BracketTie]:
+    """Confrontos de uma grade: linhas em pares, classificado em negrito."""
+    rows = _visual_bracket_rows(block)
+    out: list[BracketTie] = []
+    for index in range(0, len(rows) - 1, 2):
+        home_name, home_bold, home_scores = rows[index]
+        away_name, away_bold, away_scores = rows[index + 1]
+        winner = (
+            "home" if home_bold and not away_bold
+            else "away" if away_bold and not home_bold
+            else None
+        )
+        aggregate = (
+            f"{home_scores[2]}–{away_scores[2]}"
+            if home_scores[2] and away_scores[2]
+            else None
+        )
+        legs = [f"{h}–{a}" for h, a in zip(home_scores[:2], away_scores[:2])]
+        match = _AGG_RE.search(aggregate or "")
+        out.append(
+            BracketTie(
+                home=team_ref(None, home_name, None, match.group(1) if match else None),
+                away=team_ref(None, away_name, None, match.group(2) if match else None),
+                aggregate=aggregate,
+                legs=legs,
+                winner=winner,
+                decided=winner is not None,
+            )
+        )
+    return out
+
+
+def _parse_bracket_table(block: str) -> list[BracketTie]:
+    """Confrontos de uma tabela de mata-mata, nos dois formatos da Wikipédia."""
+    if _is_bracket_table(block):
+        return _parse_bracket_rows(block)
+    if _is_visual_bracket_table(block):
+        return _parse_visual_bracket(block)
+    return []
+
+
 def iter_bracket_stages(html: str) -> list[tuple[int, str, list[BracketTie]]]:
     """Fases com chaves de mata-mata: `[(rank, rótulo, confrontos)]` em ordem.
 
@@ -434,8 +506,7 @@ def iter_bracket_stages(html: str) -> list[tuple[int, str, list[BracketTie]]]:
         ties = [
             tie
             for match in _TABLE_RE.finditer(body)
-            if _is_bracket_table(match.group(1))
-            for tie in _parse_bracket_rows(match.group(1))
+            for tie in _parse_bracket_table(match.group(1))
         ]
         if not ties:
             continue
