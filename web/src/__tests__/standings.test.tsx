@@ -57,7 +57,7 @@ describe('widget standings', () => {
     const teamCell = screen.getByText('Cruzeiro');
     const row = teamCell.closest('tr');
     expect(row).not.toBeNull();
-    expect(row).toHaveClass('is-team');
+    expect(row).toHaveAttribute('data-self');
     // cor primária do time (#0093EC) aplicada como fundo da linha
     expect(row?.getAttribute('style')).toContain('rgba(0, 147, 236');
 
@@ -67,7 +67,7 @@ describe('widget standings', () => {
 
     // outras linhas não são destacadas
     const otherRow = screen.getByText('Flamengo').closest('tr');
-    expect(otherRow).not.toHaveClass('is-team');
+    expect(otherRow).not.toHaveAttribute('data-self');
   });
 
   it('renderiza o form como círculos coloridos (V/E/D)', () => {
@@ -83,8 +83,8 @@ describe('widget standings', () => {
     const dots = within(row).getAllByTitle(/(Vitória|Empate|Derrota)/);
     expect(dots).toHaveLength(5); // "WLWLW"
     expect(dots.map((dot) => dot.textContent)).toEqual(['V', 'D', 'V', 'D', 'V']);
-    expect(dots[0]).toHaveClass('form-dot--v');
-    expect(dots[1]).toHaveClass('form-dot--d');
+    expect(dots[0]).toHaveAttribute('data-result', 'v');
+    expect(dots[1]).toHaveAttribute('data-result', 'd');
   });
 
   it('respeita options.competitions e options.max_rows', () => {
@@ -111,10 +111,10 @@ describe('widget standings', () => {
 
     // competição filtrada => uma única tabela (sem abas); o cabeçalho descreve
     // de qual competição se trata
-    expect(screen.getByText('Brasileirão Série A', { selector: '.standings-head-title' })).toBeInTheDocument();
+    expect(screen.getByText('Brasileirão Série A', { selector: '[data-testid="standings-title"]' })).toBeInTheDocument();
     expect(screen.queryByText('Copa do Brasil')).not.toBeInTheDocument();
     // max_rows 2 => altura máxima do scroll = 2 * 40px + cabeçalho
-    const scroll = document.querySelector('.standings-scroll');
+    const scroll = document.querySelector('[data-testid="standings-scroll"]');
     expect(scroll?.getAttribute('style')).toContain('max-height');
 
     rerender(

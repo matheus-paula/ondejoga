@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { WidgetShell } from './WidgetShell';
 import { EmptyState } from '../ui/States';
-import { MatchTeams } from './MatchTeams';
+import { MatchTeams, COMPETITION, ROUND, META, META_DT, META_DD } from './MatchTeams';
 import { countdownLabel, formatTime, formatDate } from '../../lib/format';
 import { optBool } from '../../lib/widgetOptions';
 import type { Broadcast } from '../../api/types';
@@ -15,8 +15,8 @@ function BroadcastChips({ broadcasts }: { broadcasts: Broadcast[] | null | undef
     return null;
   }
   return (
-    <div className="broadcasts">
-      <span className="broadcasts-label">Onde assistir</span>
+    <div className="flex flex-wrap items-center gap-2">
+      <span className="text-[0.8rem] uppercase tracking-[0.06em] text-muted">Onde assistir</span>
       {items.map((broadcast, index) => (
         <span key={`${broadcast.name}-${index}`} className="chip">
           {broadcast.name}
@@ -37,10 +37,8 @@ function Countdown({ kickoff }: { kickoff: string | null | undefined }) {
   const label = countdownLabel(kickoff, now);
   if (!label) return null;
   return (
-    <p className="match-countdown">
-      <span className="match-countdown-icon" aria-hidden="true">
-        ⏱
-      </span>
+    <p className="inline-flex items-center gap-2 self-start rounded-full bg-accent/12 px-3 py-[5px] font-bold text-accent">
+      <span aria-hidden="true">⏱</span>
       <span>{label}</span>
     </p>
   );
@@ -54,39 +52,39 @@ export function NextMatchWidget({ widget, data, config }: WidgetProps) {
   const { locale, timezone } = config;
 
   return (
-    <WidgetShell title={widget.title || 'Próximo Jogo'} className="next-match">
+    <WidgetShell title={widget.title || 'Próximo Jogo'} widget="next-match">
       {!match ? (
         <EmptyState message="Nenhum próximo jogo disponível." />
       ) : (
         <>
-          <p className="match-competition">
+          <p className={COMPETITION}>
             {match.competition?.logo ? (
               <img src={match.competition.logo} alt="" width={18} height={18} />
             ) : null}
             <span>
               {match.competition?.name ?? 'Competição a definir'}
-              {match.round ? <span className="match-round"> · Rodada {match.round}</span> : null}
+              {match.round ? <span className={ROUND}> · Rodada {match.round}</span> : null}
             </span>
           </p>
 
           <MatchTeams home={match.home} away={match.away} />
 
-          <dl className="match-meta">
-            <div className="match-meta-item">
-              <dt>Data</dt>
-              <dd>
+          <dl className={META}>
+            <div>
+              <dt className={META_DT}>Data</dt>
+              <dd className={META_DD}>
                 <time dateTime={match.kickoff ?? undefined}>
                   {formatDate(match.kickoff, locale, timezone, { dateStyle: 'long' })}
                 </time>
               </dd>
             </div>
-            <div className="match-meta-item">
-              <dt>Horário</dt>
-              <dd>{formatTime(match.kickoff, locale, timezone)}</dd>
+            <div>
+              <dt className={META_DT}>Horário</dt>
+              <dd className={META_DD}>{formatTime(match.kickoff, locale, timezone)}</dd>
             </div>
-            <div className="match-meta-item">
-              <dt>Local</dt>
-              <dd>
+            <div>
+              <dt className={META_DT}>Local</dt>
+              <dd className={META_DD}>
                 {match.venue?.name
                   ? [match.venue.name, match.venue.city].filter(Boolean).join(' · ')
                   : 'Estádio a definir'}

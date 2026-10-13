@@ -18,6 +18,8 @@ from __future__ import annotations
 import unicodedata
 from typing import Any
 
+from ..labels import COMPETITION_NAMES_PT
+
 import httpx
 from sqlalchemy.orm import Session
 
@@ -57,36 +59,39 @@ ESPN_LEAGUES: dict[str, str] = {
 # Ids da TheSportsDB. Sem `page` a competição não vira tabela, e aí não vira
 # aba no painel — então qualquer campeonato que um time brasileiro jogue
 # precisa estar aqui. A Wikipédia escreve "Sul-Americana"; a TSD, "Sudamericana".
+# Os nomes vêm de `labels.COMPETITION_NAMES_PT`: é a mesma tabela que traduz a
+# competição no payload do painel. Duas cópias aqui e ali seria questão de
+# tempo até divergirem — e aí a busca dizia uma coisa e o painel outra.
 KNOWN_COMPETITIONS: dict[str, dict[str, str]] = {
     "4351": {
-        "name": "Brasileirão Série A",
+        "name": COMPETITION_NAMES_PT["4351"],
         "kind": "league",
         "page": "Campeonato Brasileiro de Futebol de {season} - Série A",
     },
     "4404": {
-        "name": "Brasileirão Série B",
+        "name": COMPETITION_NAMES_PT["4404"],
         "kind": "league",
         "page": "Campeonato Brasileiro de Futebol de {season} - Série B",
     },
     "4625": {
-        "name": "Brasileirão Série C",
+        "name": COMPETITION_NAMES_PT["4625"],
         "kind": "league",
         "page": "Campeonato Brasileiro de Futebol de {season} - Série C",
     },
     "4725": {
-        "name": "Copa do Brasil",
+        "name": COMPETITION_NAMES_PT["4725"],
         "kind": "cup",
         "page": "Copa do Brasil de Futebol de {season}",
     },
     "4501": {
-        "name": "Copa Libertadores",
+        "name": COMPETITION_NAMES_PT["4501"],
         "kind": "league",
         # A página principal é a de grupos; o mata-mata fica em outra.
         "page": "Fase de grupos da Copa Libertadores da América de {season}",
         "knockout_page": "Fase final da Copa Libertadores da América de {season}",
     },
     "4724": {
-        "name": "Copa Sul-Americana",
+        "name": COMPETITION_NAMES_PT["4724"],
         "kind": "league",
         # Mesma divisão da Libertadores: grupos numa página, mata-mata em outra.
         "page": "Fase de grupos da Copa Sul-Americana de {season}",

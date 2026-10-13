@@ -277,25 +277,25 @@ Rodem offline — rede bloqueada, banco SQLite temporário —, então nada depe
 de internet para passar.
 
 ```bash
-# Backend (190 testes: contas, sessão por Bearer, escopo por usuário,
+# Backend (224 testes: contas, sessão por Bearer, escopo por usuário,
 # busca/seleção de time, perfil + reset por arquivo, restauração de
 # configuração, resolução de fontes, cache, fallback, CRUD, providers, fase de
-# copa, chaves de mata-mata, jogo ao vivo, API)
+# copa, chaves de mata-mata, jogo ao vivo, tradução do que vem em inglês, API)
 cd api
 python -m venv .venv && .venv/bin/pip install -r requirements-dev.txt
 .venv/bin/python -m pytest
 
-# Frontend (67 testes: widgets, abas de competição/fase, chaves, tema derivado
-# do time, onboarding com escolha obrigatória de time, tela de Configurações
-# com a restauração, admin, cliente HTTP, Tempo Real)
+# Frontend (73 testes: widgets, abas de competição/fase, chaves, tema derivado
+# do time, menu da conta, onboarding com escolha obrigatória de time, tela de
+# Configurações com a restauração, admin, cliente HTTP, Tempo Real)
 cd web
 npm install
 npm test        # vitest
 npm run build   # checagem de tipos + build de produção
 
-# E2E (Playwright, 13 cenários contra o stack de verdade: portão, registro +
-# escolha de time, sessão sem cookie, painel, tela de Configurações e reset
-# por arquivo)
+# E2E (Playwright, 14 cenários contra o stack de verdade: portão, registro +
+# escolha de time, sessão sem cookie, painel, menu da conta, tela de
+# Configurações e reset por arquivo)
 npm run test:e2e:install                  # uma vez: baixa o Chromium
 docker compose up -d --build              # stack em http://localhost:3999
 npm run test:e2e                          # E2E_BASE_URL p/ outra porta/host

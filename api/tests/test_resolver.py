@@ -1,7 +1,7 @@
 """Testes do resolvedor: prioridade, cache, fallback, status e enriquecimentos."""
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 import pytest
 
@@ -12,6 +12,7 @@ from app.providers.mapping import record_to_broadcasts, records_to_news
 from app.schemas import (
     BracketTie,
     CompetitionRef,
+    Match,
     SeasonLine,
     StandingRow,
     StandingTable,
@@ -22,6 +23,7 @@ from app.services.cache import cache
 from app.services.fallback import DATA_FILE
 from app.services.resolver import (
     build_context,
+    match_is_over,
     clear_runtime_status,
     enrich_standings_logos,
     is_empty,
@@ -178,7 +180,7 @@ def _table(*names: str) -> list[StandingTable]:
         StandingRow(position=i, team=TeamRef(id=None, name=name), points=30 - i)
         for i, name in enumerate(names, start=1)
     ]
-    return [StandingTable(competition=CompetitionRef(id="4351", name="Brasileirão"),
+    return [StandingTable(competition=CompetitionRef(id="4351", name="Brasileirão Série A"),
                           season="2026", rows=rows)]
 
 
@@ -265,7 +267,7 @@ def test_stats_position_from_standings_fills_missing_fields(db) -> None:
     out = stats_position_from_standings(stats, tables, team_id="134294")
     assert out.season.position == 1
     assert out.season.points == 29  # _table atribui 30 - posição
-    assert out.season.competition == "Brasileirão"
+    assert out.season.competition == "Brasileirão Série A"
 
 
 def test_stats_position_creates_season_line_when_absent(db) -> None:
@@ -370,3 +372,52 @@ def test_resolver_rejects_unknown_capability_source(db, fake_kind) -> None:
     value, meta = resolve(db, "standings", _ctx(db), allow_fallback=False)
     assert value is None
     assert meta.status == "error"
+
+
+# --------------------------------------------------------------------------- #
+# "Próximo jogo" que já foi disputado
+# --------------------------------------------------------------------------- #
+def _game(hours: float, **kwargs) -> Match:
+    """Jogo com kickoff a `hours` horas de agora (negativo = já começou)."""
+    return Match(
+        competition=CompetitionRef(id="4351", name="Brasileirão Série A"),
+        home=TeamRef(id="133", name="Bragantino"),
+        away=TeamRef(id="134294", name="Cruzeiro"),
+        kickoff=datetime.now(timezone.utc) + timedelta(hours=hours),
+        **kwargs,
+    )
+
+
+def test_match_is_over_keeps_a_game_still_to_come() -> None:
+    assert match_is_over(_game(48)) is False
+
+
+def test_match_is_over_tolerates_a_game_still_in_the_field() -> None:
+    """A folga de 3h é para o jogo que está rolando agora não cair do card."""
+    assert match_is_over(_game(-1)) is False
+    assert match_is_over(_game(-2.5)) is False
+
+
+def test_match_is_over_drops_a_game_whose_kickoff_has_passed() -> None:
+    """Caso do Bragantino x Cruzeiro: terminou e continuava como próximo."""
+    assert match_is_over(_game(-5)) is True
+
+
+def test_match_is_over_trusts_the_status_over_the_clock() -> None:
+    """Fonte com horário errado mas estado encerrado: o estado manda."""
+    assert match_is_over(_game(48, status="Encerrado")) is True
+
+
+def test_match_is_over_never_drops_a_live_game() -> None:
+    assert match_is_over(_game(-5, is_live=True)) is False
+
+
+def test_match_is_over_without_kickoff_or_status_is_permissive() -> None:
+    """Sem horário e sem estado não há como concluir nada: deixa passar."""
+    match = Match(
+        competition=CompetitionRef(id="4351", name="Brasileirão Série A"),
+        home=TeamRef(id="133", name="Bragantino"),
+        away=TeamRef(id="134294", name="Cruzeiro"),
+    )
+    assert match_is_over(match) is False
+    assert match_is_over(None) is False

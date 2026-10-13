@@ -32,6 +32,31 @@ const COLUMNS: Column[] = [
 
 const ROW_HEIGHT = 40;
 
+/* --------------------------------------------------------------------------
+   Cabeçalho e corpo da tabela.
+
+   O cabeçalho gruda no topo do rolagem (`sticky`) e o corpo herda o resto.
+   A coluna do time é a exceção: vira flex para escudo e nome caberem na mesma
+   célula, e por isso tem alinhamento e quebra próprios.
+   -------------------------------------------------------------------------- */
+
+const HEAD_BASE =
+  'sticky top-0 z-[1] bg-surface-2 border-b border-line px-1.5 py-2 ' +
+  'text-[0.74rem] uppercase tracking-[0.04em] text-muted whitespace-nowrap';
+const HEAD_CELL = `${HEAD_BASE} text-center`;
+const HEAD_TEAM = `${HEAD_BASE} text-left`;
+
+const CELL = 'px-1.5 py-2 border-b border-line text-center whitespace-nowrap';
+const TEAM_CELL =
+  'px-1.5 py-2 border-b border-line flex items-center gap-2 ' +
+  'whitespace-normal font-semibold text-left';
+
+/** A tabela cuida do que se repete em toda linha: hover e o fio da última. */
+const TABLE =
+  'w-full border-collapse text-[0.88rem] tabular-nums ' +
+  '[&_tbody_tr:hover]:bg-row-hover ' +
+  '[&_tbody_tr:last-child>*]:border-b-0';
+
 function cellValue(row: StandingRow, key: string): number {
   switch (key) {
     case 'played':
@@ -55,12 +80,19 @@ function cellValue(row: StandingRow, key: string): number {
   }
 }
 
+/** Bolinha de resultado da coluna "Últ.". Tom e texto juntos, para não brigar. */
+const DOT_TONE: Record<string, string> = {
+  v: 'bg-[#1c9c6d] text-white',
+  e: 'bg-[#8a94a6] text-white',
+  d: 'bg-[#cf4438] text-white',
+};
+
 function FormStrip({ form }: { form: string | null | undefined }) {
-  if (!form) return <span className="muted">—</span>;
+  if (!form) return <span className="text-muted">—</span>;
   const letters = form.split('').filter((letter) => letter.trim() !== '');
-  if (letters.length === 0) return <span className="muted">—</span>;
+  if (letters.length === 0) return <span className="text-muted">—</span>;
   return (
-    <span className="form-strip">
+    <span className="inline-flex gap-[3px]">
       {letters.map((letter, index) => {
         const result = formLetter(letter);
         const title =
@@ -71,11 +103,15 @@ function FormStrip({ form }: { form: string | null | undefined }) {
               : result === 'D'
                 ? 'Derrota'
                 : letter;
+        const tone = result
+          ? DOT_TONE[result.toLowerCase()] ?? 'bg-muted text-white'
+          : 'bg-line text-muted';
         return (
           <span
             key={`${letter}-${index}`}
-            className={`form-dot${result ? ` form-dot--${result.toLowerCase()}` : ' form-dot--unknown'}`}
             title={title}
+            data-result={result?.toLowerCase() ?? 'unknown'}
+            className={`inline-flex h-[17px] w-[17px] items-center justify-center rounded-full text-[0.62rem] font-extrabold ${tone}`}
           >
             {result ?? letter}
           </span>
@@ -115,7 +151,7 @@ function TabBar({
 }) {
   if (items.length <= 1) return null;
   return (
-    <div className="standings-tabs" role="tablist" aria-label={label}>
+    <div className="flex flex-wrap gap-1.5" role="tablist" aria-label={label}>
       {items.map(([key, text]) => {
         const selected = key === activeKey;
         return (
@@ -124,7 +160,11 @@ function TabBar({
             type="button"
             role="tab"
             aria-selected={selected}
-            className={`standings-tab${selected ? ' is-active' : ''}`}
+            className={
+              selected
+                ? 'rounded-full border border-accent bg-accent px-3 py-[5px] text-[0.85rem] font-semibold text-white [font:inherit]'
+                : 'cursor-pointer rounded-full border border-line bg-surface-2 px-3 py-[5px] text-[0.85rem] font-semibold text-muted [font:inherit]'
+            }
             onClick={() => onSelect(key)}
           >
             {text}
@@ -152,12 +192,31 @@ function BracketSide({
 }) {
   return (
     <span
-      className={`bracket-side bracket-side--${align}${highlight ? ' is-team' : ''}${winner ? ' is-winner' : ''}`}
+      data-testid="bracket-side"
+      data-self={highlight ? '' : undefined}
+      data-winner={winner ? '' : undefined}
+      className={
+        'flex min-w-0 flex-1 basis-0 items-center gap-1.5 text-[0.88rem] ' +
+        (align === 'right' ? 'flex-row-reverse text-right ' : '') +
+        (highlight ? 'font-extrabold ' : 'font-semibold ')
+      }
     >
       {team.logo ? (
-        <img src={team.logo} alt="" width={20} height={20} loading="lazy" />
+        <img
+          src={team.logo}
+          alt=""
+          width={20}
+          height={20}
+          loading="lazy"
+          className="h-5 w-5 flex-none object-contain"
+        />
       ) : null}
-      <span className="bracket-team-name">{team.name}</span>
+      <span
+        data-testid="bracket-team-name"
+        className={`truncate ${winner ? 'font-extrabold' : ''}`}
+      >
+        {team.name}
+      </span>
     </span>
   );
 }
@@ -177,24 +236,35 @@ function BracketRow({
 
   return (
     <li
-      className={`bracket-tie${tie.decided ? ' is-decided' : ''}`}
+      data-testid="bracket-tie"
+      data-decided={tie.decided ? '' : undefined}
+      className={
+        'flex flex-wrap items-center gap-x-2.5 gap-y-1.5 border border-line rounded-ctl px-2.5 py-2 ' +
+        (tie.decided ? 'bg-surface' : 'bg-surface-2')
+      }
       style={
         highlight(tie.home) || highlight(tie.away)
           ? { backgroundColor: withAlpha(highlightColor, 0.1) }
           : undefined
       }
     >
-      {tie.label ? <span className="bracket-label">{tie.label}</span> : null}
+      {tie.label ? (
+        <span className="min-w-[2.6em] flex-none text-[0.7rem] font-extrabold uppercase tracking-[0.06em] text-muted">
+          {tie.label}
+        </span>
+      ) : null}
       <BracketSide
         team={tie.home}
         align="left"
         highlight={highlight(tie.home)}
         winner={tie.winner === 'home'}
       />
-      <span className="bracket-score">
-        <strong>{score}</strong>
-        {tie.penalties ? <small className="bracket-pens">({tie.penalties} p)</small> : null}
-        {!tie.decided ? <small className="bracket-pending">a definir</small> : null}
+      <span className="flex flex-none flex-col items-center leading-[1.15] tabular-nums">
+        <strong className="text-[0.95rem]">{score}</strong>
+        {tie.penalties ? (
+          <small className="text-[0.7rem] text-muted">({tie.penalties} p)</small>
+        ) : null}
+        {!tie.decided ? <small className="text-[0.7rem] text-muted">a definir</small> : null}
       </span>
       <BracketSide
         team={tie.away}
@@ -203,7 +273,7 @@ function BracketRow({
         winner={tie.winner === 'away'}
       />
       {tie.legs && tie.legs.length > 0 ? (
-        <span className="bracket-legs muted">{tie.legs.join(' · ')}</span>
+        <span className="basis-full text-[0.72rem] text-muted">{tie.legs.join(' · ')}</span>
       ) : null}
     </li>
   );
@@ -223,7 +293,7 @@ function BracketList({
     return <EmptyState message="Confrontos ainda não divulgados." />;
   }
   return (
-    <ul className="bracket">
+    <ul className="m-0 flex list-none flex-col gap-1.5 p-0">
       {ties.map((tie, index) => (
         <BracketRow
           key={`${tie.home.name}-${tie.away.name}-${index}`}
@@ -257,20 +327,22 @@ function TableHeader({ table }: { table: StandingsTable }) {
   const detail = headerDetail(table);
 
   return (
-    <div className="standings-head">
+    <div className="flex items-center gap-2.5 px-0.5 py-1">
       {table.competition.logo ? (
         <img
           src={table.competition.logo}
           alt=""
           width={26}
           height={26}
-          className="standings-head-logo"
           loading="lazy"
+          className="flex-none rounded-md object-contain"
         />
       ) : null}
-      <div className="standings-head-text">
-        <p className="standings-head-title">{table.competition.name}</p>
-        <p className="standings-head-meta">
+      <div className="min-w-0">
+        <p data-testid="standings-title" className="m-0 text-[0.95rem] font-bold text-ink">
+          {table.competition.name}
+        </p>
+        <p data-testid="standings-meta" className="m-0 text-[0.78rem] text-muted">
           {[kind, detail, table.season ? `temporada ${table.season}` : null]
             .filter(Boolean)
             .join(' · ')}
@@ -377,7 +449,7 @@ export function StandingsWidget({ widget, data, config }: WidgetProps) {
   const isEmptyCupStage = Boolean(active && active.rows.length === 0 && !hasBracket && active.stage);
 
   return (
-    <WidgetShell title={widget.title || 'Tabelas'} className="standings">
+    <WidgetShell title={widget.title || 'Tabelas'} widget="standings">
       {!active ? (
         <EmptyState message="Nenhuma tabela disponível." />
       ) : (
@@ -418,35 +490,39 @@ export function StandingsWidget({ widget, data, config }: WidgetProps) {
           {hasBracket ? (
             <BracketList table={active} team={team} highlightColor={highlightColor} />
           ) : isEmptyCupStage ? (
-            <p className="standings-stage">
+            <p className="mt-2 border border-line rounded-ctl bg-surface-2 p-3 text-[0.92rem]">
               <strong>{active.stage}</strong>
-              <span className="muted"> — mata-mata: a fase é exibida porque não há tabela de classificação.</span>
+              <span className="text-muted">
+                {' '}
+                — mata-mata: a fase é exibida porque não há tabela de classificação.
+              </span>
             </p>
           ) : (
             <div
-              className="standings-scroll"
+              data-testid="standings-scroll"
+              className="overflow-auto rounded-ctl border border-line"
               style={{ maxHeight: `${maxRows * ROW_HEIGHT + 44}px` }}
             >
-              <table className="standings-table">
+              <table data-testid="standings-table" className={TABLE}>
                 <caption className="sr-only">
                   {active.description ?? `Classificação — ${active.competition.name}`}
                 </caption>
                 <thead>
                   <tr>
-                    <th scope="col" title="Posição">
+                    <th scope="col" title="Posição" className={HEAD_CELL}>
                       <span aria-hidden="true">Pos</span>
                       <span className="sr-only">Posição</span>
                     </th>
-                    <th scope="col" className="col-team">
+                    <th scope="col" className={HEAD_TEAM}>
                       Time
                     </th>
                     {COLUMNS.map((column) => (
-                      <th scope="col" key={column.key} title={column.full}>
+                      <th scope="col" key={column.key} title={column.full} className={HEAD_CELL}>
                         <span aria-hidden="true">{column.short}</span>
                         <span className="sr-only">{column.full}</span>
                       </th>
                     ))}
-                    <th scope="col" title="Últimos resultados">
+                    <th scope="col" title="Últimos resultados" className={HEAD_CELL}>
                       <span aria-hidden="true">Últ.</span>
                       <span className="sr-only">Últimos resultados</span>
                     </th>
@@ -458,33 +534,42 @@ export function StandingsWidget({ widget, data, config }: WidgetProps) {
                     return (
                       <tr
                         key={`${row.team.id ?? row.team.name}-${row.position}`}
-                        className={highlighted ? 'standings-row is-team' : 'standings-row'}
+                        // O realce é da linha inteira, por isso o descendente.
+                        data-self={highlighted ? '' : undefined}
+                        className={highlighted ? '[&>*]:font-extrabold' : undefined}
                         style={
                           highlighted
                             ? { backgroundColor: withAlpha(highlightColor, 0.16) }
                             : undefined
                         }
                       >
-                        <th scope="row" className="col-pos">
+                        <th scope="row" className={CELL}>
                           {row.position}
                         </th>
-                        <td className="col-team">
+                        <td className={TEAM_CELL}>
                           {row.team.logo ? (
-                            <img src={row.team.logo} alt="" width={20} height={20} loading="lazy" />
+                            <img
+                              src={row.team.logo}
+                              alt=""
+                              width={20}
+                              height={20}
+                              loading="lazy"
+                              className="h-5 w-5 flex-none object-contain"
+                            />
                           ) : null}
-                          <span className="standings-team-name">{row.team.name}</span>
+                          <span>{row.team.name}</span>
                           {row.note ? (
-                            <small className="standings-note" title={row.note}>
+                            <small className="cursor-help text-muted" title={row.note}>
                               •
                             </small>
                           ) : null}
                         </td>
                         {COLUMNS.map((column) => (
-                          <td key={column.key} className={`col-${column.key}`}>
+                          <td key={column.key} className={CELL}>
                             {cellValue(row, column.key)}
                           </td>
                         ))}
-                        <td className="col-form">
+                        <td className={CELL}>
                           <FormStrip form={row.form} />
                         </td>
                       </tr>
@@ -495,7 +580,7 @@ export function StandingsWidget({ widget, data, config }: WidgetProps) {
             </div>
           )}
 
-          <p className="standings-footer muted">
+          <p data-testid="standings-footer" className="text-[0.78rem] text-muted">
             {active.rows.length > 0
               ? `${active.rows.length} time${active.rows.length === 1 ? '' : 's'}`
               : hasBracket

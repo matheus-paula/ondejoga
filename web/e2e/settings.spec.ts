@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, test } from '@playwright/test';
-import { register, uniqueUser } from './helpers';
+import { openSettings, register, uniqueUser } from './helpers';
 
 // Raiz do projeto (onde o compose monta o volume que o container da API usa
 // como RESET_DIR — os arquivos RESET-<usuario>.txt aparecem aqui no host).
@@ -22,7 +22,7 @@ async function tryLogin(
   await dialog.getByRole('button', { name: 'Entrar' }).click();
   // entrou => o painel abre; recusou => o aviso de erro aparece no modal
   const ok = await page
-    .getByRole('button', { name: 'Configurar' })
+    .getByRole('button', { name: `Conta de ${username}` })
     .waitFor({ state: 'visible', timeout: 5_000 })
     .then(() => true)
     .catch(() => false);
@@ -43,7 +43,7 @@ test('gera RESET-<usuario>.txt na raiz do projeto e a senha temporária entra', 
     await register(page, username);
 
     // Configurações => seção "Esqueci a senha" => confirmação inline
-    await page.getByRole('button', { name: 'Configurar' }).click();
+    await openSettings(page);
     const settings = page.getByTestId('settings-page');
     await expect(settings).toBeVisible();
     await settings.getByRole('button', { name: /Gerar senha temporária/ }).click();
@@ -85,7 +85,7 @@ test('restaura só o que foi marcado, com senha, e devolve o portão do time', a
   await page.goto('/');
   await register(page, username, password);
 
-  await page.getByRole('button', { name: 'Configurar' }).click();
+  await openSettings(page);
   const settings = page.getByTestId('settings-page');
   await expect(settings).toBeVisible();
 

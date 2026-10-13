@@ -5,6 +5,9 @@ de backup `app/data/fallback.json` quando todas as fontes externas falham.
 """
 from __future__ import annotations
 
+import json
+from datetime import datetime, timezone
+
 import pytest
 
 from app.services import resolver
@@ -231,15 +234,39 @@ def test_dashboard_returns_full_payload(seeded_client) -> None:
     assert {"next_match", "last_match", "standings", "news", "stats"} <= capabilities
 
 
+def _backup_next_match_is_upcoming() -> bool:
+    """O snapshot envelhece sozinho: o jogo que ele guarda já pode ter passado.
+
+    O resolvedor não devolve como "próximo jogo" nada que já foi disputado,
+    então os testes do backup precisam saber se o horário do snapshot ainda é
+    futuro — sem isso passariam a depender do relógio de cada máquina.
+    """
+    snapshot = json.loads(DATA_FILE.read_text(encoding="utf-8"))["next_match"]
+    kickoff = datetime.fromisoformat(str(snapshot["kickoff"]).replace("Z", "+00:00"))
+    return kickoff + resolver.MATCH_TOLERANCE >= datetime.now(timezone.utc)
+
+
 @pytest.mark.skipif(not DATA_FILE.exists(), reason="app/data/fallback.json não gerado")
-def test_next_and_last_match_have_both_teams(seeded_client) -> None:
+def test_last_match_from_backup_has_both_teams(seeded_client) -> None:
     payload = seeded_client.get("/api/dashboard?refresh=true").json()
-    for key in ("next_match", "last_match"):
-        match = payload[key]
-        assert match["home"]["name"]
-        assert match["away"]["name"]
-        assert match["competition"]["name"]
-    assert payload["last_match"]["home"]["score"] is not None
+    match = payload["last_match"]
+    assert match["home"]["name"]
+    assert match["away"]["name"]
+    assert match["competition"]["name"]
+    assert match["home"]["score"] is not None
+
+
+@pytest.mark.skipif(not DATA_FILE.exists(), reason="app/data/fallback.json não gerado")
+def test_next_match_from_backup_only_while_still_upcoming(seeded_client) -> None:
+    payload = seeded_client.get("/api/dashboard?refresh=true").json()
+    if _backup_next_match_is_upcoming():
+        next_match = payload["next_match"]
+        assert next_match["home"]["name"]
+        assert next_match["away"]["name"]
+        assert next_match["competition"]["name"]
+    else:
+        # jogo do snapshot já disputado: o card de "Próximo Jogo" fica vazio
+        assert payload["next_match"] is None
 
 
 @pytest.mark.skipif(not DATA_FILE.exists(), reason="app/data/fallback.json não gerado")
@@ -272,9 +299,15 @@ def test_stats_position_is_enriched_from_standings(seeded_client) -> None:
 
 @pytest.mark.skipif(not DATA_FILE.exists(), reason="app/data/fallback.json não gerado")
 def test_next_match_endpoint_returns_match(seeded_client) -> None:
-    payload = seeded_client.get("/api/next-match").json()
-    assert payload["home"]["name"]
-    assert payload["away"]["name"]
+    response = seeded_client.get("/api/next-match")
+    if _backup_next_match_is_upcoming():
+        payload = response.json()
+        assert payload["home"]["name"]
+        assert payload["away"]["name"]
+    else:
+        # sem próximo jogo de verdade não há o que servir: 404, nunca um
+        # jogo que já terminou
+        assert response.status_code == 404
 
 
 def test_dashboard_survives_when_backup_is_disabled(seeded_client, monkeypatch) -> None:

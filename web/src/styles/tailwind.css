@@ -1,15 +1,664 @@
-/* Tailwind CSS v4 — uso incremental (novas telas: Configurações, TeamPicker).
+/* Tailwind CSS v4 — a folha única de estilo do painel.
 
-   Importamos só `theme` + `utilities`, SEM `preflight`: o reset global não
-   mexe em nada do CSS que já existe (tokens/base/layout/widgets/admin).
+   O CSS legado foi migrado para cá e para utilitários no JSX. Sobraram aqui
+   duas coisas, e as duas por motivo:
 
-   Como o CSS sem camada (`base.css`, `layout.css`…) vence CSS em `@layer`,
-   as classes utilitárias não sobrescrevem os estilos atuais dos componentes
-   legados — elas só estilizam elementos novos das telas novas. Assim dá para
-   usar `flex`, `gap-*`, `rounded-*`, `bg-[var(--surface)]` etc. com segurança. */
+   1. `@layer base` com o reset de elementos. O `preflight` do Tailwind faria
+      o mesmo e muito mais (zeraria margens, tamanhos de título e estilo de
+      botão do navegador), o que muda o visual que já estava bom. Preferimos o
+      reset mínimo, escrito à mão, aqui embaixo.
+
+   2. `@utility` para os primitivos de design (botão, campo, chip, badge,
+      switch, toast, esqueleto). Não é layout — é o mesmo componente repetido
+      em dezenas de lugares, e `@utility` é o jeito do Tailwind de declarar
+      isso uma vez mantendo-o na camada de utilities (daí dá para sobrescrever
+      com `px-6` por cima de um `btn` sem briga de especificidade). */
 @layer theme, base, components, utilities;
 @import 'tailwindcss/theme.css' layer(theme);
 @import 'tailwindcss/utilities.css' layer(utilities);
 
 /* Só o código-fonte do app gera utilitários (evita varrer node_modules). */
 @source '../**/*.{ts,tsx}';
+
+/* -------------------------------------------------------------------------- */
+/* Tema: os tokens do `tokens.css` viram utilities (`bg-surface`, `text-muted`).
+
+   `inline` é o que faz o claro/escuro funcionar: sem ele o Tailwind copiaria o
+   valor para `--color-surface` só no `:root`, e o `[data-theme='dark']` que o
+   JS troca no `<html>` não alcançaria as utilities. Com `inline`, cada
+   utility usa `var(--surface)` direto e acompanha a troca na hora. */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--text);
+  --color-muted: var(--text-muted);
+  --color-line: var(--border);
+  --color-accent: var(--accent);
+  --color-team: var(--team-color);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-bg);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-bg);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-bg);
+  --color-ring: var(--focus-ring);
+  --color-row-hover: var(--row-hover);
+  /* `--team-color` é pintado pelo JS no cabeçalho; sem time, cai no accent. */
+  --color-team: var(--team-color, var(--accent));
+
+  --radius-card: var(--radius);
+  --radius-ctl: var(--radius-sm);
+
+  --shadow-card: var(--shadow);
+}
+
+/* Animações usadas pelos utilitários `animate-*`. */
+@theme {
+  --animate-live-pulse: live-pulse 1.6s ease-in-out infinite;
+  --animate-fade-in: fade-in var(--transition);
+  --animate-slide-in: slide-in 180ms ease;
+  /* Mesmo deslize, mais curto: o formulário do modal não espera o drawer. */
+  --animate-slide-in-quick: slide-in 160ms ease;
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slide-in {
+    from {
+      transform: translateX(24px);
+      opacity: 0.4;
+    }
+
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes live-pulse {
+    0%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    50% {
+      opacity: 0.35;
+      transform: scale(0.75);
+    }
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Reset de elementos (o que o preflight faria, só que no mínimo necessário). */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    transition: background-color var(--transition), color var(--transition);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    margin: 0;
+    line-height: 1.25;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  img {
+    display: block;
+    max-width: 100%;
+  }
+
+  code,
+  pre {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.85em;
+  }
+
+  pre {
+    overflow: auto;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px;
+    max-height: 260px;
+  }
+
+  label {
+    font-weight: 600;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* Primitivos de design. Um por bloco, com o motivo de existir. */
+
+/* Botão: o mesmo componente em dezenas de lugares. As variantes são classes a
+   acrescentar (`btn--primary`), e o `px-*` de cada tela vence por vir depois. */
+@utility btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: var(--radius-sm);
+  padding: 8px 14px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color var(--transition), border-color var(--transition),
+    color var(--transition), transform var(--transition);
+
+  &:hover:not(:disabled) {
+    background: var(--surface-2);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+}
+
+@utility btn--primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #ffffff;
+
+  &:hover:not(:disabled) {
+    filter: brightness(1.07);
+    background: var(--accent);
+  }
+}
+
+@utility btn--ghost {
+  background: transparent;
+}
+
+@utility btn--small {
+  padding: 5px 10px;
+  font-size: 0.85rem;
+}
+
+@utility btn--large {
+  padding: 13px 22px;
+  font-size: 1rem;
+  /* O `--radius-md` do CSS legado nunca existiu nos tokens: a declaração era
+     inválida e o canto continuava o do `btn`. Aqui o resultado é o mesmo, só
+       que explícito. */
+  border-radius: var(--radius-sm);
+}
+
+@utility btn--icon {
+  padding: 5px 10px;
+  line-height: 1;
+}
+
+/**
+ * Botão de avatar (menu de conta). Tamanho travado e círculo perfeito: com
+ * `padding: 0` e `inline-size`/`block-size` fixos o botão não muda de medida,
+ * e o `transform: none` anula o `translateY(1px)` de `:active` do `btn` — o
+ * ícone fica parado em repouso, hover e clique.
+ */
+@utility btn--avatar {
+  inline-size: 32px;
+  block-size: 32px;
+  padding: 0;
+  border-radius: 50%;
+
+  &:active:not(:disabled) {
+    transform: none;
+  }
+}
+
+@utility btn--danger {
+  color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 45%, var(--border));
+}
+
+/* Controles de formulário, que o preflight deixaria cru. */
+@utility control {
+  width: 100%;
+  font: inherit;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  transition: border-color var(--transition);
+
+  &:hover:not(:disabled) {
+    border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+  }
+
+  &:disabled {
+    opacity: 0.6;
+  }
+}
+
+/* O color picker é caixa quadrada fixa; a textarea mantém o mono e só cresce
+   na vertical — dois ajustes que não valem para os outros controles. */
+/* Seletor de cor do acento. 44×32 e fundo `surface-2` é o que a tela de
+   Configurações renderizava (a regra de contexto do layout vencia a global
+   do antigo base.css por especificidade). */
+@utility control-color {
+  inline-size: 44px;
+  block-size: 32px;
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  cursor: pointer;
+}
+
+@utility control-area {
+  resize: vertical;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.85rem;
+}
+
+/* Campo de formulário: `label` + controle empilhados (ou em linha). */
+@utility field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+
+  & > legend {
+    font-weight: 700;
+    padding: 0;
+    margin-bottom: 6px;
+  }
+}
+
+@utility field--inline {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+
+  & > span,
+  & > label {
+    white-space: nowrap;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  & > input,
+  & > select {
+    width: auto;
+    min-width: 0;
+    flex: 1;
+  }
+}
+
+@utility field--check {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+
+  & > input {
+    width: 17px;
+    height: 17px;
+    accent-color: var(--accent);
+  }
+}
+
+/* Etiqueta curta e arredondada (resultado, competição, situação). */
+@utility chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+/* Seletor binário desenhado: a caixa real fica invisível por cima da trilha. */
+@utility switch {
+  position: relative;
+  display: inline-flex;
+  cursor: pointer;
+  flex: none;
+
+  & > input {
+    position: absolute;
+    opacity: 0;
+    width: 42px;
+    height: 24px;
+    margin: 0;
+    cursor: pointer;
+  }
+
+  /* A trilha é irmã do input, por isso o `+`: marcado pinta e o cursor anda. */
+  & > input:checked + .switch-track {
+    background: var(--accent);
+  }
+
+  & > input:checked + .switch-track > .switch-thumb {
+    transform: translateX(18px);
+  }
+
+  & > input:focus-visible + .switch-track {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+
+  &.is-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+@utility switch-track {
+  width: 42px;
+  height: 24px;
+  border-radius: 999px;
+  background: var(--border);
+  display: inline-flex;
+  align-items: center;
+  padding: 3px;
+  transition: background-color var(--transition);
+
+  & > .switch-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--surface);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.35);
+    transition: transform var(--transition);
+  }
+}
+
+@utility switch-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.35);
+  transition: transform var(--transition);
+}
+
+/* Aviso flutuante (aviso de sucesso/erro sob o título). */
+/* Cartão flutuante ancorado num gatilho (status das fontes, menu da conta).
+   Sem largura e sem padding: cada gatilho define as suas. */
+@utility popover {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+  z-index: 50;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+@utility popover-title {
+  font-size: 0.95rem;
+  margin-bottom: 8px;
+}
+
+@utility popover-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Cada linha é uma grade de duas colunas: rótulo de um lado, selo do outro, e
+   fonte/erro ocupando a faixa inteira por baixo. */
+@utility popover-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2px 8px;
+  align-items: center;
+  font-size: 0.85rem;
+}
+
+@utility popover-capability {
+  font-weight: 700;
+}
+
+@utility popover-source {
+  grid-column: 1 / -1;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+}
+
+@utility popover-error {
+  grid-column: 1 / -1;
+  color: var(--warn);
+  font-size: 0.78rem;
+}
+
+/* Ação em bloco, sem a grade de duas colunas (menu da conta). */
+@utility popover-action {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.9rem;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--surface-2);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: -2px;
+  }
+}
+
+@utility toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  max-width: min(92vw, 520px);
+
+  &.toast--success {
+    border-left: 4px solid var(--success);
+  }
+
+  &.toast--error {
+    border-left: 4px solid var(--danger);
+  }
+
+  &.toast--info {
+    border-left: 4px solid var(--accent);
+  }
+}
+
+/* Bloco que pulsa enquanto a tela carrega. */
+@utility skeleton {
+  border-radius: var(--radius);
+  background: linear-gradient(
+    100deg,
+    var(--surface-2) 30%,
+    color-mix(in srgb, var(--surface-2) 60%, var(--border)) 50%,
+    var(--surface-2) 70%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s infinite linear;
+}
+
+@utility skeleton--tall {
+  height: 210px;
+}
+
+@utility skeleton--wide {
+  height: 150px;
+}
+
+/* Selo clicável com um ponto colorido (status das fontes). */
+@utility badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+@utility badge--warn {
+  color: var(--warn);
+  background: var(--warn-bg);
+  border-color: color-mix(in srgb, var(--warn) 35%, transparent);
+}
+
+@utility badge-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* Link de atalho para o leitor de tela: some acima da tela e desce no foco. */
+@utility skip-link {
+  position: absolute;
+  left: 12px;
+  top: -48px;
+  z-index: 60;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  transition: top var(--transition);
+
+  &:focus {
+    top: 12px;
+  }
+}
+
+/* Painel de erro da tela inteira. */
+@utility error-panel {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+/* Variações de chip por tom, e o fecho do aviso flutuante. */
+@utility chip--status-ok {
+  color: var(--success);
+  background: var(--success-bg);
+  border-color: transparent;
+}
+
+@utility chip--status-fallback {
+  color: var(--warn);
+  background: var(--warn-bg);
+  border-color: transparent;
+}
+
+@utility chip--status-error {
+  color: var(--warn);
+  background: var(--warn-bg);
+  border-color: transparent;
+}
+
+@utility toast-close {
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+@keyframes skeleton-shimmer {
+  from {
+    background-position: 160% 0;
+  }
+  to {
+    background-position: -60% 0;
+  }
+}

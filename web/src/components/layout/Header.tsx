@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react';
 import type { CSSProperties } from 'react';
-import { useAuth } from '../../context/AuthContext';
 import { useDashboard } from '../../context/DashboardContext';
 import { useLayout } from '../../context/LayoutContext';
 import { updatedAgoLabel } from '../../lib/format';
-import { Icon } from '../ui/Icon';
-import { ThemeToggle } from '../ui/ThemeToggle';
+import { AccountMenu } from './AccountMenu';
 import { SourceStatusBadge } from './SourceStatusBadge';
 
 function UpdatedAgo({ timestamp }: { timestamp: number | null }) {
@@ -19,71 +17,63 @@ function UpdatedAgo({ timestamp }: { timestamp: number | null }) {
   const label = updatedAgoLabel(timestamp);
   if (!label) return null;
   return (
-    <span className="updated-ago" role="status">
+    <span className="whitespace-nowrap text-[0.8rem] text-muted" role="status">
       {label}
     </span>
   );
 }
 
-/** Abre a tela de Configurações (rota interna `#/configuracoes`). */
-function openSettings() {
-  window.location.hash = '#/configuracoes';
-}
-
 /**
- * Cabeçalho do painel. O modal de conta vive no `DashboardView` (precisa
- * sobreviver ao registro para cobrar o time), então aqui só fica o atalho para
- * Configurações — que agora é uma tela cheia, não uma gaveta.
+ * Cabeçalho do painel: só a identidade do time.
+ *
+ * O modal de conta vive no `DashboardView` (precisa sobreviver ao registro
+ * para cobrar o time) e as ações da conta — Configurações e Sair — cabem no
+ * `AccountMenu`, aberto pelo ícone de usuário. O tema não é mais atalho daqui:
+ * ele mora em Configurações → Aparência.
+ *
+ * A faixa colorida embaixo é o time (`--team-color`, definido no `style`
+ * inline), por isso a sombra é uma inset de 3px e não uma borda.
  */
 export function Header() {
   const { config } = useLayout();
   const { data, lastUpdatedAt } = useDashboard();
-  const { user, logout } = useAuth();
   const team = data?.team ?? config.team;
   const location = [team.city, team.state].filter(Boolean).join(' · ');
   const style = { '--team-color': team.primary_color ?? 'var(--accent)' } as CSSProperties;
 
   return (
-    <header className="app-header" style={style}>
+    <header
+      data-testid="app-header"
+      style={style}
+      className="sticky top-0 z-40 flex flex-wrap items-center justify-between gap-4 border-b border-line bg-surface py-3 px-[max(16px,calc((100%-1240px)/2+16px))] shadow-[inset_0_-3px_0_0_var(--team-color,var(--accent))]"
+    >
       <a className="skip-link" href="#conteudo">
         Pular para o conteúdo
       </a>
-      <div className="app-brand">
+      <div className="flex min-w-0 items-center gap-3">
         {team.logo ? (
-          <img src={team.logo} alt="" className="app-crest" width={46} height={46} />
+          <img
+            src={team.logo}
+            alt=""
+            width={46}
+            height={46}
+            className="h-[46px] w-[46px] flex-none object-contain"
+          />
         ) : (
-          <span className="app-crest app-crest--placeholder" aria-hidden="true" />
+          <span
+            aria-hidden="true"
+            className="inline-block h-[46px] w-[46px] rounded-full bg-[var(--team-color,var(--accent))] opacity-85"
+          />
         )}
-        <div className="app-brand-text">
-          <p className="app-name">{team.name}</p>
-          {location ? <p className="app-subtitle">{location}</p> : null}
+        <div>
+          <p className="text-[1.15rem] font-extrabold tracking-[-0.01em]">{team.name}</p>
+          {location ? <p className="text-[0.85rem] text-muted">{location}</p> : null}
         </div>
       </div>
-      <div className="app-header-actions">
+      <div className="flex flex-wrap items-center gap-3">
         <SourceStatusBadge sources={data?.meta?.sources} />
         <UpdatedAgo timestamp={lastUpdatedAt} />
-        <ThemeToggle />
-        {user ? (
-          <span className="account-chip" title="Conta conectada">
-            <Icon name="user" size={15} />
-            <span className="account-name">{user.username}</span>
-            <button
-              type="button"
-              className="btn btn--ghost btn--small"
-              onClick={() => void logout()}
-            >
-              <Icon name="logOut" size={15} />
-              Sair
-            </button>
-          </span>
-        ) : null}
-        {/* Só faz sentido para quem tem conta (cada um tem o próprio layout). */}
-        {user ? (
-          <button type="button" className="btn btn--primary" onClick={openSettings}>
-            <Icon name="settings" size={15} />
-            Configurar
-          </button>
-        ) : null}
+        <AccountMenu />
       </div>
     </header>
   );

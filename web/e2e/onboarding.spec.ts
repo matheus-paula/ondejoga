@@ -7,10 +7,10 @@ test('sem conta logada mostra o portão, não um time padrão', async ({ page })
   await expect(page.getByTestId('welcome-gate')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Crie a sua conta para começar' })).toBeVisible();
 
-  // nenhum widget do painel e nenhum botão de configurações
+  // nenhum widget do painel e nenhuma conta aberta
   await expect(page.getByRole('heading', { name: 'Próximo Jogo' })).toHaveCount(0);
   await expect(page.getByRole('heading', { name: 'Tabelas' })).toHaveCount(0);
-  await expect(page.getByRole('button', { name: 'Configurar' })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: /^Conta de / })).toHaveCount(0);
 
   // o painel nem chega a ser requisitado
   const dashboards = await page.evaluate(() =>
@@ -32,7 +32,7 @@ test('o modal de conta fica acima do fundo semitransparente e é clicável', asy
   expect(await dialog.evaluate((el) => el.parentElement?.tagName)).toBe('BODY');
 
   const layers = await dialog.evaluate((el) => {
-    const backdrop = document.querySelector('.auth-backdrop');
+    const backdrop = document.querySelector('[data-testid="auth-backdrop"]');
     if (!backdrop) return null;
     return {
       modal: Number(getComputedStyle(el).zIndex),
@@ -54,11 +54,10 @@ test('cria conta pelo portão e cai no painel', async ({ page }) => {
   await page.goto('/');
   await register(page, username);
 
-  await expect(page.getByRole('heading', { name: 'Próximo Jogo' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Último Jogo' })).toBeVisible();
   await expect(page.getByTestId('welcome-gate')).toHaveCount(0);
-  await expect(page.getByRole('button', { name: /Sair/ })).toBeVisible();
-  // configurações só existem para quem está logado
-  await expect(page.getByRole('button', { name: 'Configurar' })).toBeVisible();
+  // Configurações e Sair passaram para dentro do menu da conta
+  await expect(page.getByRole('button', { name: `Conta de ${username}` })).toBeVisible();
 });
 
 test('sai e entra de volta com a conta existente', async ({ page }) => {
@@ -75,7 +74,7 @@ test('sai e entra de volta com a conta existente', async ({ page }) => {
   await dialog.getByLabel('Senha').fill('senha123');
   await dialog.getByRole('button', { name: 'Entrar' }).click();
 
-  await expect(page.getByRole('heading', { name: 'Próximo Jogo' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Último Jogo' })).toBeVisible();
   await expect(page.getByTestId('welcome-gate')).toHaveCount(0);
 });
 
@@ -86,7 +85,7 @@ test('sessão sobrevive sem cookie — é o caso do iframe do Home Assistant', a
   const username = uniqueUser('e2e');
   await page.goto('/');
   await register(page, username);
-  await expect(page.getByRole('heading', { name: 'Próximo Jogo' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Último Jogo' })).toBeVisible();
 
   // A reserva do cookie é o token no corpo do login. Guardado em localStorage,
   // ele viaja como Authorization: Bearer — que não sofre com SameSite.
@@ -97,7 +96,7 @@ test('sessão sobrevive sem cookie — é o caso do iframe do Home Assistant', a
   await context.clearCookies();
   await page.reload();
 
-  await expect(page.getByRole('heading', { name: 'Próximo Jogo' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Último Jogo' })).toBeVisible();
   await expect(page.getByTestId('welcome-gate')).toHaveCount(0);
-  await expect(page.getByRole('button', { name: /Sair/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: `Conta de ${username}` })).toBeVisible();
 });

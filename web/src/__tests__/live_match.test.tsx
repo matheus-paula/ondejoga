@@ -32,7 +32,7 @@ describe('padronização dos cartões de jogo', () => {
     const { container: next } = render(
       <NextMatchWidget widget={widget('next_match')} data={data} config={configFixture} />,
     );
-    const nextCrests = [...next.querySelectorAll('.match-team-crest')];
+    const nextCrests = [...next.querySelectorAll('[data-testid="team-crest"]')];
     expect(nextCrests).toHaveLength(2);
     expect(nextCrests[0].getAttribute('width')).toBe('44');
     expect(nextCrests[1].getAttribute('width')).toBe('44');
@@ -40,35 +40,36 @@ describe('padronização dos cartões de jogo', () => {
     const { container: last } = render(
       <LastMatchWidget widget={widget('last_match')} data={data} config={configFixture} />,
     );
-    const lastCrests = [...last.querySelectorAll('.match-team-crest')];
+    const lastCrests = [...last.querySelectorAll('[data-testid="team-crest"]')];
     expect(lastCrests).toHaveLength(2);
     // mesmo componente/estilo nos dois widgets
     expect(lastCrests[0].getAttribute('width')).toBe('44');
     expect(lastCrests[1].getAttribute('width')).toBe('44');
-    expect(last.querySelector('.match-teams')).not.toBeNull();
-    expect(next.querySelector('.match-teams')).not.toBeNull();
+    expect(last.querySelector('[data-testid="match-teams"]')).not.toBeNull();
+    expect(next.querySelector('[data-testid="match-teams"]')).not.toBeNull();
   });
 
   it('o placar fica ao lado do "×", não junto ao nome do clube', () => {
     const data = makeDashboard(kickoff);
     render(<LastMatchWidget widget={widget('last_match')} data={data} config={configFixture} />);
 
-    const score = document.querySelector('.match-teams .match-score') as HTMLElement;
+    const score = document.querySelector('[data-testid="match-teams"] [data-testid="match-score"]') as HTMLElement;
     expect(score).not.toBeNull();
     expect(score.textContent).toContain('2'); // gols do mando
     expect(score.textContent).toContain('0'); // gols do visitante
     expect(score.textContent).toContain('×');
 
     // a ordem no DOM é: escudo, nome | placar+x | nome, escudo
-    const row = document.querySelector('.match-teams') as HTMLElement;
-    const values = [...row.querySelectorAll('.match-team-name, .match-score')];
-    expect(values.map((el) => el.className.split(' ')[0])).toEqual([
-      'match-team-name',
+    const row = document.querySelector('[data-testid="match-teams"]') as HTMLElement;
+    const values = [...row.querySelectorAll('[data-testid="team-name"], [data-testid="match-score"]')];
+    // a ordem é nome, placar, nome — o placar nunca fica no bloco do nome
+    expect(values.map((el) => el.getAttribute('data-testid'))).toEqual([
+      'team-name',
       'match-score',
-      'match-team-name',
+      'team-name',
     ]);
     // os gols NÃO ficam dentro dos blocos de nome
-    expect(row.querySelector('.match-team-name')?.textContent).toBe('Cruzeiro');
+    expect(row.querySelector('[data-testid="team-name"]')?.textContent).toBe('Cruzeiro');
   });
 });
 
@@ -79,12 +80,12 @@ describe('widget Tempo Real', () => {
     render(<LiveMatchWidget widget={widget('live_match')} data={data} config={configFixture} />);
 
     expect(screen.getByTestId('live-badge').textContent).toMatch(/ao vivo/i);
-    const score = document.querySelector('.match-teams .match-score') as HTMLElement;
-    const values = [...score.querySelectorAll('.match-score-value')];
+    const score = document.querySelector('[data-testid="match-teams"] [data-testid="match-score"]') as HTMLElement;
+    const values = [...score.querySelectorAll('[data-testid="score-value"]')];
     expect(values.map((value) => value.textContent)).toEqual(['1', '0']);
     expect(score.textContent).toContain('×'); // placar colado no "×"
-    expect(document.querySelector('.live-status')?.textContent).toBe("48'");
-    expect(document.querySelector('.live-venue')?.textContent).toContain('Arena Fonte Nova');
+    expect(document.querySelector('[data-testid="live-status"]')?.textContent).toBe("48'");
+    expect(document.querySelector('[data-testid="live-venue"]')?.textContent).toContain('Arena Fonte Nova');
     expect(screen.getByText('Brasileirão Série A')).toBeInTheDocument();
   });
 
@@ -94,7 +95,7 @@ describe('widget Tempo Real', () => {
     const { container } = render(
       <LiveMatchWidget widget={widget('live_match')} data={data} config={configFixture} />,
     );
-    const crests = [...container.querySelectorAll('.match-team-crest')];
+    const crests = [...container.querySelectorAll('[data-testid="team-crest"]')];
     expect(crests).toHaveLength(2);
     expect(crests[0].getAttribute('width')).toBe('44');
     expect(crests[0].getAttribute('src')).toBe('https://example.com/bahia.png');
@@ -107,7 +108,7 @@ describe('widget Tempo Real', () => {
     const { container } = render(
       <LiveMatchWidget widget={widget('live_match')} data={data} config={configFixture} />,
     );
-    expect(container.querySelector('.widget-card')).toBeNull();
+    expect(container.querySelector('[data-testid="widget-card"]')).toBeNull();
   });
 
   it('respeita as opções de estádio e cronômetro', () => {
@@ -120,8 +121,8 @@ describe('widget Tempo Real', () => {
         config={configFixture}
       />,
     );
-    expect(container.querySelector('.live-venue')).toBeNull();
-    expect(container.querySelector('.live-status')).toBeNull();
+    expect(container.querySelector('[data-testid="live-venue"]')).toBeNull();
+    expect(container.querySelector('[data-testid="live-status"]')).toBeNull();
     expect(screen.getByTestId('live-badge')).toBeInTheDocument();
   });
 });

@@ -41,7 +41,12 @@ function WidgetRow({
 
   return (
     <li
-      className={`drawer-widget${isDragOver ? ' is-drag-over' : ''}`}
+      className={
+        `rounded-ctl border border-line bg-surface-2 p-2.5 transition-[border-color,box-shadow]` +
+        // O `!` não é capricho: no CSS gerado `.border-line` sai DEPOIS de
+        // `.border-accent`, e sem importância a cor do arraste perderia.
+        (isDragOver ? ' border-accent! shadow-[0_0_0_1px_var(--accent)]' : '')
+      }
       draggable
       onDragStart={(event) => {
         event.dataTransfer.effectAllowed = 'move';
@@ -57,8 +62,12 @@ function WidgetRow({
         onDrop();
       }}
     >
-      <div className="drawer-widget-row">
-        <span className="drag-handle" aria-hidden="true" title="Arraste para reordenar">
+      <div className="flex flex-wrap items-center gap-2.5">
+        <span
+          className="cursor-grab select-none px-0.5 text-base text-muted"
+          aria-hidden="true"
+          title="Arraste para reordenar"
+        >
           ⠿
         </span>
         <Switch
@@ -66,10 +75,11 @@ function WidgetRow({
           onChange={(value) => setWidgetVisible(widget.id, value)}
           label={`Exibir widget ${widget.title || widgetTypeLabel(widget.type)}`}
         />
-        <div className="drawer-widget-fields">
+        <div className="flex min-w-[180px] flex-1 flex-col gap-1.5">
           <label className="field field--inline">
             <span>Título</span>
             <input
+              className="control"
               type="text"
               value={widget.title}
               aria-label={`Título do widget ${widgetTypeLabel(widget.type)}`}
@@ -79,6 +89,7 @@ function WidgetRow({
           <label className="field field--inline">
             <span>Tamanho</span>
             <select
+              className="control"
               value={widget.size}
               aria-label={`Tamanho do widget ${widgetTypeLabel(widget.type)}`}
               onChange={(event) => setWidgetSize(widget.id, event.target.value as WidgetSize)}
@@ -91,7 +102,7 @@ function WidgetRow({
             </select>
           </label>
         </div>
-        <div className="drawer-widget-actions">
+        <div className="flex items-center gap-1.5">
           <button
             type="button"
             className="btn btn--icon"
@@ -143,7 +154,7 @@ export function WidgetListEditor() {
   if (!draft) return <LoadingLabel text="Carregando widgets…" />;
 
   return (
-    <ul className="drawer-widget-list" data-testid="widget-list">
+    <ul className="m-0 flex list-none flex-col gap-2.5 p-0" data-testid="widget-list">
       {draft.widgets.map((widget, index) => (
         <WidgetRow
           key={widget.id}

@@ -100,10 +100,11 @@ export function TeamPicker({
   const term = query.trim();
 
   return (
-    <form className="team-picker" data-testid="team-picker" onSubmit={(e) => void confirm(e)}>
+    <form className="grid gap-3" data-testid="team-picker" onSubmit={(e) => void confirm(e)}>
       <label className="field" htmlFor="team-search">
         <span>Buscar time</span>
         <input
+          className="control"
           id="team-search"
           ref={inputRef}
           data-testid="team-search"
@@ -118,7 +119,7 @@ export function TeamPicker({
         />
       </label>
 
-      <div className="team-picker-status" aria-live="polite">
+      <div className="min-h-[1.1rem] text-[0.8rem] text-muted" aria-live="polite">
         {searching ? 'Buscando times…' : null}
         {!searching && term.length < MIN_QUERY
           ? 'Digite ao menos 2 letras para procurar.'
@@ -133,31 +134,35 @@ export function TeamPicker({
       </div>
 
       {error ? (
-        <p className="auth-error" role="alert">
+        <p className="m-0 text-[0.86rem] text-danger" role="alert">
           {error}
         </p>
       ) : null}
 
       {results.length > 0 ? (
-        <ul className="team-picker-list" data-testid="team-results">
+        <ul className="m-0 grid max-h-[280px] list-none gap-1.5 overflow-y-auto p-0" data-testid="team-results">
           {results.map((team) => {
             const isSelected = selected?.provider === team.provider && selected?.id === team.id;
             return (
               <li key={`${team.provider}:${team.id}`}>
                 <button
                   type="button"
-                  className={`team-picker-item${isSelected ? ' is-selected' : ''}`}
+                  className={
+                    `flex w-full cursor-pointer items-center gap-2.5 rounded-ctl border border-line bg-surface px-2.5 py-2 text-left text-ink [font:inherit] transition-[border-color,background-color] hover:bg-row-hover` +
+                    // `border-accent` sai antes de `border-line` no CSS gerado: só o `!` vence.
+                    (isSelected ? ' border-accent! shadow-[inset_0_0_0_1px_var(--accent)]' : '')
+                  }
                   aria-pressed={isSelected}
                   data-testid="team-result"
                   onClick={() => setSelected(team)}
                 >
                   {team.logo ? (
-                    <img src={team.logo} alt="" className="team-picker-badge" loading="lazy" />
+                    <img src={team.logo} alt="" className="h-[34px] w-[34px] flex-none object-contain" loading="lazy" />
                   ) : (
-                    <span className="team-picker-badge team-picker-badge--placeholder" aria-hidden="true" />
+                    <span className="inline-block h-[34px] w-[34px] rounded-full bg-line" aria-hidden="true" />
                   )}
-                  <span className="team-picker-name">
-                    <strong>{team.name}</strong>
+                  <span className="grid min-w-0 text-[0.8rem] text-muted">
+                    <strong className="text-[0.9rem] text-ink">{team.name}</strong>
                     {[team.country, team.league].filter(Boolean).join(' · ')}
                   </span>
                   {isSelected ? <Icon name="check" size={16} /> : null}
@@ -170,7 +175,7 @@ export function TeamPicker({
 
       <button
         type="submit"
-        className="btn btn--primary btn--large team-picker-confirm"
+        className="btn btn--primary btn--large justify-self-start"
         data-testid="team-confirm"
         disabled={!selected || saving}
       >

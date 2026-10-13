@@ -42,11 +42,12 @@ function KeyValueRows({
   return (
     <fieldset className="field">
       <legend>{legend}</legend>
-      {rows.length === 0 ? <p className="muted">Nenhum item.</p> : null}
+      {rows.length === 0 ? <p className="text-muted">Nenhum item.</p> : null}
       {rows.map((row, index) => (
-        <div className="kv-row" key={`${index}-${row.key}`}>
+        <div className="mb-2 grid grid-cols-[1fr_1.4fr_auto] gap-2" key={`${index}-${row.key}`}>
           {keyOptions ? (
             <select
+              className="control"
               aria-label={`Chave de ${legend} (linha ${index + 1})`}
               value={row.key}
               onChange={(event) => update(index, { key: event.target.value })}
@@ -60,6 +61,7 @@ function KeyValueRows({
             </select>
           ) : (
             <input
+              className="control"
               type="text"
               aria-label={`Chave de ${legend} (linha ${index + 1})`}
               placeholder={keyPlaceholder ?? 'chave'}
@@ -68,6 +70,7 @@ function KeyValueRows({
             />
           )}
           <input
+            className="control"
             type="text"
             aria-label={`Valor de ${legend} (linha ${index + 1})`}
             placeholder={valuePlaceholder ?? 'valor'}
@@ -135,15 +138,22 @@ export function SourceModal({ mode, initial, submitting, onCancel, onSubmit, onT
 
   return (
     <>
-      <div className="drawer-backdrop" onClick={onCancel} aria-hidden="true" />
       <div
-        className="modal"
+        className="fixed inset-0 z-[70] animate-fade-in bg-[rgba(9,13,20,0.5)]"
+        onClick={onCancel}
+        aria-hidden="true"
+      />
+      <div
+        className="pointer-events-none fixed inset-0 z-[85] flex items-center justify-center p-5"
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
       >
-        <form className="modal-form" onSubmit={handleSubmit}>
-          <header className="modal-header">
+        <form
+          className="pointer-events-auto flex max-h-[calc(100vh-40px)] w-[min(760px,100%)] animate-slide-in-quick flex-col rounded-card border border-line bg-surface shadow-card"
+          onSubmit={handleSubmit}
+        >
+          <header className="flex items-center justify-between gap-3 border-b border-line px-[18px] py-4">
             <h2 id={titleId}>{mode === 'create' ? 'Nova fonte' : `Editar: ${initial.name}`}</h2>
             <button
               type="button"
@@ -155,11 +165,14 @@ export function SourceModal({ mode, initial, submitting, onCancel, onSubmit, onT
             </button>
           </header>
 
-          <div className="modal-body">
+          <div className="flex flex-col gap-4 overflow-y-auto p-[18px]">
             {errors.length > 0 ? (
-              <div className="form-errors" role="alert">
-                <p className="form-errors-title">Corrija os problemas abaixo:</p>
-                <ul>
+              <div
+                className="rounded-ctl border border-[color-mix(in_srgb,var(--danger)_40%,var(--border))] bg-danger-soft p-3 text-danger"
+                role="alert"
+              >
+                <p className="mb-1.5 font-bold">Corrija os problemas abaixo:</p>
+                <ul className="m-0 pl-[18px]">
                   {errors.map((error) => (
                     <li key={error}>{error}</li>
                   ))}
@@ -167,10 +180,11 @@ export function SourceModal({ mode, initial, submitting, onCancel, onSubmit, onT
               </div>
             ) : null}
 
-            <div className="form-grid">
+            <div className="grid grid-cols-[repeat(2,minmax(0,1fr))] gap-3.5">
               <div className="field">
                 <label htmlFor="source-name">Nome</label>
                 <input
+                  className="control"
                   id="source-name"
                   type="text"
                   value={form.name}
@@ -181,6 +195,7 @@ export function SourceModal({ mode, initial, submitting, onCancel, onSubmit, onT
               <div className="field">
                 <label htmlFor="source-kind">Tipo</label>
                 <select
+                  className="control"
                   id="source-kind"
                   value={form.kind}
                   onChange={(event) => patch({ kind: event.target.value as SourceKind })}
@@ -196,6 +211,7 @@ export function SourceModal({ mode, initial, submitting, onCancel, onSubmit, onT
               <div className="field">
                 <label htmlFor="source-priority">Prioridade (menor testa primeiro)</label>
                 <input
+                  className="control"
                   id="source-priority"
                   type="number"
                   min={0}
@@ -214,26 +230,28 @@ export function SourceModal({ mode, initial, submitting, onCancel, onSubmit, onT
                 <label htmlFor="source-enabled">Habilitada</label>
               </div>
 
-              <fieldset className="field field--full">
+              <fieldset className="field col-span-full">
                 <legend>Capacidades</legend>
-                <div className="capabilities-grid">
+                <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-1.5">
                   {CAPABILITIES.map((capability) => (
-                    <label key={capability} className="capability-option">
+                    <label key={capability} className="flex items-center gap-1.5 font-medium">
                       <input
                         type="checkbox"
+                        className="h-4 w-4 accent-accent"
                         checked={form.capabilities.includes(capability)}
                         onChange={(event) => toggleCapability(capability, event.target.checked)}
                       />
                       {capabilityLabel(capability)}
-                      <code> ({capability})</code>
+                      <code className="text-muted"> ({capability})</code>
                     </label>
                   ))}
                 </div>
               </fieldset>
 
-              <div className="field field--full">
+              <div className="field col-span-full">
                 <label htmlFor="source-base-url">URL base</label>
                 <input
+                  className="control"
                   id="source-base-url"
                   type="text"
                   placeholder="https://exemplo.com/api/{api_key}/"
@@ -245,6 +263,7 @@ export function SourceModal({ mode, initial, submitting, onCancel, onSubmit, onT
               <div className="field">
                 <label htmlFor="source-api-key">Chave de API</label>
                 <input
+                  className="control"
                   id="source-api-key"
                   type="password"
                   autoComplete="off"
@@ -256,6 +275,7 @@ export function SourceModal({ mode, initial, submitting, onCancel, onSubmit, onT
               <div className="field">
                 <label htmlFor="source-cache">Cache (segundos)</label>
                 <input
+                  className="control"
                   id="source-cache"
                   type="number"
                   min={0}
@@ -267,6 +287,7 @@ export function SourceModal({ mode, initial, submitting, onCancel, onSubmit, onT
               <div className="field">
                 <label htmlFor="source-timeout">Timeout (segundos)</label>
                 <input
+                  className="control"
                   id="source-timeout"
                   type="number"
                   min={1}
@@ -291,9 +312,10 @@ export function SourceModal({ mode, initial, submitting, onCancel, onSubmit, onT
                 valuePlaceholder="lookuptable.php?l={competition_id}&s={season}"
               />
 
-              <div className="field field--full">
+              <div className="field col-span-full">
                 <label htmlFor="source-mapping">Mapping (JSON)</label>
                 <textarea
+                  className="control control-area"
                   id="source-mapping"
                   rows={6}
                   spellCheck={false}
@@ -302,9 +324,10 @@ export function SourceModal({ mode, initial, submitting, onCancel, onSubmit, onT
                 />
               </div>
 
-              <div className="field field--full">
+              <div className="field col-span-full">
                 <label htmlFor="source-notes">Observações</label>
                 <textarea
+                  className="control control-area"
                   id="source-notes"
                   rows={2}
                   value={form.notes}
@@ -314,8 +337,11 @@ export function SourceModal({ mode, initial, submitting, onCancel, onSubmit, onT
             </div>
 
             {testResult ? (
-              <section className="test-result" aria-label="Resultado do teste (não salvo)">
-                <h3>Teste (fonte não salva)</h3>
+              <section
+                className="rounded-ctl border border-line bg-surface-2 p-3"
+                aria-label="Resultado do teste (não salvo)"
+              >
+                <h3 className="mb-1.5">Teste (fonte não salva)</h3>
                 <p>
                   <span className={`chip chip--status-${testResult.ok ? 'ok' : 'error'}`}>
                     {testResult.ok ? 'ok' : 'erro'}
@@ -327,7 +353,7 @@ export function SourceModal({ mode, initial, submitting, onCancel, onSubmit, onT
             ) : null}
           </div>
 
-          <footer className="modal-footer">
+          <footer className="flex justify-end gap-2.5 border-t border-line px-[18px] py-3.5">
             <button type="button" className="btn" onClick={onCancel}>
               Cancelar
             </button>

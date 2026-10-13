@@ -80,7 +80,8 @@ describe('onboarding sem conta', () => {
     // nenhum widget do painel aparece para quem não tem conta
     expect(screen.queryByRole('heading', { name: 'Próximo Jogo' })).not.toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Tabelas' })).not.toBeInTheDocument();
-    // sem conta não há botão de configurações
+    // sem conta não há menu de conta (e nem atalho de configurações)
+    expect(screen.queryByRole('button', { name: /^Conta de / })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Configurar' })).not.toBeInTheDocument();
     // e o dashboard nem é buscado
     expect(
@@ -97,7 +98,7 @@ describe('onboarding sem conta', () => {
 
     // portal em document.body: fora de qualquer stacking context local
     expect(dialog.parentElement).toBe(document.body);
-    expect(document.querySelector('.auth-backdrop')).not.toBeNull();
+    expect(document.querySelector('[data-testid="auth-backdrop"]')).not.toBeNull();
     expect(within(dialog).getByLabelText('Usuário')).toBeInTheDocument();
     expect(within(dialog).getByLabelText('Senha')).toBeInTheDocument();
     await waitFor(() =>
@@ -167,7 +168,39 @@ describe('onboarding sem conta', () => {
       expect(call).toBeDefined();
     });
     expect(await screen.findByRole('heading', { name: 'Próximo Jogo' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Configurar' })).toBeInTheDocument();
+    // Configurações e Sair passaram para dentro do menu da conta
+    expect(screen.getByRole('button', { name: 'Conta de novo' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Configurar' })).not.toBeInTheDocument();
+    // e o tema saiu do cabeçalho
+    expect(screen.queryByRole('radio', { name: /Escuro/ })).not.toBeInTheDocument();
+  });
+
+  it('ícone da conta abre o menu com Configurações e Sair', async () => {
+    renderView();
+    await screen.findByTestId('welcome-gate');
+
+    fireEvent.click(screen.getByTestId('welcome-register'));
+    const dialog = await screen.findByRole('dialog', { name: 'Criar conta' });
+    fireEvent.change(within(dialog).getByLabelText('Usuário'), { target: { value: 'novo' } });
+    fireEvent.change(within(dialog).getByLabelText('Senha'), { target: { value: 'senha123' } });
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Criar conta' }));
+
+    const teamDialog = await screen.findByRole('dialog', { name: 'Qual é o seu time?' });
+    fireEvent.change(within(teamDialog).getByLabelText('Buscar time'), {
+      target: { value: 'cruzeiro' },
+    });
+    fireEvent.click(await within(teamDialog).findByTestId('team-result'));
+    fireEvent.click(within(teamDialog).getByTestId('team-confirm'));
+
+    const trigger = await screen.findByRole('button', { name: 'Conta de novo' });
+    expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    fireEvent.click(trigger);
+
+    const menu = await screen.findByRole('menu', { name: 'Conta' });
+    expect(within(menu).getByRole('heading', { name: 'novo' })).toBeInTheDocument();
+    expect(within(menu).getByRole('menuitem', { name: 'Configurações' })).toBeInTheDocument();
+    expect(within(menu).getByRole('menuitem', { name: 'Sair' })).toBeInTheDocument();
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
   });
 
   it('portão força a escolha do time para conta logada sem time (owned=false)', async () => {

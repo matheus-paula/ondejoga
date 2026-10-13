@@ -325,7 +325,8 @@ def test_normalize_mapping_selects_next_match() -> None:
     assert match.home.name == "Bragantino"
     assert match.away.name == "Cruzeiro"
     assert match.kickoff == datetime(2026, 10, 13, tzinfo=timezone.utc)
-    assert match.status == "NS"
+    # o que a fonte manda é código; o payload sai em português
+    assert match.status == "Não iniciado"
     assert match.source == "API genérica"
 
 
@@ -339,7 +340,7 @@ def test_normalize_mapping_last_match_is_finished_and_keeps_score() -> None:
     assert match.home.name == "São Paulo"
     assert match.home.score == 0
     assert match.away.score == 2
-    assert match.status == "FT"
+    assert match.status == "Encerrado"
     assert match.finished_at is not None
 
 

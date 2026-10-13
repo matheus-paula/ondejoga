@@ -188,7 +188,7 @@ Agrega tudo que a tela principal precisa.
     "id": "2398483",
     "competition": { "id": "4351", "name": "Brasileirão Série A", "logo": "https://..." },
     "kickoff": "2026-10-13T00:00:00Z",
-    "status": "NS",
+    "status": "Não iniciado",
     "round": "30",
     "home": { "id": "134736", "name": "Bragantino", "logo": "https://...", "score": null },
     "away": { "id": "134294", "name": "Cruzeiro", "logo": "https://...", "score": null },
@@ -200,7 +200,7 @@ Agrega tudo que a tela principal precisa.
     "id": "2398474",
     "competition": { "id": "4351", "name": "Brasileirão Série A", "logo": "..." },
     "finished_at": "2026-10-08T00:30:00Z",
-    "status": "FT",
+    "status": "Encerrado",
     "round": "29",
     "home": { "id": "134294", "name": "Cruzeiro", "logo": "...", "score": 2 },
     "away": { "id": "134434", "name": "São Paulo", "logo": "...", "score": 0 },
@@ -210,7 +210,7 @@ Agrega tudo que a tela principal precisa.
   },
   "live_match": {
     "id": "401841266",
-    "competition": { "id": "630", "name": "Brazilian Serie A", "logo": null },
+    "competition": { "id": "630", "name": "Brasileirão Série A", "logo": null },
     "kickoff": "2026-10-11T22:30:00Z",
     "finished_at": null,
     "status": "87'",
@@ -320,7 +320,8 @@ Agrega tudo que a tela principal precisa.
 ```
 
 Notas:
-- `live_match` é o jogo em **andoamento** agora (widget "Tempo Real"): `status` traz o período/cronômetro (ex.: `"87'"`, `"HT"`), `finished_at` fica `null` e `is_live` é `true`. `null` = o time não está jogando neste momento (o front oculta o widget).
+- **Idioma**: nenhuma fonte fala português. `status`, o nome da competição (`competition.name`) e o nome do campeonato nas estatísticas (`stats.season.competition`, `stats.recent_form[].competition`) são traduzidos na fronteira (`app/labels.py`), depois que o provedor fez o trabalho dele — é por isso que o cronômetro (`"87'"`) e horário por extenso (`"7:30 PM ET"`) chegam intactos, e só o que é reconhecido vira rótulo. Tradução é por **id** da competição quando existe; sem id conhecido, cai no nome em inglês (um ano no começo do nome, tipo `"2026 Brasileiro Serie A"`, é preservado). Como a tradução mora nos modelos, o backup embarcado (`fallback.json`) também sai em português.
+- `live_match` é o jogo em **andoamento** agora (widget "Tempo Real"): `status` traz o período/cronômetro (ex.: `"87'"`, `"Intervalo"`), `finished_at` fica `null` e `is_live` é `true`. `null` = o time não está jogando neste momento (o front oculta o widget).
 - `standings[]` descreve **qual** competição é cada tabela: `competition.kind` (`"league" | "cup"`), `kind`, `group` (ex.: `"Grupo D"`, em fase de grupos), `stage`/`team_stage` (fase do mata-mata — o do time monitorado) e `description` (texto pronto para exibir).
 - **Abas**: cada item de `standings[]` é uma aba do widget "Tabelas". `phase` agrupa as tabelas em abas de fase (ex.: `"Fase de grupos"`, `"Oitavas de final"`, `"Quartas de final"`), `phase_order` dá a ordem do torneio (grupos = `0`, mata-mata = `rank + 1`) e `is_current` marca a fase atual do time (a aba padrão).
 - `team_alive`: `false` quando o time já foi eliminado (o front oculta a competição por padrão — opção `hide_eliminated`), `true` enquanto seguir vivo e `null` quando não dá para saber (pontos corridos).

@@ -46,35 +46,57 @@ export function buildMetrics(stats: Stats): Metric[] {
   return metrics;
 }
 
+/** Cabeçalho e célula da tabela de artilheiros (compartilhados por linha e coluna). */
+const SCORER_HEAD =
+  'px-2 py-[7px] border-b border-line text-right text-muted text-[0.74rem] uppercase';
+const SCORER_CELL = 'px-2 py-[7px] border-b border-line text-right';
+
+/** Bloco de estatística: rótulo em cima, valor grande embaixo. */
+export const STATS_GRID =
+  'grid grid-cols-[repeat(auto-fill,minmax(112px,1fr))] gap-2.5 m-0';
+export const STATS_CELL =
+  'bg-surface-2 border border-line rounded-ctl p-2.5 text-center ' +
+  '[&_dt]:text-muted [&_dt]:text-[0.72rem] [&_dt]:uppercase [&_dt]:tracking-[0.05em] ' +
+  '[&_dd]:mt-1 [&_dd]:text-[1.3rem] [&_dd]:font-extrabold [&_dd]:tabular-nums';
+/** Título de seção dentro do cartão de estatísticas. */
+export const STATS_SUBTITLE = 'text-[0.85rem] uppercase tracking-[0.06em] text-muted';
+/** Tabela de artilheiros: o descendente cobre `thead` e a última linha, que
+    fica sem borda para a tabela não terminar em fio solto. */
+export const SCORERS_TABLE =
+  'w-full border-collapse text-[0.88rem] ' +
+  '[&_thead_th]:text-muted [&_thead_th]:text-[0.74rem] [&_thead_th]:uppercase ' +
+  '[&_tbody_tr:last-child>*]:border-b-0 ' +
+  '[&_th:first-child]:text-left [&_td:first-child]:text-left';
+
 /** Barras comparando gols marcados x sofridos. */
 export function BarChart({ scored, conceded }: { scored: number; conceded: number }) {
   const max = Math.max(scored, conceded, 1);
   return (
     <div
-      className="goals-chart"
+      className="flex flex-col gap-2"
       role="img"
       aria-label={`Gráfico de gols: marcados ${scored}, sofridos ${conceded}.`}
     >
-      <div className="chart-row">
-        <span className="chart-label">Marcados</span>
-        <span className="chart-track">
-          <span
-            className="chart-fill chart-fill--for"
-            style={{ width: `${Math.round((scored / max) * 100)}%` }}
-          />
-        </span>
-        <span className="chart-value">{scored}</span>
-      </div>
-      <div className="chart-row">
-        <span className="chart-label">Sofridos</span>
-        <span className="chart-track">
-          <span
-            className="chart-fill chart-fill--against"
-            style={{ width: `${Math.round((conceded / max) * 100)}%` }}
-          />
-        </span>
-        <span className="chart-value">{conceded}</span>
-      </div>
+      {(
+        [
+          ['Marcados', scored, 'bg-accent'],
+          ['Sofridos', conceded, 'bg-[#cf4438]'],
+        ] as const
+      ).map(([label, value, tone]) => (
+        <div
+          key={label}
+          className="grid grid-cols-[84px_1fr_40px] items-center gap-2.5 text-[0.85rem]"
+        >
+          <span>{label}</span>
+          <span className="h-3.5 overflow-hidden rounded-full border border-line bg-surface-2">
+            <span
+              className={`block h-full rounded-full transition-[width] ${tone}`}
+              style={{ width: `${Math.round((value / max) * 100)}%` }}
+            />
+          </span>
+          <span className="text-right font-bold tabular-nums">{value}</span>
+        </div>
+      ))}
     </div>
   );
 }
@@ -87,7 +109,7 @@ export function StatsWidget({ widget, data }: WidgetProps) {
 
   if (!stats) {
     return (
-      <WidgetShell title={widget.title || 'Estatísticas'} className="stats">
+      <WidgetShell title={widget.title || 'Estatísticas'} widget="stats">
         <EmptyState message="Sem estatísticas disponíveis." />
       </WidgetShell>
     );
@@ -102,11 +124,11 @@ export function StatsWidget({ widget, data }: WidgetProps) {
   const scorers = stats.top_scorers ?? [];
 
   return (
-    <WidgetShell title={widget.title || 'Estatísticas'} className="stats">
+    <WidgetShell title={widget.title || 'Estatísticas'} widget="stats">
       {metrics.length > 0 ? (
-        <dl className="stats-grid">
+        <dl className={STATS_GRID}>
           {metrics.map((metric) => (
-            <div className="stats-cell" key={metric.key}>
+            <div className={STATS_CELL} key={metric.key}>
               <dt>{metric.label}</dt>
               <dd>{metric.value}</dd>
             </div>
@@ -114,44 +136,32 @@ export function StatsWidget({ widget, data }: WidgetProps) {
         </dl>
       ) : null}
 
-      <h3 className="stats-subtitle">Gols na temporada</h3>
+      <h3 className={STATS_SUBTITLE}>Gols na temporada</h3>
       <BarChart scored={scored} conceded={conceded} />
 
       {recent.length > 0 ? (
         <>
-          <h3 className="stats-subtitle">Forma recente</h3>
-          <ul className="recent-form">
-            {recent.map((entry) => {
-              const result = formLetter(entry.result ?? '');
-              return (
-                <li
-                  key={entry.id}
-                  className={`recent-chip${result ? ` recent-chip--${result.toLowerCase()}` : ' recent-chip--unknown'}`}
-                  title={`${entry.opponent ?? 'Adversário'}${entry.score ? ` ${entry.score}` : ''}${result ? ` — ${RESULT_LABEL[result]}` : ''}`}
-                >
-                  <span className="recent-chip-result">{result ?? '?'}</span>
-                  {entry.score ? <span className="recent-chip-score">{entry.score}</span> : null}
-                </li>
-              );
-            })}
-          </ul>
+          <h3 className={STATS_SUBTITLE}>Forma recente</h3>
+          <RecentForm entries={recent} />
         </>
       ) : null}
 
       {showTopScorers && scorers.length > 0 ? (
         <>
-          <h3 className="stats-subtitle">Artilheiros</h3>
-          <table className="scorers-table">
+          <h3 className={STATS_SUBTITLE}>Artilheiros</h3>
+          <table data-testid="scorers-table" className={SCORERS_TABLE}>
             <thead>
               <tr>
-                <th scope="col">Jogador</th>
-                <th scope="col" title="Gols">
+                <th scope="col" className={SCORER_HEAD}>
+                  Jogador
+                </th>
+                <th scope="col" title="Gols" className={SCORER_HEAD}>
                   G
                 </th>
-                <th scope="col" title="Assistências">
+                <th scope="col" title="Assistências" className={SCORER_HEAD}>
                   A
                 </th>
-                <th scope="col" title="Jogos">
+                <th scope="col" title="Jogos" className={SCORER_HEAD}>
                   J
                 </th>
               </tr>
@@ -159,10 +169,12 @@ export function StatsWidget({ widget, data }: WidgetProps) {
             <tbody>
               {scorers.map((scorer) => (
                 <tr key={scorer.name}>
-                  <th scope="row">{scorer.name}</th>
-                  <td>{scorer.goals}</td>
-                  <td>{scorer.assists ?? 0}</td>
-                  <td>{scorer.matches ?? 0}</td>
+                  <th scope="row" className={SCORER_CELL}>
+                    {scorer.name}
+                  </th>
+                  <td className={SCORER_CELL}>{scorer.goals}</td>
+                  <td className={SCORER_CELL}>{scorer.assists ?? 0}</td>
+                  <td className={SCORER_CELL}>{scorer.matches ?? 0}</td>
                 </tr>
               ))}
             </tbody>
@@ -170,5 +182,36 @@ export function StatsWidget({ widget, data }: WidgetProps) {
         </>
       ) : null}
     </WidgetShell>
+  );
+}
+
+/** Últimos N jogos em bolinhas coloridas (V verde, E cinza, D vermelho). */
+export function RecentForm({ entries }: { entries: NonNullable<Stats['recent_form']> }) {
+  const TONE: Record<string, string> = {
+    v: 'bg-[#1c9c6d]',
+    e: 'bg-[#8a94a6]',
+    d: 'bg-[#cf4438]',
+  };
+  return (
+    <ul className="m-0 flex list-none flex-wrap gap-1.5 p-0">
+      {entries.map((entry) => {
+        const result = formLetter(entry.result ?? '');
+        // O tom e a cor do texto andam juntos: `text-white` e `text-muted` na
+        // mesma tag brigariam pela ordem do CSS, não pela ordem da classe.
+        const tone = !result
+          ? 'bg-line text-muted'
+          : `${TONE[result.toLowerCase()] ?? 'bg-muted'} text-white`;
+        return (
+          <li
+            key={entry.id}
+            className={`inline-flex cursor-help items-center gap-1.5 rounded-lg px-2 py-1 text-[0.78rem] font-extrabold ${tone}`}
+            title={`${entry.opponent ?? 'Adversário'}${entry.score ? ` ${entry.score}` : ''}${result ? ` — ${RESULT_LABEL[result]}` : ''}`}
+          >
+            <span>{result ?? '?'}</span>
+            {entry.score ? <span className="font-semibold opacity-90">{entry.score}</span> : null}
+          </li>
+        );
+      })}
+    </ul>
   );
 }

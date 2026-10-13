@@ -20,6 +20,7 @@ function FieldNumber({
     <div className="field">
       <label htmlFor={id}>{label}</label>
       <input
+        className="control"
         id={id}
         type="number"
         min={min}
@@ -46,6 +47,7 @@ function FieldText({
     <div className="field">
       <label htmlFor={id}>{label}</label>
       <input
+        className="control"
         id={id}
         type="text"
         value={value}
@@ -82,7 +84,7 @@ export function WidgetOptionsEditor({ widget }: { widget: LayoutWidget }) {
   switch (widget.type) {
     case 'standings':
       return (
-        <div className="options-grid">
+        <div className="mt-2.5 flex flex-col gap-3 border-t border-dashed border-line pt-3">
           <FieldNumber
             label="Máximo de linhas visíveis"
             value={optNumber(options, 'max_rows', 20)}
@@ -112,7 +114,7 @@ export function WidgetOptionsEditor({ widget }: { widget: LayoutWidget }) {
       );
     case 'news':
       return (
-        <div className="options-grid">
+        <div className="mt-2.5 flex flex-col gap-3 border-t border-dashed border-line pt-3">
           <FieldNumber
             label="Quantidade de notícias"
             value={optNumber(options, 'limit', 6)}
@@ -122,7 +124,7 @@ export function WidgetOptionsEditor({ widget }: { widget: LayoutWidget }) {
       );
     case 'form':
       return (
-        <div className="options-grid">
+        <div className="mt-2.5 flex flex-col gap-3 border-t border-dashed border-line pt-3">
           <FieldNumber
             label="Quantidade de resultados"
             value={optNumber(options, 'limit', 5)}
@@ -132,7 +134,7 @@ export function WidgetOptionsEditor({ widget }: { widget: LayoutWidget }) {
       );
     case 'next_match':
       return (
-        <div className="options-grid">
+        <div className="mt-2.5 flex flex-col gap-3 border-t border-dashed border-line pt-3">
           <FieldCheck
             label="Mostrar transmissões (TV/streaming)"
             checked={optBool(options, 'show_broadcasts', true)}
@@ -154,7 +156,7 @@ export function WidgetOptionsEditor({ widget }: { widget: LayoutWidget }) {
         setWidgetOption(widget.id, 'metrics', next);
       };
       return (
-        <div className="options-grid">
+        <div className="mt-2.5 flex flex-col gap-3 border-t border-dashed border-line pt-3">
           <FieldCheck
             label="Mostrar gráfico de gols"
             checked={optBool(options, 'show_chart', true)}
@@ -165,8 +167,8 @@ export function WidgetOptionsEditor({ widget }: { widget: LayoutWidget }) {
             checked={optBool(options, 'show_top_scorers', true)}
             onChange={(value) => setWidgetOption(widget.id, 'show_top_scorers', value)}
           />
-          <fieldset className="options-metrics">
-            <legend>Métricas exibidas</legend>
+          <fieldset className="m-0 grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-1.5 border-0 p-0">
+            <legend className="mb-1.5 font-bold">Métricas exibidas</legend>
             {STATS_METRIC_KEYS.map((key) => (
               <FieldCheck
                 key={key}
@@ -181,7 +183,7 @@ export function WidgetOptionsEditor({ widget }: { widget: LayoutWidget }) {
     }
     case 'live_match':
       return (
-        <div className="options-grid">
+        <div className="mt-2.5 flex flex-col gap-3 border-t border-dashed border-line pt-3">
           <FieldCheck
             label="Mostrar período/cronômetro do jogo"
             checked={optBool(options, 'show_status', true)}
@@ -195,6 +197,6 @@ export function WidgetOptionsEditor({ widget }: { widget: LayoutWidget }) {
         </div>
       );
     default:
-      return <p className="muted">Este widget não possui opções.</p>;
+      return <p className="text-muted">Este widget não possui opções.</p>;
   }
 }

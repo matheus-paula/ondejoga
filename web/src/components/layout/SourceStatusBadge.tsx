@@ -31,7 +31,7 @@ export function SourceStatusBadge({ sources }: Props) {
   if (problematic.length === 0) return null;
 
   return (
-    <div className="source-badge" ref={wrapRef}>
+    <div className="relative" ref={wrapRef}>
       <button
         type="button"
         className="badge badge--warn"
@@ -42,11 +42,15 @@ export function SourceStatusBadge({ sources }: Props) {
         dados de fallback
       </button>
       {open ? (
-        <div className="popover" role="group" aria-label="Status das fontes de dados">
+        <div
+          className="popover w-[min(340px,86vw)] p-3.5"
+          role="group"
+          aria-label="Status das fontes de dados"
+        >
           <h2 className="popover-title">Fontes de dados</h2>
           <ul className="popover-list">
             {problematic.map((source) => (
-              <li key={`${source.capability}-${source.source}`}>
+              <li key={`${source.capability}-${source.source}`} className="popover-item">
                 <span className="popover-capability">{capabilityLabel(source.capability)}</span>
                 <span className="popover-source">{source.source}</span>
                 <span className={`chip chip--status-${source.status}`}>

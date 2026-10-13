@@ -83,6 +83,24 @@ describe('tela de Configurações', () => {
     vi.unstubAllGlobals();
   });
 
+  it('cabeçalho usa o mesmo menu de conta do painel', async () => {
+    const { container } = renderSettings();
+    await screen.findByTestId('settings-page');
+
+    // Mesmo ícone, mesmo popup, mesmos itens: um só padrão nos dois cabeçalhos.
+    const trigger = screen.getByRole('button', { name: 'Conta de tester' });
+    expect(trigger).toHaveAttribute('aria-haspopup', 'menu');
+    fireEvent.click(trigger);
+
+    const menu = await screen.findByRole('menu', { name: 'Conta' });
+    expect(within(menu).getByRole('menuitem', { name: 'Configurações' })).toBeInTheDocument();
+    expect(within(menu).getByRole('menuitem', { name: 'Sair' })).toBeInTheDocument();
+
+    // O "Sair" colado ao lado do nome, que existia aqui antes, não volta.
+    expect(screen.queryByRole('button', { name: 'Sair' })).not.toBeInTheDocument();
+    expect(container.querySelector('.account-chip')).not.toBeInTheDocument();
+  });
+
   it('renderiza as seções (conta, time, widgets) para usuário logado', async () => {
     renderSettings();
 

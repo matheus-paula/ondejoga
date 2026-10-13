@@ -20,7 +20,7 @@ export const SEARCH_RESULTS = {
       short_name: 'CRU',
       logo: 'https://r2.thesportsdb.com/images/media/team/badge/upsvvu1473538059.png',
       country: 'Brazil',
-      league: 'Brazilian Serie A',
+      league: 'Brasileirão Série A',
     },
   ],
 };
@@ -57,12 +57,31 @@ export async function register(
   await teamDialog.getByTestId('team-confirm').click();
 
   // time salvo => portão some e o painel aparece
-  await expect(page.getByRole('button', { name: 'Configurar' })).toBeVisible();
+  await expect(page.getByRole('button', { name: `Conta de ${username}` })).toBeVisible();
   await expect(teamDialog).toHaveCount(0);
+}
+
+/**
+ * Abre o menu da conta (ícone de usuário no cabeçalho).
+ *
+ * Configurações e Sair moram nele desde que o tema saiu da barra superior.
+ */
+export async function openAccountMenu(page: import('@playwright/test').Page): Promise<void> {
+  await page.getByRole('button', { name: /^Conta de / }).click();
+  await expect(page.getByRole('menu', { name: 'Conta' })).toBeVisible();
+}
+
+/** Abre a tela de Configurações pelo menu da conta. */
+export async function openSettings(page: import('@playwright/test').Page): Promise<void> {
+  await openAccountMenu(page);
+  await page.getByRole('menuitem', { name: 'Configurações' }).click();
+  await expect(page).toHaveURL(/#\/configuracoes$/);
+  await expect(page.getByTestId('settings-page')).toBeVisible();
 }
 
 /** Sai da conta e espera o portão de boas-vindas. */
 export async function logout(page: import('@playwright/test').Page): Promise<void> {
-  await page.getByRole('button', { name: 'Sair' }).click();
+  await openAccountMenu(page);
+  await page.getByRole('menuitem', { name: 'Sair' }).click();
   await expect(page.getByTestId('welcome-gate')).toBeVisible();
 }

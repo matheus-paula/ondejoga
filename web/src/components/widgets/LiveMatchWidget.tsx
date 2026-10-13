@@ -1,5 +1,5 @@
 import { WidgetShell } from './WidgetShell';
-import { MatchTeams } from './MatchTeams';
+import { MatchTeams, MATCH_TOP, COMPETITION, ROUND } from './MatchTeams';
 import { optBool } from '../../lib/widgetOptions';
 import type { WidgetProps } from './types';
 
@@ -17,29 +17,36 @@ export function LiveMatchWidget({ widget, data }: WidgetProps) {
   const showVenue = optBool(widget.options, 'show_venue', true);
 
   return (
-    <WidgetShell title={widget.title || 'Tempo Real'} className="live-match">
-      <div className="live-topline">
-        <p className="match-competition">
+    <WidgetShell title={widget.title || 'Tempo Real'} widget="live-match">
+      <div className={MATCH_TOP}>
+        <p className={COMPETITION}>
           {match.competition?.logo ? (
             <img src={match.competition.logo} alt="" width={18} height={18} />
           ) : null}
           <span>
             {match.competition?.name ?? 'Competição a definir'}
-            {match.round ? <span className="match-round"> · Rodada {match.round}</span> : null}
+            {match.round ? <span className={ROUND}> · Rodada {match.round}</span> : null}
           </span>
         </p>
-        <span className="live-badge" data-testid="live-badge">
-          <span className="live-dot" aria-hidden="true" />
+        <span
+          data-testid="live-badge"
+          className="inline-flex items-center gap-[7px] rounded-full bg-danger-soft px-3 py-1 text-[0.76rem] font-extrabold uppercase tracking-[0.06em] text-danger"
+        >
+          <span aria-hidden="true" className="h-2 w-2 rounded-full bg-current animate-live-pulse" />
           Ao vivo
         </span>
       </div>
 
       <MatchTeams home={match.home} away={match.away} showScore />
 
-      {showStatus && match.status ? <p className="live-status">{match.status}</p> : null}
+      {showStatus && match.status ? (
+        <p data-testid="live-status" className="text-center font-extrabold text-danger">
+          {match.status}
+        </p>
+      ) : null}
 
       {showVenue && match.venue?.name ? (
-        <p className="live-venue">
+        <p data-testid="live-venue" className="text-center text-[0.85rem] text-muted">
           {[match.venue.name, match.venue.city].filter(Boolean).join(' · ')}
         </p>
       ) : null}

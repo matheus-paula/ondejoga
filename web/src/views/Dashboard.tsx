@@ -41,9 +41,16 @@ function DashboardContent() {
   }
 
   return (
-    <div className="app" style={style}>
+    <div className="flex min-h-screen flex-col" style={style}>
       <Header />
-      <main id="conteudo" className={`container${refreshing ? ' is-refreshing' : ''}`}>
+      <main
+        id="conteudo"
+        className={
+          refreshing
+            ? 'mx-auto w-[min(1240px,100%-32px)] flex-1 pt-[22px] pb-12 opacity-[0.82] transition-opacity'
+            : 'mx-auto w-[min(1240px,100%-32px)] flex-1 pt-[22px] pb-12'
+        }
+      >
         {content}
       </main>
       <Toast notice={notice} onClose={clearNotice} />

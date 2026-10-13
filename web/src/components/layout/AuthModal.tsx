@@ -107,18 +107,19 @@ export function AuthModal({
     <>
       {/* o fundo fecha o modal, exceto no passo obrigatório de escolher o time */}
       <div
-        className="auth-backdrop"
+        data-testid="auth-backdrop"
+        className="fixed inset-0 z-[95] animate-fade-in bg-[rgba(9,13,20,0.55)]"
         onClick={teamOnly ? undefined : onClose}
         aria-hidden="true"
       />
       <div
-        className="auth-modal"
+        className="fixed top-1/2 left-1/2 z-[96] w-[min(420px,calc(100vw-32px))] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[12px] border border-line bg-surface shadow-[0_20px_45px_rgba(0,0,0,0.25)]"
         role="dialog"
         aria-modal="true"
         aria-labelledby="auth-title"
         ref={dialogRef}
       >
-        <header className="drawer-header">
+        <header className="flex items-center justify-between gap-3 border-b border-line px-[18px] py-4">
           <h2 id="auth-title">
             {forcedTeam ? 'Qual é o seu time?' : mode === 'login' ? 'Entrar' : 'Criar conta'}
           </h2>
@@ -135,24 +136,27 @@ export function AuthModal({
         </header>
 
         {forcedTeam ? (
-          <div className="auth-team">
-            <p className="drawer-hint">
+          <div>
+            <p className="mb-3 mt-0 text-[0.84rem] leading-[1.5] text-muted">
               Escolha o time que você quer acompanhar. Ele vira o padrão do seu painel
               e pode ser trocado depois em Configurações → Time.
             </p>
             <TeamPicker onSaved={handleTeamSet} autoFocus savingLabel="Salvando o time…" />
           </div>
         ) : (
-          <form className="auth-form" onSubmit={submit}>
-            <p className="drawer-hint">
+          <form className="flex flex-col gap-3.5 p-[18px]" onSubmit={submit}>
+            <p className="mb-3 mt-0 text-[0.84rem] leading-[1.5] text-muted">
               {mode === 'login'
                 ? 'Entre para ver o seu time e as suas configurações.'
                 : 'Crie uma conta para monitorar o seu time. Cada conta tem time, layout e fontes próprios.'}
             </p>
 
-            <label className="field">
+            {/* Rótulo e dica vêm apagados no modal: quem está aqui é para logar,
+                não para preencher um formulário. */}
+            <label className="field text-[0.88rem] text-muted">
               <span>Usuário</span>
               <input
+                className="control bg-surface-2 py-[9px]"
                 ref={firstFieldRef}
                 type="text"
                 autoComplete="username"
@@ -164,9 +168,10 @@ export function AuthModal({
               />
             </label>
 
-            <label className="field">
+            <label className="field text-[0.88rem] text-muted">
               <span>Senha</span>
               <input
+                className="control bg-surface-2 py-[9px]"
                 type="password"
                 autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
                 value={password}
@@ -177,12 +182,12 @@ export function AuthModal({
             </label>
 
             {error ? (
-              <p className="auth-error" role="alert">
+              <p className="m-0 text-[0.86rem] text-danger" role="alert">
                 {error}
               </p>
             ) : null}
 
-            <div className="auth-actions">
+            <div className="flex flex-wrap gap-2">
               <button type="submit" className="btn btn--primary" disabled={busy}>
                 {busy ? (
                   'Aguarde…'

@@ -4,7 +4,9 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator
+
+from .labels import competition_label, translate_competition, translate_status
 
 Size = Literal["sm", "md", "lg", "full"]
 WidgetType = Literal[
@@ -56,6 +58,17 @@ class CompetitionRef(Strict):
     kind: Literal["league", "cup"] | None = None
     country: str | None = None
 
+    @field_validator("name")
+    @classmethod
+    def _nome_em_portugues(cls, value: str, info: ValidationInfo) -> str:
+        """A fonte escreve no idioma dela; o id resolve o nosso.
+
+        Fica aqui no modelo, e não no construtor dos provedores, de propósito:
+        o backup embarcado (`fallback.json`) entra por `model_validate` e traz
+        os mesmos nomes em inglês guardados. Um só lugar, todos os caminhos.
+        """
+        return competition_label(info.data.get("id"), value)
+
 
 class TeamRef(Strict):
     id: str | None = None
@@ -90,6 +103,17 @@ class Match(Strict):
     source: str | None = None
     # True enquanto o jogo está em andamento (widget "Tempo Real").
     is_live: bool | None = None
+
+    @field_validator("status")
+    @classmethod
+    def _estado_em_portugues(cls, value: str | None) -> str | None:
+        """O que a fonte manda é código (`HT`, `FINISHED`); o cliente vê rótulo.
+
+        Traduzir aqui e não dentro dos provedores deixa os códigos sendo
+        código enquanto o backend precisa deles — o `is_live`, por exemplo,
+        nasce de olhar o estado do jogo.
+        """
+        return translate_status(value)
 
 
 class StandingRow(Strict):
@@ -176,6 +200,12 @@ class FormResult(Strict):
     venue: Literal["home", "away"] | None = None
     competition: str | None = None
 
+    @field_validator("competition")
+    @classmethod
+    def _competicao_em_portugues(cls, value: str | None) -> str | None:
+        """Aqui não há id, só o nome que a fonte mandou — traduz por ele."""
+        return translate_competition(None, value)
+
 
 class SeasonLine(Strict):
     competition: str | None = None
@@ -189,6 +219,12 @@ class SeasonLine(Strict):
     goal_difference: int | None = None
     points: int | None = None
     form: str | None = None
+
+    @field_validator("competition")
+    @classmethod
+    def _competicao_em_portugues(cls, value: str | None) -> str | None:
+        """Mesma regra dos jogos: o nome sai no idioma do painel."""
+        return translate_competition(None, value)
 
 
 class SplitLine(Strict):

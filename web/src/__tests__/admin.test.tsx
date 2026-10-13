@@ -1,8 +1,16 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { ThemeProvider } from '../context/ThemeContext';
+import { AuthProvider } from '../context/AuthContext';
+import { LayoutProvider } from '../context/LayoutContext';
 import { Admin } from '../views/Admin';
-import { adminStatusFixture, jsonResponse, sourcesFixture } from '../test/fixtures';
+import {
+  adminStatusFixture,
+  configFixture,
+  jsonResponse,
+  layoutFixture,
+  sourcesFixture,
+} from '../test/fixtures';
 import type { AdminSource } from '../api/types';
 
 function createFetchMock() {
@@ -25,8 +33,27 @@ function createFetchMock() {
       });
     }
     if (url === '/api/admin/status') return jsonResponse(adminStatusFixture);
+    // o cabeçalho do Admin lê o time do LayoutProvider para pintar a faixa
+    if (url === '/api/layout') return jsonResponse(layoutFixture);
+    if (url === '/api/config') return jsonResponse(configFixture);
+    if (url === '/api/auth/me') return jsonResponse({ authenticated: true, user: USER });
     throw new Error(`rota não mockada: ${method} ${url}`);
   });
+}
+
+const USER = { id: 1, username: 'tester' };
+
+/** No app o Admin vive dentro de `AuthProvider` + `LayoutProvider` (App.tsx); aqui é igual. */
+function renderAdmin() {
+  return render(
+    <ThemeProvider>
+      <AuthProvider>
+        <LayoutProvider>
+          <Admin />
+        </LayoutProvider>
+      </AuthProvider>
+    </ThemeProvider>,
+  );
 }
 
 describe('view Admin (fontes de dados)', () => {
@@ -42,11 +69,7 @@ describe('view Admin (fontes de dados)', () => {
   });
 
   it('renderiza as fontes com tipo, capacidades e status', async () => {
-    render(
-      <ThemeProvider>
-        <Admin />
-      </ThemeProvider>,
-    );
+    renderAdmin();
 
     const table = await screen.findByRole('table');
     expect(within(table).getByRole('rowheader', { name: 'TheSportsDB' })).toBeInTheDocument();
@@ -61,11 +84,7 @@ describe('view Admin (fontes de dados)', () => {
   });
 
   it('cria uma nova fonte via POST com o corpo esperado', async () => {
-    render(
-      <ThemeProvider>
-        <Admin />
-      </ThemeProvider>,
-    );
+    renderAdmin();
     await screen.findByRole('table');
 
     fireEvent.click(screen.getByRole('button', { name: 'Nova fonte' }));
@@ -103,11 +122,7 @@ describe('view Admin (fontes de dados)', () => {
   });
 
   it('exibe validação quando os dados são inválidos', async () => {
-    render(
-      <ThemeProvider>
-        <Admin />
-      </ThemeProvider>,
-    );
+    renderAdmin();
     await screen.findByRole('table');
 
     fireEvent.click(screen.getByRole('button', { name: 'Nova fonte' }));
@@ -128,11 +143,7 @@ describe('view Admin (fontes de dados)', () => {
   });
 
   it('testa uma fonte e mostra o resultado', async () => {
-    render(
-      <ThemeProvider>
-        <Admin />
-      </ThemeProvider>,
-    );
+    renderAdmin();
     await screen.findByRole('table');
 
     fireEvent.click(screen.getByRole('button', { name: 'Testar' }));

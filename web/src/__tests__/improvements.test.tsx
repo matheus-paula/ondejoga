@@ -65,7 +65,7 @@ describe('widget "Meu Time"', () => {
     expect(screen.getByRole('heading', { name: 'Cruzeiro' })).toBeInTheDocument();
     expect(screen.getByAltText('Escudo do Cruzeiro')).toBeInTheDocument();
     expect(screen.getByText('Belo Horizonte · MG')).toBeInTheDocument();
-    const record = document.querySelector('.team-hero-record');
+    const record = document.querySelector('[data-testid="team-record"]');
     expect(record?.textContent).toContain('6º lugar');
     expect(record?.textContent).toContain('em Brasileirão Série A');
     expect(record?.textContent).toContain('45 pontos');
@@ -75,7 +75,7 @@ describe('widget "Meu Time"', () => {
     expect(screen.getByText('Marcados')).toBeInTheDocument();
     expect(screen.getByText('Forma recente')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Artilheiros' })).toBeInTheDocument();
-    expect(document.querySelector('.scorers-table')).not.toBeNull();
+    expect(document.querySelector('[data-testid="scorers-table"]')).not.toBeNull();
   });
 
   it('respeita as opções de métricas e dos blocos opcionais', () => {
@@ -92,7 +92,7 @@ describe('widget "Meu Time"', () => {
     expect(screen.queryByText('Aproveitamento')).not.toBeInTheDocument();
     expect(screen.queryByText('Marcados')).not.toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Artilheiros' })).not.toBeInTheDocument();
-    expect(document.querySelector('.scorers-table')).toBeNull();
+    expect(document.querySelector('[data-testid="scorers-table"]')).toBeNull();
   });
 
   it('mostra estado vazio quando não há estatísticas', () => {
@@ -126,8 +126,8 @@ describe('descrição das competições nas tabelas', () => {
 
     render(<StandingsWidget widget={widget('standings')} data={data} config={configFixture} />);
 
-    expect(screen.getByText('Copa do Brasil', { selector: '.standings-head-title' })).toBeInTheDocument();
-    const meta = document.querySelector('.standings-head-meta');
+    expect(screen.getByText('Copa do Brasil', { selector: '[data-testid="standings-title"]' })).toBeInTheDocument();
+    const meta = document.querySelector('[data-testid="standings-meta"]');
     expect(meta?.textContent).toContain('Mata-mata');
     expect(meta?.textContent).toContain('Fase atual: Quartas de final');
     expect(meta?.textContent).toContain('temporada 2026');
@@ -180,7 +180,7 @@ describe('descrição das competições nas tabelas', () => {
     expect(screen.getByRole('tablist', { name: 'Grupos' })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: 'Grupo D' })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: 'Grupo B' })).toBeInTheDocument();
-    const meta = document.querySelector('.standings-head-meta');
+    const meta = document.querySelector('[data-testid="standings-meta"]');
     expect(meta?.textContent).toContain('Grupo D');
     expect(meta?.textContent).not.toContain('Mata-mata');
   });
@@ -299,10 +299,10 @@ describe('abas de competição e fase', () => {
       'aria-selected',
       'true',
     );
-    expect(document.querySelector('.standings-head-meta')?.textContent).toContain(
+    expect(document.querySelector('[data-testid="standings-meta"]')?.textContent).toContain(
       'Oitavas de final',
     );
-    expect(document.querySelector('.standings-head-meta')?.textContent).toContain(
+    expect(document.querySelector('[data-testid="standings-meta"]')?.textContent).toContain(
       'fase atual: Quartas de final',
     );
   });
@@ -333,7 +333,7 @@ describe('abas de competição e fase', () => {
     render(<StandingsWidget widget={widget('standings')} data={data} config={configFixture} />);
 
     expect(screen.queryByRole('tab', { name: 'Copa Libertadores' })).toBeNull();
-    expect(screen.getByText('Brasileirão Série A', { selector: '.standings-head-title' })).toBeInTheDocument();
+    expect(screen.getByText('Brasileirão Série A', { selector: '[data-testid="standings-title"]' })).toBeInTheDocument();
   });
 });
 
@@ -388,30 +388,30 @@ describe('mata-mata em chaves', () => {
 
     render(<StandingsWidget widget={widget('standings')} data={data} config={configFixture} />);
 
-    const ties = document.querySelectorAll('.bracket-tie');
+    const ties = document.querySelectorAll('[data-testid="bracket-tie"]');
     expect(ties).toHaveLength(2);
 
     const decided = ties[0] as HTMLElement;
-    expect(decided.classList.contains('is-decided')).toBe(true);
+    expect(decided).toHaveAttribute('data-decided');
     expect(within(decided).getByText('Cruzeiro')).toBeInTheDocument();
     expect(within(decided).getByText('Time Fora')).toBeInTheDocument();
     expect(within(decided).getByText('4–1')).toBeInTheDocument();
     expect(within(decided).getByText('2–1 · 2–0')).toBeInTheDocument();
-    expect(decided.querySelector('.bracket-side.is-winner .bracket-team-name')?.textContent).toBe(
+    expect(decided.querySelector('[data-testid="bracket-side"][data-winner] [data-testid="bracket-team-name"]')?.textContent).toBe(
       'Cruzeiro',
     );
-    expect(decided.querySelector('.bracket-side.is-team img')?.getAttribute('src')).toBe(
+    expect(decided.querySelector('[data-testid="bracket-side"][data-self] img')?.getAttribute('src')).toBe(
       'https://example.com/badge.png',
     );
 
     const pending = ties[1] as HTMLElement;
-    expect(pending.classList.contains('is-decided')).toBe(false);
+    expect(pending).not.toHaveAttribute('data-decided');
     expect(within(pending).getByText('a definir')).toBeInTheDocument();
-    expect(pending.querySelector('.bracket-side.is-winner')).toBeNull();
+    expect(pending.querySelector('[data-testid="bracket-side"][data-winner]')).toBeNull();
 
     // sem tabela de classificação, só a chave
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
-    expect(document.querySelector('.standings-footer')?.textContent).toContain('2 confrontos');
+    expect(document.querySelector('[data-testid="standings-footer"]')?.textContent).toContain('2 confrontos');
   });
 });
 
@@ -420,13 +420,13 @@ describe('escudos no Último Jogo', () => {
     const data = makeDashboard(kickoff);
     render(<LastMatchWidget widget={widget('last_match')} data={data} config={configFixture} />);
 
-    const card = document.querySelector('.widget-card.last-match') as HTMLElement;
-    const crests = [...card.querySelectorAll('.match-team-crest')];
+    const card = document.querySelector('[data-widget="last-match"]') as HTMLElement;
+    const crests = [...card.querySelectorAll('[data-testid="team-crest"]')];
     expect(crests).toHaveLength(2);
     expect(crests[0].getAttribute('src')).toBe('https://example.com/badge.png');
     expect(crests[1].getAttribute('src')).toBe('https://example.com/saopaulo.png');
-    expect(card.querySelector('.match-teams')?.textContent).toContain('Cruzeiro');
-    expect(card.querySelector('.match-teams')?.textContent).toContain('São Paulo');
+    expect(card.querySelector('[data-testid="match-teams"]')?.textContent).toContain('Cruzeiro');
+    expect(card.querySelector('[data-testid="match-teams"]')?.textContent).toContain('São Paulo');
   });
 });
 
@@ -438,8 +438,8 @@ describe('notícias', () => {
     data.news = [{ ...original, image: null }];
     render(<NewsWidget widget={widget('news')} data={data} config={configFixture} />);
 
-    expect(document.querySelector('.news-thumb--placeholder')).not.toBeNull();
-    expect(document.querySelector('img.news-thumb')).toBeNull();
+    expect(document.querySelector('[data-testid="news-thumb"][data-placeholder]')).not.toBeNull();
+    expect(document.querySelector('img[data-testid="news-thumb"]')).toBeNull();
   });
 
   it('com imagem renderiza a miniatura dentro do link', () => {
@@ -449,7 +449,7 @@ describe('notícias', () => {
     data.news = [{ ...original, image: 'https://example.com/thumb.jpg' }];
     render(<NewsWidget widget={widget('news')} data={data} config={configFixture} />);
 
-    const img = document.querySelector('img.news-thumb');
+    const img = document.querySelector('img[data-testid="news-thumb"]');
     expect(img).not.toBeNull();
     expect(img?.getAttribute('src')).toBe('https://example.com/thumb.jpg');
     expect(img?.closest('a')?.getAttribute('href')).toBe(original.url);

@@ -107,8 +107,8 @@ def test_espn_live_match_returns_the_game_in_progress() -> None:
     assert match.away.name == "Mirassol" and match.away.score == 0
     assert match.status == "48'"
     assert match.finished_at is None  # ainda não acabou
-    # o nome da liga vem do topo do placar do dia
-    assert match.competition.name == "Brazilian Serie A"
+    # o nome da liga vem do topo do placar do dia, em inglês, e sai traduzido
+    assert match.competition.name == "Brasileirão Série A"
     assert match.venue is not None and match.venue.name == "Arena Fonte Nova"
 
 

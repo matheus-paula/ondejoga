@@ -5,13 +5,14 @@ import re
 import threading
 import unicodedata
 from dataclasses import replace
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from ..config import get_settings
+from ..labels import STATUS_PT
 from ..models import ApiSource
 from ..providers import ProviderContext, ProviderError, SourceConfig, build_provider
 from ..schemas import Broadcast, SourceMeta, StandingTable, Stats
@@ -26,6 +27,42 @@ EMPTY_CAPABILITIES = {"team", "teams", "standings", "next_match", "last_match",
 # (nenhum jogo em andamento), não uma falha da fonte.
 LIVE_CAPABILITIES = {"live_match"}
 LIVE_TTL_SECONDS = 15
+
+# Estados que significam "o jogo acabou", em português — os mesmos que o
+# `Match.status` guarda (o schema traduz os códigos via `STATUS_PT`). Montados
+# invertendo o mapa de tradução para os códigos de fim de jogo, assim a lista
+# não desanda do que a UI mostra.
+FINISHED_STATUS = frozenset(
+    STATUS_PT[code]
+    for code in ("FT", "FT_P", "TSTD", "AET", "PEN", "AWD", "FINISHED")
+    if code in STATUS_PT
+)
+
+# Um jogo de futebol dura ~2h; prorrogação e pênaltis ainda somam. A folga de
+# 3h é a mesma que os provedores usam para não derrubar um jogo em campo.
+MATCH_TOLERANCE = timedelta(hours=3)
+
+
+def match_is_over(match: Any, now: datetime | None = None) -> bool:
+    """True quando um "próximo jogo" já foi disputado.
+
+    Precisa existir porque o valor que vem da fonte não é confiável nesse ponto:
+    a TheSportsDB tolera 3h de folga (jogo que começou e já terminou passa),
+    o football-data devolve o jogo **mais antigo** quando nenhum é futuro e os
+    dois têm cache. Um jogo encerrado pertence ao `last_match`, não ao card de
+    "Próximo Jogo".
+    """
+    if match is None or getattr(match, "is_live", False):
+        return False
+    if getattr(match, "status", None) in FINISHED_STATUS:
+        return True
+    kickoff = getattr(match, "kickoff", None)
+    if kickoff is None:
+        return False
+    if kickoff.tzinfo is None:  # fonte ingênua: os provedores tratam como UTC
+        kickoff = kickoff.replace(tzinfo=timezone.utc)
+    moment = now or datetime.now(timezone.utc)
+    return kickoff + MATCH_TOLERANCE < moment
 
 _RUNTIME_STATUS: dict[str, dict] = {}
 _RUNTIME_LOCK = threading.Lock()
@@ -207,13 +244,24 @@ def resolve(
             if update_status:
                 _record_status(db, source.id, capability, "error", "sem dados")
             continue
+        if capability == "next_match" and match_is_over(value, ctx.now):
+            # Jogo que já foi disputado não pode voltar como "próximo": ele já
+            # pertence ao `last_match`. Segue para a próxima fonte (e daí para
+            # o backup) como se esta não tivesse dado.
+            last_error = f"{source.name}: próximo jogo já encerrado"
+            if update_status:
+                _record_status(db, source.id, capability, "error", "próximo jogo já encerrado")
+            continue
         if update_status:
             _record_status(db, source.id, capability, "ok", None)
         return value, SourceMeta(capability=capability, source=source.name, status="ok")
 
     if allow_fallback:
         backup = load_fallback(capability, ctx)
-        if not is_empty(backup):
+        # O backup tem a mesma desconfiança da fonte: um "próximo jogo" velho
+        # ali dentro também não pode aparecer.
+        stale = capability == "next_match" and match_is_over(backup, ctx.now)
+        if not is_empty(backup) and not stale:
             return backup, SourceMeta(
                 capability=capability,
                 source="backup local",

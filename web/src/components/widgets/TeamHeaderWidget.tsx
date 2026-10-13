@@ -10,24 +10,27 @@ export function TeamHeaderWidget({ widget, data, config }: WidgetProps) {
   const location = [team.city, team.state].filter(Boolean).join(' · ');
 
   return (
-    <WidgetShell title={widget.title} className="team-hero">
-      <div className="team-hero-inner">
+    <WidgetShell title={widget.title} widget="team-hero">
+      <div className="flex items-center gap-[18px]">
         {team.logo ? (
           <img
-            className="team-hero-crest"
+            className="h-20 w-20 flex-none object-contain"
             src={team.logo}
             alt={`Escudo do ${team.name}`}
             width={80}
             height={80}
           />
         ) : (
-          <span className="team-hero-crest team-hero-crest--placeholder" aria-hidden="true" />
+          <span
+            aria-hidden="true"
+            className="inline-block h-20 w-20 flex-none rounded-full bg-accent opacity-85"
+          />
         )}
-        <div className="team-hero-info">
-          <h3 className="team-hero-name">{team.name}</h3>
-          {location ? <p className="team-hero-city">{location}</p> : null}
+        <div>
+          <h3 className="text-[1.5rem] font-extrabold">{team.name}</h3>
+          {location ? <p className="text-muted">{location}</p> : null}
           {season ? (
-            <p className="team-hero-record">
+            <p data-testid="team-record" className="mt-1.5">
               <strong>{ordinalPosition(season.position)}</strong> lugar
               {season.competition ? <> em {season.competition}</> : null} ·{' '}
               <strong>
