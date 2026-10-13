@@ -19,7 +19,9 @@ function DashboardContent() {
 
   let content: ReactElement;
   if (layoutLoading || (dashLoading && !data)) {
-    content = <SkeletonGrid />;
+    // Quando só falta o dashboard, o layout já define o formato da grade —
+    // passa para o esqueleto repetir o que vai aparecer.
+    content = <SkeletonGrid widgets={draft?.widgets} />;
   } else if (layoutError && !draft) {
     content = (
       <ErrorPanel
