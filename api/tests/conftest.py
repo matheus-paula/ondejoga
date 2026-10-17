@@ -21,6 +21,9 @@ os.environ["DATABASE_URL"] = f"sqlite:///{_TMP / 'test.db'}"
 os.environ["ALLOW_NETWORK"] = "0"
 os.environ["DASHBOARD_CACHE_TTL"] = "0"
 os.environ["DEFAULT_CACHE_TTL"] = "300"
+# Versão sem git por perto: sem isto o teste rodaria lendo o repositório real
+# (ou o `/ondejoga` do container) e o resultado dependeria de onde roda.
+os.environ["APP_REPO_DIR"] = str(_TMP / "no-repo")
 os.environ["CORS_ORIGINS"] = "*"
 # Arquivos de reset de senha (RESET-<usuario>.txt) saem para uma pasta temporária.
 os.environ["RESET_DIR"] = str(_TMP / "resets")

@@ -1,6 +1,6 @@
 // Fixtures compartilhadas pelos testes (formato do contrato da API).
 
-import type { AdminSource, AdminStatus, AppConfig, Dashboard, Layout } from '../api/types';
+import type { AdminSource, AdminStatus, AppConfig, BuildInfo, Dashboard, Layout } from '../api/types';
 
 export const configFixture: AppConfig = {
   team: {
@@ -258,6 +258,16 @@ export const adminStatusFixture: AdminStatus = {
       fallbacks_available: ['url_json'],
     },
   ],
+};
+
+/** O que está de pé no Admin: release versionada + commit lido do git. */
+export const buildInfoFixture: BuildInfo = {
+  version: '1.1.0',
+  commit: '0606bad',
+  branch: 'main',
+  tag: '0606bad',
+  dirty: false,
+  source: 'git',
 };
 
 /** Response fake compatível com o pouco que o cliente HTTP usa. */

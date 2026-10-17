@@ -7,6 +7,14 @@ ENV PYTHONUNBUFFERED=1 \
 
 WORKDIR /app
 
+# `git` é o que faz a API responder qual commit está de pé: o docker-compose
+# monta a raiz do projeto em `/ondejoga` (com o `.git`), e a aplicação lê
+# dali — mesmo esquema do `pihole -v`. Sem ele a versão cairia para o número
+# de release e ninguém saberia o que está rodando.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends git \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 

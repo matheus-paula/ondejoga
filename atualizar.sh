@@ -87,3 +87,12 @@ PORTA=${PORTA:-${APP_PORT:-3999}}
 echo
 docker compose ps
 printf '\n%sPronto:%s http://localhost:%s\n' "$BOLD" "$RESET" "$PORTA"
+
+# A versão vem da própria aplicação, lida do repositório dentro do container:
+# é o que está de pé agora, e não o que o `git log` diz que deveria estar.
+VERSAO=$(docker compose exec -T api python -c \
+  "import json,urllib.request as u;d=json.load(u.urlopen('http://127.0.0.1:8000/api/health',timeout=3));print('%s · %s @ %s' % (d.get('version','?'), d.get('branch') or 'sem branch', d.get('commit') or 'sem commit'))" \
+  2>/dev/null || true)
+if [ -n "$VERSAO" ]; then
+  printf '%sVersão:%s %s\n' "$BOLD" "$RESET" "$VERSAO"
+fi

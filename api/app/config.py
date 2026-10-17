@@ -6,7 +6,9 @@ from functools import lru_cache
 from pathlib import Path
 
 APP_NAME = "OndeJoga API"
-APP_VERSION = "1.0.0"
+# Número de release versionada. Muda quando se corta uma release, como as tags
+# do Pi-hole; o commit exato que está de pé vem do git (`app.version`).
+APP_VERSION = "1.1.0"
 
 DEFAULT_DATABASE_URL = "postgresql+psycopg://ondejoga:ondejoga@db:5432/ondejoga"
 

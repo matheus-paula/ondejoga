@@ -5,7 +5,6 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from ..config import APP_VERSION
 from ..db import get_db
 from ..deps import current_user_optional
 from ..models import User
@@ -19,6 +18,7 @@ from ..services.resolver import (
     resolve_broadcasts,
     stats_position_from_standings,
 )
+from ..version import build_info
 
 router = APIRouter(prefix="/api", tags=["dados"])
 
@@ -30,8 +30,13 @@ def health(db: Session = Depends(get_db)) -> dict:
         database = "up"
     except Exception as exc:  # noqa: BLE001
         database = f"down: {exc}"
-    return {"status": "ok" if database == "up" else "degraded", "database": database,
-            "version": APP_VERSION}
+    return {
+        "status": "ok" if database == "up" else "degraded",
+        "database": database,
+        # Release versionada + commit exato de pé (o mesmo esquema do
+        # `pihole -v`): muda sozinho a cada commit, sem número para lembrar.
+        **build_info(),
+    }
 
 
 @router.get("/dashboard")

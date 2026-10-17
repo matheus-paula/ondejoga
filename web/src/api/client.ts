@@ -4,6 +4,7 @@ import type {
   AppConfig,
   AuthStatus,
   AuthUser,
+  BuildInfo,
   Dashboard,
   Layout,
   LiveMatch,
@@ -195,4 +196,7 @@ export const api = {
   testSource: (body: SourceTestRequest) =>
     request<SourceTestResult>('/api/admin/sources/test', { method: 'POST', ...json(body) }),
   getAdminStatus: () => request<AdminStatus>('/api/admin/status'),
+
+  /** Release versionada + commit exato de pé, lidos do repositório pela API. */
+  getBuildInfo: () => request<BuildInfo>('/api'),
 };

@@ -6,6 +6,7 @@ import { LayoutProvider } from '../context/LayoutContext';
 import { Admin } from '../views/Admin';
 import {
   adminStatusFixture,
+  buildInfoFixture,
   configFixture,
   jsonResponse,
   layoutFixture,
@@ -33,6 +34,7 @@ function createFetchMock() {
       });
     }
     if (url === '/api/admin/status') return jsonResponse(adminStatusFixture);
+    if (url === '/api') return jsonResponse(buildInfoFixture);
     // o cabeçalho do Admin lê o time do LayoutProvider para pintar a faixa
     if (url === '/api/layout') return jsonResponse(layoutFixture);
     if (url === '/api/config') return jsonResponse(configFixture);
@@ -81,6 +83,17 @@ describe('view Admin (fontes de dados)', () => {
     expect(screen.getByRole('heading', { name: 'Status por capacidade' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Tabela' })).toBeInTheDocument();
     expect(screen.getByText(/thesportsdb/)).toBeInTheDocument();
+  });
+
+  it('mostra a release e o commit que está de pé, como o pihole -v', async () => {
+    renderAdmin();
+
+    const build = await screen.findByTestId('build-version');
+    expect(build).toHaveTextContent('1.1.0');
+    expect(build).toHaveTextContent('main');
+    expect(build).toHaveTextContent('0606bad');
+    // árvore limpa: nenhum aviso de alteração pendente
+    expect(screen.queryByText('Alterações não commitadas')).not.toBeInTheDocument();
   });
 
   it('cria uma nova fonte via POST com o corpo esperado', async () => {

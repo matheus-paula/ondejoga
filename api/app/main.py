@@ -11,6 +11,7 @@ from .db import get_sessionmaker, init_db
 from .routers import admin, auth, data, settings, teams
 from .seed import seed_sources, upgrade_scopes
 from .services.auth import purge_expired
+from .version import build_info
 
 
 @asynccontextmanager
@@ -57,7 +58,9 @@ def create_app() -> FastAPI:
     def info() -> dict:
         return {
             "name": APP_NAME,
-            "version": APP_VERSION,
+            # Release versionada + commit exato de pé, lidos do repositório
+            # que o docker-compose monta no container.
+            **build_info(),
             "docs": "/api/docs",
             "openapi": "/api/openapi.json",
             "endpoints": [

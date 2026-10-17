@@ -114,9 +114,27 @@ o front saber se o layout está no escopo do usuário ou é o global.
 
 ## 1. `GET /api/health`
 
+`version` é a release versionada (muda quando se corta uma release); o resto
+vem do git em tempo de execução — a API lê o repositório que o
+`docker-compose.yml` monta no container, então **muda sozinho a cada commit**,
+sem ninguém precisar atualizar um número. Sem repositório montado (`source`
+igual a `release`) os campos de git vêm `null`.
+
 ```json
-{ "status": "ok", "database": "up", "version": "1.0.0" }
+{
+  "status": "ok",
+  "database": "up",
+  "version": "1.1.0",
+  "commit": "0606bad",
+  "branch": "main",
+  "tag": "0606bad",
+  "dirty": false,
+  "source": "git"
+}
 ```
+
+`dirty: true` significa que o que está de pé não veio de um commit limpo.
+Os mesmos campos aparecem em `GET /api`.
 
 ## 2. `GET /api/config` · `PUT /api/config`
 

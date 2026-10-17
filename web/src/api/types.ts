@@ -413,3 +413,20 @@ export interface CapabilityStatus {
 export interface AdminStatus {
   capabilities: CapabilityStatus[];
 }
+
+/**
+ * O que está de pé, na API.
+ *
+ * `version` é a release versionada (muda quando se corta uma release);
+ * `commit`, `branch`, `tag` e `dirty` vêm do repositório em tempo de execução
+ * e mudam sozinhos a cada commit — mesmo esquema do `pihole -v`.
+ * `source` diz de onde veio: `git`, ou só `release` quando não há repositório.
+ */
+export interface BuildInfo {
+  version: string;
+  commit: string | null;
+  branch: string | null;
+  tag: string | null;
+  dirty: boolean;
+  source: 'git' | 'release';
+}

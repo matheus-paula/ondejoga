@@ -4,6 +4,7 @@ import { api, ApiError } from '../api/client';
 import type {
   AdminSource,
   AdminStatus,
+  BuildInfo,
   SourcePayload,
   SourceTestResult,
 } from '../api/types';
@@ -120,6 +121,41 @@ function TestResultPanel({ result }: { result: SourceTestResult }) {
   );
 }
 
+/**
+ * O que está de pé, na mesma pegada do `pihole -v`: a release versionada e o
+ * commit exato lido do repositório pela API.
+ *
+ * `version` muda quando se corta uma release; `commit`/`branch` mudam sozinhos
+ * a cada commit, então ninguém precisa lembrar de atualizar número nenhum.
+ * Sem repositório montado a API responde só a release, e a seção encolhe.
+ */
+function BuildSection({ info }: { info: BuildInfo | null }) {
+  if (!info) return null;
+  return (
+    <section className={SECTION} aria-labelledby="build-title">
+      <h2 className="text-[1.05rem]" id="build-title">Versão</h2>
+      <p className="text-[0.9rem]" data-testid="build-version">
+        Release <strong>{info.version}</strong>
+        {info.branch ? (
+          <>
+            {' · '}
+            <span>{info.branch}</span>
+            {info.commit ? <span> @ <code>{info.commit}</code></span> : null}
+          </>
+        ) : null}
+        {info.source === 'git' ? null : (
+          <span className="text-muted"> · sem repositório no container</span>
+        )}
+      </p>
+      {info.dirty ? (
+        <p>
+          <span className="chip chip--status-fallback">Alterações não commitadas</span>
+        </p>
+      ) : null}
+    </section>
+  );
+}
+
 /** View de administração (hash `#/admin`): CRUD de fontes + status. */
 export function Admin() {
   // Mesma faixa colorida do cabeçalho do painel: 3px de `--team-color` no pé.
@@ -127,6 +163,7 @@ export function Admin() {
   const style = { '--team-color': config.team.primary_color ?? 'var(--accent)' } as CSSProperties;
   const [sources, setSources] = useState<AdminSource[] | null>(null);
   const [status, setStatus] = useState<AdminStatus | null>(null);
+  const [buildInfo, setBuildInfo] = useState<BuildInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<Notice | null>(null);
@@ -139,12 +176,15 @@ export function Admin() {
   const loadAll = useCallback(async () => {
     setLoading(true);
     try {
-      const [list, adminStatus] = await Promise.all([
+      const [list, adminStatus, build] = await Promise.all([
         api.listSources(),
         api.getAdminStatus().catch(() => null),
+        // Estático e barato (sem banco); só não pode derrubar o resto da tela.
+        api.getBuildInfo().catch(() => null),
       ]);
       setSources(list);
       setStatus(adminStatus);
+      setBuildInfo(build);
       setError(null);
     } catch (err) {
       setError(errorMessage(err));
@@ -383,6 +423,8 @@ export function Admin() {
         </section>
 
         <StatusSection status={status} />
+
+        <BuildSection info={buildInfo} />
 
         {testResult ? <TestResultPanel result={testResult} /> : null}
         {testing ? <LoadingLabel text="Testando fonte…" /> : null}
