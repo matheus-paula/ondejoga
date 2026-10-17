@@ -29,7 +29,7 @@ from . import store
 from .cache import cache, cached
 from .resolver import sources_for
 
-DEFAULT_TSD_BASE = "https://www.thesportsdb.com/api/v1/json/3/"
+DEFAULT_TSD_BASE = "https://www.thesportsdb.com/api/v1/json/123/"
 DEFAULT_ESPN_BASE = "https://site.api.espn.com/apis/site/v2/sports/soccer/{league}/"
 
 
@@ -144,7 +144,9 @@ def _pick_base(
         for source in sources_for(db, capability, scope):
             if source.kind != kind or not source.base_url:
                 continue
-            key = source.api_key or "3"
+            # Chave de reserva da TheSportsDB: a antiga (`3`) foi desligada
+            # pela API deles e a busca de times passou a responder 403.
+            key = source.api_key or "123"
             try:
                 return source.base_url.format(api_key=key, key=key, **fmt)
             except (KeyError, IndexError, ValueError):

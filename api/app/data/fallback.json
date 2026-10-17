@@ -1,70 +1,78 @@
 {
   "next_match": {
-    "id": "2398483",
+    "id": "401841276",
     "competition": {
-      "id": "4351",
-      "name": "Brazilian Serie A",
-      "logo": "https://r2.thesportsdb.com/images/media/league/badge/lywv7t1766787179.png"
+      "id": "630",
+      "name": "2026 Brasileirão Série A",
+      "logo": null,
+      "kind": null,
+      "country": null
     },
-    "kickoff": "2026-10-13T00:00:00Z",
+    "kickoff": "2026-10-18T19:00:00Z",
     "finished_at": null,
-    "status": "NS",
-    "round": "30",
+    "status": "10/18 - 3:00 PM EDT",
+    "round": null,
     "home": {
-      "id": "134736",
-      "name": "Bragantino",
-      "logo": "https://r2.thesportsdb.com/images/media/team/badge/2p7tl41701423595.png",
+      "id": "6273",
+      "name": "Grêmio",
+      "logo": "https://a.espncdn.com/i/teamlogos/soccer/500/6273.png",
       "score": null
     },
     "away": {
-      "id": "134294",
+      "id": "2022",
       "name": "Cruzeiro",
-      "logo": "https://r2.thesportsdb.com/images/media/team/badge/upsvvu1473538059.png",
+      "logo": "https://a.espncdn.com/i/teamlogos/soccer/500/2022.png",
       "score": null
     },
     "venue": {
-      "name": "Estadio Cicero de Souza Marques",
-      "city": null
+      "name": "Arena do Grêmio",
+      "city": "Porto Alegre"
     },
     "broadcasts": [],
-    "source": "TheSportsDB"
+    "source": "ESPN",
+    "is_live": null
   },
   "last_match": {
-    "id": "2398474",
+    "id": "401841260",
     "competition": {
-      "id": "4351",
-      "name": "Brazilian Serie A",
-      "logo": "https://r2.thesportsdb.com/images/media/league/badge/lywv7t1766787179.png"
+      "id": "630",
+      "name": "2026 Brasileirão Série A",
+      "logo": null,
+      "kind": null,
+      "country": null
     },
-    "kickoff": "2026-10-08T00:30:00Z",
-    "finished_at": "2026-10-08T00:30:00Z",
-    "status": "FT",
-    "round": "29",
+    "kickoff": "2026-10-13T00:00:00Z",
+    "finished_at": "2026-10-13T00:00:00Z",
+    "status": "Encerrado",
+    "round": null,
     "home": {
-      "id": "134294",
-      "name": "Cruzeiro",
-      "logo": "https://r2.thesportsdb.com/images/media/team/badge/upsvvu1473538059.png",
-      "score": 2
+      "id": "6079",
+      "name": "Red Bull Bragantino",
+      "logo": "https://a.espncdn.com/i/teamlogos/soccer/500/6079.png",
+      "score": 4
     },
     "away": {
-      "id": "134291",
-      "name": "São Paulo",
-      "logo": "https://r2.thesportsdb.com/images/media/team/badge/sxpupx1473538135.png",
-      "score": 0
+      "id": "2022",
+      "name": "Cruzeiro",
+      "logo": "https://a.espncdn.com/i/teamlogos/soccer/500/2022.png",
+      "score": 2
     },
     "venue": {
-      "name": "Estádio Mineirão",
-      "city": null
+      "name": "Estádio Municipal Cicero de Souza Marques",
+      "city": "Bragança Paulista"
     },
     "broadcasts": [],
-    "source": "TheSportsDB"
+    "source": "ESPN",
+    "is_live": null
   },
   "standings": [
     {
       "competition": {
         "id": "4351",
         "name": "Brasileirão Série A",
-        "logo": null
+        "logo": null,
+        "kind": "league",
+        "country": null
       },
       "season": "2026",
       "updated_at": null,
@@ -78,14 +86,14 @@
             "logo": null,
             "score": null
           },
-          "played": 29,
-          "won": 18,
+          "played": 30,
+          "won": 19,
           "drawn": 7,
           "lost": 4,
-          "goals_for": 57,
+          "goals_for": 58,
           "goals_against": 25,
-          "goal_difference": 32,
-          "points": 61,
+          "goal_difference": 33,
+          "points": 64,
           "form": null,
           "note": "Fase de grupos da Copa Libertadores de 2027"
         },
@@ -97,14 +105,14 @@
             "logo": null,
             "score": null
           },
-          "played": 29,
-          "won": 17,
+          "played": 30,
+          "won": 18,
           "drawn": 9,
           "lost": 3,
-          "goals_for": 48,
-          "goals_against": 21,
-          "goal_difference": 27,
-          "points": 60,
+          "goals_for": 52,
+          "goals_against": 22,
+          "goal_difference": 30,
+          "points": 63,
           "form": null,
           "note": null
         },
@@ -112,18 +120,18 @@
           "position": 3,
           "team": {
             "id": null,
-            "name": "Fluminense",
+            "name": "Athletico Paranaense",
             "logo": null,
             "score": null
           },
-          "played": 29,
-          "won": 14,
-          "drawn": 9,
-          "lost": 6,
-          "goals_for": 48,
-          "goals_against": 36,
-          "goal_difference": 12,
-          "points": 51,
+          "played": 30,
+          "won": 15,
+          "drawn": 8,
+          "lost": 7,
+          "goals_for": 49,
+          "goals_against": 35,
+          "goal_difference": 14,
+          "points": 53,
           "form": null,
           "note": null
         },
@@ -131,18 +139,18 @@
           "position": 4,
           "team": {
             "id": null,
-            "name": "Athletico Paranaense",
+            "name": "Fluminense",
             "logo": null,
             "score": null
           },
-          "played": 29,
+          "played": 30,
           "won": 14,
-          "drawn": 8,
+          "drawn": 9,
           "lost": 7,
-          "goals_for": 45,
-          "goals_against": 34,
+          "goals_for": 48,
+          "goals_against": 37,
           "goal_difference": 11,
-          "points": 50,
+          "points": 51,
           "form": null,
           "note": null
         },
@@ -150,18 +158,18 @@
           "position": 5,
           "team": {
             "id": null,
-            "name": "Cruzeiro",
+            "name": "Bahia",
             "logo": null,
             "score": null
           },
-          "played": 29,
-          "won": 14,
-          "drawn": 6,
-          "lost": 9,
+          "played": 30,
+          "won": 13,
+          "drawn": 10,
+          "lost": 7,
           "goals_for": 44,
-          "goals_against": 40,
-          "goal_difference": 4,
-          "points": 48,
+          "goals_against": 36,
+          "goal_difference": 8,
+          "points": 49,
           "form": null,
           "note": "Segunda fase da Copa Libertadores de 2027"
         },
@@ -169,18 +177,18 @@
           "position": 6,
           "team": {
             "id": null,
-            "name": "Bahia",
+            "name": "Cruzeiro",
             "logo": null,
             "score": null
           },
-          "played": 29,
-          "won": 12,
-          "drawn": 10,
-          "lost": 7,
-          "goals_for": 43,
-          "goals_against": 36,
-          "goal_difference": 7,
-          "points": 46,
+          "played": 30,
+          "won": 14,
+          "drawn": 6,
+          "lost": 10,
+          "goals_for": 46,
+          "goals_against": 44,
+          "goal_difference": 2,
+          "points": 48,
           "form": null,
           "note": "Fase de grupos da Copa Sul-Americana de 2027"
         },
@@ -192,14 +200,14 @@
             "logo": null,
             "score": null
           },
-          "played": 29,
-          "won": 12,
+          "played": 30,
+          "won": 13,
           "drawn": 8,
           "lost": 9,
-          "goals_for": 39,
-          "goals_against": 34,
-          "goal_difference": 5,
-          "points": 44,
+          "goals_for": 41,
+          "goals_against": 35,
+          "goal_difference": 6,
+          "points": 47,
           "form": null,
           "note": null
         },
@@ -211,19 +219,38 @@
             "logo": null,
             "score": null
           },
-          "played": 29,
+          "played": 30,
           "won": 11,
           "drawn": 9,
-          "lost": 9,
-          "goals_for": 45,
-          "goals_against": 43,
-          "goal_difference": 2,
+          "lost": 10,
+          "goals_for": 46,
+          "goals_against": 45,
+          "goal_difference": 1,
           "points": 42,
           "form": null,
           "note": null
         },
         {
           "position": 9,
+          "team": {
+            "id": null,
+            "name": "Red Bull Bragantino",
+            "logo": null,
+            "score": null
+          },
+          "played": 30,
+          "won": 11,
+          "drawn": 7,
+          "lost": 12,
+          "goals_for": 38,
+          "goals_against": 35,
+          "goal_difference": 3,
+          "points": 40,
+          "form": null,
+          "note": null
+        },
+        {
+          "position": 10,
           "team": {
             "id": null,
             "name": "São Paulo",
@@ -242,40 +269,21 @@
           "note": null
         },
         {
-          "position": 10,
+          "position": 11,
           "team": {
             "id": null,
             "name": "Coritiba",
             "logo": null,
             "score": null
           },
-          "played": 29,
+          "played": 30,
           "won": 10,
-          "drawn": 8,
+          "drawn": 9,
           "lost": 11,
-          "goals_for": 37,
-          "goals_against": 47,
+          "goals_for": 38,
+          "goals_against": 48,
           "goal_difference": 0,
-          "points": 38,
-          "form": null,
-          "note": null
-        },
-        {
-          "position": 11,
-          "team": {
-            "id": null,
-            "name": "Red Bull Bragantino",
-            "logo": null,
-            "score": null
-          },
-          "played": 29,
-          "won": 10,
-          "drawn": 7,
-          "lost": 12,
-          "goals_for": 34,
-          "goals_against": 33,
-          "goal_difference": 1,
-          "points": 37,
+          "points": 39,
           "form": null,
           "note": null
         },
@@ -306,14 +314,14 @@
             "logo": null,
             "score": null
           },
-          "played": 29,
+          "played": 30,
           "won": 9,
-          "drawn": 8,
+          "drawn": 9,
           "lost": 12,
-          "goals_for": 42,
-          "goals_against": 47,
+          "goals_for": 43,
+          "goals_against": 48,
           "goal_difference": 0,
-          "points": 35,
+          "points": 36,
           "form": null,
           "note": null
         },
@@ -344,12 +352,12 @@
             "logo": null,
             "score": null
           },
-          "played": 29,
+          "played": 30,
           "won": 8,
           "drawn": 9,
-          "lost": 12,
+          "lost": 13,
           "goals_for": 34,
-          "goals_against": 43,
+          "goals_against": 44,
           "goal_difference": 0,
           "points": 33,
           "form": null,
@@ -363,12 +371,12 @@
             "logo": null,
             "score": null
           },
-          "played": 29,
+          "played": 30,
           "won": 8,
           "drawn": 8,
-          "lost": 13,
-          "goals_for": 30,
-          "goals_against": 34,
+          "lost": 14,
+          "goals_for": 31,
+          "goals_against": 38,
           "goal_difference": 0,
           "points": 32,
           "form": null,
@@ -382,14 +390,14 @@
             "logo": null,
             "score": null
           },
-          "played": 29,
+          "played": 30,
           "won": 7,
-          "drawn": 10,
+          "drawn": 11,
           "lost": 12,
-          "goals_for": 32,
-          "goals_against": 37,
+          "goals_for": 33,
+          "goals_against": 38,
           "goal_difference": 0,
-          "points": 31,
+          "points": 32,
           "form": null,
           "note": "Rebaixados à Série B de 2027"
         },
@@ -401,14 +409,14 @@
             "logo": null,
             "score": null
           },
-          "played": 29,
+          "played": 30,
           "won": 7,
-          "drawn": 9,
+          "drawn": 10,
           "lost": 13,
-          "goals_for": 31,
-          "goals_against": 39,
+          "goals_for": 32,
+          "goals_against": 40,
           "goal_difference": 0,
-          "points": 30,
+          "points": 31,
           "form": null,
           "note": null
         },
@@ -439,37 +447,1993 @@
             "logo": null,
             "score": null
           },
-          "played": 28,
+          "played": 29,
           "won": 3,
           "drawn": 9,
-          "lost": 16,
-          "goals_for": 29,
-          "goals_against": 57,
+          "lost": 17,
+          "goals_for": 30,
+          "goals_against": 61,
           "goal_difference": 0,
           "points": 18,
           "form": null,
           "note": null
         }
+      ],
+      "kind": "league",
+      "group": null,
+      "stage": null,
+      "team_stage": null,
+      "description": "Brasileirão Série A · Pontos corridos · 2026",
+      "phase": null,
+      "phase_order": null,
+      "is_current": false,
+      "team_alive": null,
+      "bracket": []
+    },
+    {
+      "competition": {
+        "id": "4725",
+        "name": "Copa do Brasil",
+        "logo": null,
+        "kind": "cup",
+        "country": null
+      },
+      "season": "2026",
+      "updated_at": null,
+      "highlight_team_id": "134294",
+      "rows": [],
+      "kind": "cup",
+      "group": null,
+      "stage": "Quinta fase",
+      "team_stage": "Quartas de final",
+      "description": "Copa do Brasil — Quinta fase",
+      "phase": "Quinta fase",
+      "phase_order": 6,
+      "is_current": false,
+      "team_alive": false,
+      "bracket": [
+        {
+          "label": null,
+          "home": {
+            "id": null,
+            "name": "Atlético Mineiro",
+            "logo": null,
+            "score": 3
+          },
+          "away": {
+            "id": null,
+            "name": "Ceará",
+            "logo": null,
+            "score": 3
+          },
+          "aggregate": "3–3",
+          "legs": [
+            "2–1",
+            "1–2"
+          ],
+          "penalties": "4–2",
+          "winner": "home",
+          "decided": true
+        },
+        {
+          "label": null,
+          "home": {
+            "id": null,
+            "name": "Goiás",
+            "logo": null,
+            "score": 2
+          },
+          "away": {
+            "id": null,
+            "name": "Cruzeiro",
+            "logo": null,
+            "score": 3
+          },
+          "aggregate": "2–3",
+          "legs": [
+            "2–2",
+            "0–1"
+          ],
+          "penalties": null,
+          "winner": "away",
+          "decided": true
+        },
+        {
+          "label": null,
+          "home": {
+            "id": null,
+            "name": "Athletico Paranaense",
+            "logo": null,
+            "score": 0
+          },
+          "away": {
+            "id": null,
+            "name": "Atlético Goianiense",
+            "logo": null,
+            "score": 0
+          },
+          "aggregate": "0–0",
+          "legs": [
+            "0–0",
+            "0–0"
+          ],
+          "penalties": "4–1",
+          "winner": "home",
+          "decided": true
+        },
+        {
+          "label": null,
+          "home": {
+            "id": null,
+            "name": "Flamengo",
+            "logo": null,
+            "score": 2
+          },
+          "away": {
+            "id": null,
+            "name": "Vitória",
+            "logo": null,
+            "score": 3
+          },
+          "aggregate": "2–3",
+          "legs": [
+            "2–1",
+            "0–2"
+          ],
+          "penalties": null,
+          "winner": "away",
+          "decided": true
+        },
+        {
+          "label": null,
+          "home": {
+            "id": null,
+            "name": "Grêmio",
+            "logo": null,
+            "score": 5
+          },
+          "away": {
+            "id": null,
+            "name": "Confiança",
+            "logo": null,
+            "score": 0
+          },
+          "aggregate": "5–0",
+          "legs": [
+            "2–0",
+            "3–0"
+          ],
+          "penalties": null,
+          "winner": "home",
+          "decided": true
+        },
+        {
+          "label": null,
+          "home": {
+            "id": null,
+            "name": "Paysandu",
+            "logo": null,
+            "score": 2
+          },
+          "away": {
+            "id": null,
+            "name": "Vasco da Gama",
+            "logo": null,
+            "score": 4
+          },
+          "aggregate": "2–4",
+          "legs": [
+            "0–2",
+            "2–2"
+          ],
+          "penalties": null,
+          "winner": "away",
+          "decided": true
+        },
+        {
+          "label": null,
+          "home": {
+            "id": null,
+            "name": "Fortaleza",
+            "logo": null,
+            "score": 2
+          },
+          "away": {
+            "id": null,
+            "name": "CRB",
+            "logo": null,
+            "score": 1
+          },
+          "aggregate": "2–1",
+          "legs": [
+            "2–1",
+            "0–0"
+          ],
+          "penalties": null,
+          "winner": "home",
+          "decided": true
+        },
+        {
+          "label": null,
+          "home": {
+            "id": null,
+            "name": "Bahia",
+            "logo": null,
+            "score": 2
+          },
+          "away": {
+            "id": null,
+            "name": "Remo",
+            "logo": null,
+            "score": 5
+          },
+          "aggregate": "2–5",
+          "legs": [
+            "1–3",
+            "1–2"
+          ],
+          "penalties": null,
+          "winner": "away",
+          "decided": true
+        },
+        {
+          "label": null,
+          "home": {
+            "id": null,
+            "name": "Botafogo",
+            "logo": null,
+            "score": 1
+          },
+          "away": {
+            "id": null,
+            "name": "Chapecoense",
+            "logo": null,
+            "score": 2
+          },
+          "aggregate": "1–2",
+          "legs": [
+            "1–0",
+            "0–2"
+          ],
+          "penalties": null,
+          "winner": "away",
+          "decided": true
+        },
+        {
+          "label": null,
+          "home": {
+            "id": null,
+            "name": "Red Bull Bragantino",
+            "logo": null,
+            "score": 2
+          },
+          "away": {
+            "id": null,
+            "name": "Mirassol",
+            "logo": null,
+            "score": 3
+          },
+          "aggregate": "2–3",
+          "legs": [
+            "1–1",
+            "1–2"
+          ],
+          "penalties": null,
+          "winner": "away",
+          "decided": true
+        },
+        {
+          "label": null,
+          "home": {
+            "id": null,
+            "name": "Barra-SC",
+            "logo": null,
+            "score": 0
+          },
+          "away": {
+            "id": null,
+            "name": "Corinthians",
+            "logo": null,
+            "score": 2
+          },
+          "aggregate": "0–2",
+          "legs": [
+            "0–1",
+            "0–1"
+          ],
+          "penalties": null,
+          "winner": "away",
+          "decided": true
+        },
+        {
+          "label": null,
+          "home": {
+            "id": null,
+            "name": "Operário-PR",
+            "logo": null,
+            "score": 1
+          },
+          "away": {
+            "id": null,
+            "name": "Fluminense",
+            "logo": null,
+            "score": 2
+          },
+          "aggregate": "1–2",
+          "legs": [
+            "0–0",
+            "1–2"
+          ],
+          "penalties": null,
+          "winner": "away",
+          "decided": true
+        },
+        {
+          "label": null,
+          "home": {
+            "id": null,
+            "name": "Palmeiras",
+            "logo": null,
+            "score": 7
+          },
+          "away": {
+            "id": null,
+            "name": "Jacuipense",
+            "logo": null,
+            "score": 1
+          },
+          "aggregate": "7–1",
+          "legs": [
+            "3–0",
+            "4–1"
+          ],
+          "penalties": null,
+          "winner": "home",
+          "decided": true
+        },
+        {
+          "label": null,
+          "home": {
+            "id": null,
+            "name": "Athletic",
+            "logo": null,
+            "score": 3
+          },
+          "away": {
+            "id": null,
+            "name": "Internacional",
+            "logo": null,
+            "score": 5
+          },
+          "aggregate": "3–5",
+          "legs": [
+            "1–2",
+            "2–3"
+          ],
+          "penalties": null,
+          "winner": "away",
+          "decided": true
+        },
+        {
+          "label": null,
+          "home": {
+            "id": null,
+            "name": "Santos",
+            "logo": null,
+            "score": 2
+          },
+          "away": {
+            "id": null,
+            "name": "Coritiba",
+            "logo": null,
+            "score": 0
+          },
+          "aggregate": "2–0",
+          "legs": [
+            "0–0",
+            "2–0"
+          ],
+          "penalties": null,
+          "winner": "home",
+          "decided": true
+        },
+        {
+          "label": null,
+          "home": {
+            "id": null,
+            "name": "São Paulo",
+            "logo": null,
+            "score": 2
+          },
+          "away": {
+            "id": null,
+            "name": "Juventude",
+            "logo": null,
+            "score": 3
+          },
+          "aggregate": "2–3",
+          "legs": [
+            "1–0",
+            "1–3"
+          ],
+          "penalties": null,
+          "winner": "away",
+          "decided": true
+        }
       ]
+    },
+    {
+      "competition": {
+        "id": "4725",
+        "name": "Copa do Brasil",
+        "logo": null,
+        "kind": "cup",
+        "country": null
+      },
+      "season": "2026",
+      "updated_at": null,
+      "highlight_team_id": "134294",
+      "rows": [],
+      "kind": "cup",
+      "group": null,
+      "stage": "Oitavas de final",
+      "team_stage": "Quartas de final",
+      "description": "Copa do Brasil — Oitavas de final",
+      "phase": "Oitavas de final",
+      "phase_order": 10,
+      "is_current": false,
+      "team_alive": false,
+      "bracket": [
+        {
+          "label": null,
+          "home": {
+            "id": null,
+            "name": "Vasco da Gama",
+            "logo": null,
+            "score": 3
+          },
+          "away": {
+            "id": null,
+            "name": "Fluminense",
+            "logo": null,
+            "score": 1
+          },
+          "aggregate": "3–1",
+          "legs": [
+            "0–0",
+            "3–1"
+          ],
+          "penalties": null,
+          "winner": "home",
+          "decided": true
+        },
+        {
+          "label": null,
+          "home": {
+            "id": null,
+            "name": "Internacional",
+            "logo": null,
+            "score": 3
+          },
+          "away": {
+            "id": null,
+            "name": "Corinthians",
+            "logo": null,
+            "score": 2
+          },
+          "aggregate": "3–2",
+          "legs": [
+            "2–0",
+            "1–2"
+          ],
+          "penalties": null,
+          "winner": "home",
+          "decided": true
+        },
+        {
+          "label": null,
+          "home": {
+            "id": null,
+            "name": "Mirassol",
+            "logo": null,
+            "score": 1
+          },
+          "away": {
+            "id": null,
+            "name": "Grêmio",
+            "logo": null,
+            "score": 2
+          },
+          "aggregate": "1–2",
+          "legs": [
+            "1–1",
+            "0–1"
+          ],
+          "penalties": null,
+          "winner": "away",
+          "decided": true
+        },
+        {
+          "label": null,
+          "home": {
+            "id": null,
+            "name": "Athletico Paranaense",
+            "logo": null,
+            "score": 2
+          },
+          "away": {
+            "id": null,
+            "name": "Vitória",
+            "logo": null,
+            "score": 4
+          },
+          "aggregate": "2–4",
+          "legs": [
+            "2–0",
+            "0–4"
+          ],
+          "penalties": null,
+          "winner": "away",
+          "decided": true
+        },
+        {
+          "label": null,
+          "home": {
+            "id": null,
+            "name": "Atlético Mineiro",
+            "logo": null,
+            "score": 1
+          },
+          "away": {
+            "id": null,
+            "name": "Juventude",
+            "logo": null,
+            "score": 0
+          },
+          "aggregate": "1–0",
+          "legs": [
+            "0–0",
+            "1–0"
+          ],
+          "penalties": null,
+          "winner": "home",
+          "decided": true
+        },
+        {
+          "label": null,
+          "home": {
+            "id": null,
+            "name": "Santos",
+            "logo": null,
+            "score": 1
+          },
+          "away": {
+            "id": null,
+            "name": "Remo",
+            "logo": null,
+            "score": 0
+          },
+          "aggregate": "1–0",
+          "legs": [
+            "0–0",
+            "1–0"
+          ],
+          "penalties": null,
+          "winner": "home",
+          "decided": true
+        },
+        {
+          "label": null,
+          "home": {
+            "id": null,
+            "name": "Chapecoense",
+            "logo": null,
+            "score": 0
+          },
+          "away": {
+            "id": null,
+            "name": "Cruzeiro",
+            "logo": null,
+            "score": 2
+          },
+          "aggregate": "0–2",
+          "legs": [
+            "0–0",
+            "0–2"
+          ],
+          "penalties": null,
+          "winner": "away",
+          "decided": true
+        },
+        {
+          "label": null,
+          "home": {
+            "id": null,
+            "name": "Palmeiras",
+            "logo": null,
+            "score": 5
+          },
+          "away": {
+            "id": null,
+            "name": "Fortaleza",
+            "logo": null,
+            "score": 3
+          },
+          "aggregate": "5–3",
+          "legs": [
+            "3–0",
+            "2–3"
+          ],
+          "penalties": null,
+          "winner": "home",
+          "decided": true
+        }
+      ]
+    },
+    {
+      "competition": {
+        "id": "4725",
+        "name": "Copa do Brasil",
+        "logo": null,
+        "kind": "cup",
+        "country": null
+      },
+      "season": "2026",
+      "updated_at": null,
+      "highlight_team_id": "134294",
+      "rows": [],
+      "kind": "cup",
+      "group": null,
+      "stage": "Quartas de final",
+      "team_stage": "Quartas de final",
+      "description": "Copa do Brasil — Quartas de final",
+      "phase": "Quartas de final",
+      "phase_order": 11,
+      "is_current": true,
+      "team_alive": false,
+      "bracket": [
+        {
+          "label": null,
+          "home": {
+            "id": null,
+            "name": "Internacional",
+            "logo": null,
+            "score": 1
+          },
+          "away": {
+            "id": null,
+            "name": "Grêmio",
+            "logo": null,
+            "score": 3
+          },
+          "aggregate": "1–3",
+          "legs": [
+            "0–0",
+            "1–3"
+          ],
+          "penalties": null,
+          "winner": "away",
+          "decided": true
+        },
+        {
+          "label": null,
+          "home": {
+            "id": null,
+            "name": "Cruzeiro",
+            "logo": null,
+            "score": 2
+          },
+          "away": {
+            "id": null,
+            "name": "Atlético Mineiro",
+            "logo": null,
+            "score": 3
+          },
+          "aggregate": "2–3",
+          "legs": [
+            "1–1",
+            "1–2"
+          ],
+          "penalties": null,
+          "winner": "away",
+          "decided": true
+        },
+        {
+          "label": null,
+          "home": {
+            "id": null,
+            "name": "Palmeiras",
+            "logo": null,
+            "score": 3
+          },
+          "away": {
+            "id": null,
+            "name": "Santos",
+            "logo": null,
+            "score": 0
+          },
+          "aggregate": "3–0",
+          "legs": [
+            "3–0",
+            "0–0"
+          ],
+          "penalties": null,
+          "winner": "home",
+          "decided": true
+        },
+        {
+          "label": null,
+          "home": {
+            "id": null,
+            "name": "Vasco da Gama",
+            "logo": null,
+            "score": 3
+          },
+          "away": {
+            "id": null,
+            "name": "Vitória",
+            "logo": null,
+            "score": 0
+          },
+          "aggregate": "3–0",
+          "legs": [
+            "1–0",
+            "2–0"
+          ],
+          "penalties": null,
+          "winner": "home",
+          "decided": true
+        }
+      ]
+    },
+    {
+      "competition": {
+        "id": "4501",
+        "name": "Copa Libertadores",
+        "logo": null,
+        "kind": "league",
+        "country": null
+      },
+      "season": "2026",
+      "updated_at": null,
+      "highlight_team_id": "134294",
+      "rows": [],
+      "kind": "league",
+      "group": null,
+      "stage": "Oitavas de final",
+      "team_stage": "Oitavas de final",
+      "description": "Copa Libertadores — Oitavas de final",
+      "phase": "Oitavas de final",
+      "phase_order": 10,
+      "is_current": true,
+      "team_alive": false,
+      "bracket": [
+        {
+          "label": "A",
+          "home": {
+            "id": null,
+            "name": "Estudiantes",
+            "logo": null,
+            "score": 4
+          },
+          "away": {
+            "id": null,
+            "name": "Universidad Católica",
+            "logo": null,
+            "score": 1
+          },
+          "aggregate": "4–1",
+          "legs": [
+            "1–1",
+            "3–0"
+          ],
+          "penalties": null,
+          "winner": "home",
+          "decided": true
+        },
+        {
+          "label": "B",
+          "home": {
+            "id": null,
+            "name": "Mirassol",
+            "logo": null,
+            "score": 1
+          },
+          "away": {
+            "id": null,
+            "name": "LDU Quito",
+            "logo": null,
+            "score": 1
+          },
+          "aggregate": "1–1",
+          "legs": [
+            "1–1",
+            "0–0"
+          ],
+          "penalties": "4–5",
+          "winner": "away",
+          "decided": true
+        },
+        {
+          "label": "C",
+          "home": {
+            "id": null,
+            "name": "Fluminense",
+            "logo": null,
+            "score": 1
+          },
+          "away": {
+            "id": null,
+            "name": "Independiente Rivadavia",
+            "logo": null,
+            "score": 1
+          },
+          "aggregate": "1–1",
+          "legs": [
+            "0–0",
+            "1–1"
+          ],
+          "penalties": "5–4",
+          "winner": "home",
+          "decided": true
+        },
+        {
+          "label": "D",
+          "home": {
+            "id": null,
+            "name": "Deportes Tolima",
+            "logo": null,
+            "score": 1
+          },
+          "away": {
+            "id": null,
+            "name": "Independiente del Valle",
+            "logo": null,
+            "score": 4
+          },
+          "aggregate": "1–4",
+          "legs": [
+            "0–1",
+            "1–3"
+          ],
+          "penalties": null,
+          "winner": "away",
+          "decided": true
+        },
+        {
+          "label": "E",
+          "home": {
+            "id": null,
+            "name": "Cruzeiro",
+            "logo": null,
+            "score": 2
+          },
+          "away": {
+            "id": null,
+            "name": "Flamengo",
+            "logo": null,
+            "score": 3
+          },
+          "aggregate": "2–3",
+          "legs": [
+            "1–1",
+            "1–2"
+          ],
+          "penalties": null,
+          "winner": "away",
+          "decided": true
+        },
+        {
+          "label": "F",
+          "home": {
+            "id": null,
+            "name": "Platense",
+            "logo": null,
+            "score": 1
+          },
+          "away": {
+            "id": null,
+            "name": "Coquimbo Unido",
+            "logo": null,
+            "score": 1
+          },
+          "aggregate": "1–1",
+          "legs": [
+            "1–1",
+            "0–0"
+          ],
+          "penalties": "7–6",
+          "winner": "home",
+          "decided": true
+        },
+        {
+          "label": "G",
+          "home": {
+            "id": null,
+            "name": "Palmeiras",
+            "logo": null,
+            "score": 2
+          },
+          "away": {
+            "id": null,
+            "name": "Cerro Porteño",
+            "logo": null,
+            "score": 1
+          },
+          "aggregate": "2–1",
+          "legs": [
+            "1–1",
+            "1–0"
+          ],
+          "penalties": null,
+          "winner": "home",
+          "decided": true
+        },
+        {
+          "label": "H",
+          "home": {
+            "id": null,
+            "name": "Rosario Central",
+            "logo": null,
+            "score": 0
+          },
+          "away": {
+            "id": null,
+            "name": "Corinthians",
+            "logo": null,
+            "score": 1
+          },
+          "aggregate": "0–1",
+          "legs": [
+            "0–0",
+            "0–1"
+          ],
+          "penalties": null,
+          "winner": "away",
+          "decided": true
+        }
+      ]
+    },
+    {
+      "competition": {
+        "id": "4501",
+        "name": "Copa Libertadores",
+        "logo": null,
+        "kind": "league",
+        "country": null
+      },
+      "season": "2026",
+      "updated_at": null,
+      "highlight_team_id": "134294",
+      "rows": [],
+      "kind": "league",
+      "group": null,
+      "stage": "Quartas de final",
+      "team_stage": "Oitavas de final",
+      "description": "Copa Libertadores — Quartas de final",
+      "phase": "Quartas de final",
+      "phase_order": 11,
+      "is_current": false,
+      "team_alive": false,
+      "bracket": [
+        {
+          "label": "S1",
+          "home": {
+            "id": null,
+            "name": "Estudiantes",
+            "logo": null,
+            "score": 2
+          },
+          "away": {
+            "id": null,
+            "name": "Corinthians",
+            "logo": null,
+            "score": 1
+          },
+          "aggregate": "2–1",
+          "legs": [
+            "1–1",
+            "1–0"
+          ],
+          "penalties": null,
+          "winner": "home",
+          "decided": true
+        },
+        {
+          "label": "S2",
+          "home": {
+            "id": null,
+            "name": "Palmeiras",
+            "logo": null,
+            "score": 3
+          },
+          "away": {
+            "id": null,
+            "name": "LDU Quito",
+            "logo": null,
+            "score": 3
+          },
+          "aggregate": "3–3",
+          "legs": [
+            "1–0",
+            "2–3"
+          ],
+          "penalties": "4–3",
+          "winner": "home",
+          "decided": true
+        },
+        {
+          "label": "S3",
+          "home": {
+            "id": null,
+            "name": "Fluminense",
+            "logo": null,
+            "score": 3
+          },
+          "away": {
+            "id": null,
+            "name": "Platense",
+            "logo": null,
+            "score": 2
+          },
+          "aggregate": "3–2",
+          "legs": [
+            "2–0",
+            "1–2"
+          ],
+          "penalties": null,
+          "winner": "home",
+          "decided": true
+        },
+        {
+          "label": "S4",
+          "home": {
+            "id": null,
+            "name": "Independiente del Valle",
+            "logo": null,
+            "score": 1
+          },
+          "away": {
+            "id": null,
+            "name": "Flamengo",
+            "logo": null,
+            "score": 3
+          },
+          "aggregate": "1–3",
+          "legs": [
+            "0–2",
+            "1–1"
+          ],
+          "penalties": null,
+          "winner": "away",
+          "decided": true
+        }
+      ]
+    },
+    {
+      "competition": {
+        "id": "4501",
+        "name": "Copa Libertadores",
+        "logo": null,
+        "kind": "league",
+        "country": null
+      },
+      "season": "2026",
+      "updated_at": null,
+      "highlight_team_id": "134294",
+      "rows": [],
+      "kind": "league",
+      "group": null,
+      "stage": "Semifinal",
+      "team_stage": "Oitavas de final",
+      "description": "Copa Libertadores — Semifinal",
+      "phase": "Semifinal",
+      "phase_order": 12,
+      "is_current": false,
+      "team_alive": false,
+      "bracket": [
+        {
+          "label": "F1",
+          "home": {
+            "id": null,
+            "name": "Estudiantes",
+            "logo": null,
+            "score": null
+          },
+          "away": {
+            "id": null,
+            "name": "Flamengo",
+            "logo": null,
+            "score": null
+          },
+          "aggregate": null,
+          "legs": [
+            "0–0",
+            "22 out"
+          ],
+          "penalties": null,
+          "winner": null,
+          "decided": false
+        },
+        {
+          "label": "F2",
+          "home": {
+            "id": null,
+            "name": "Fluminense",
+            "logo": null,
+            "score": null
+          },
+          "away": {
+            "id": null,
+            "name": "Palmeiras",
+            "logo": null,
+            "score": null
+          },
+          "aggregate": null,
+          "legs": [
+            "1–2",
+            "21 out"
+          ],
+          "penalties": null,
+          "winner": null,
+          "decided": false
+        }
+      ]
+    },
+    {
+      "competition": {
+        "id": "4501",
+        "name": "Copa Libertadores",
+        "logo": null,
+        "kind": "league",
+        "country": null
+      },
+      "season": "2026",
+      "updated_at": null,
+      "highlight_team_id": "134294",
+      "rows": [
+        {
+          "position": 1,
+          "team": {
+            "id": null,
+            "name": "Flamengo",
+            "logo": null,
+            "score": null
+          },
+          "played": 6,
+          "won": 5,
+          "drawn": 1,
+          "lost": 0,
+          "goals_for": 14,
+          "goals_against": 2,
+          "goal_difference": 12,
+          "points": 16,
+          "form": null,
+          "note": "Fase final"
+        },
+        {
+          "position": 2,
+          "team": {
+            "id": null,
+            "name": "Estudiantes",
+            "logo": null,
+            "score": null
+          },
+          "played": 6,
+          "won": 2,
+          "drawn": 3,
+          "lost": 1,
+          "goals_for": 6,
+          "goals_against": 5,
+          "goal_difference": 1,
+          "points": 9,
+          "form": null,
+          "note": null
+        },
+        {
+          "position": 3,
+          "team": {
+            "id": null,
+            "name": "Independiente Medellín",
+            "logo": null,
+            "score": null
+          },
+          "played": 6,
+          "won": 2,
+          "drawn": 1,
+          "lost": 3,
+          "goals_for": 6,
+          "goals_against": 11,
+          "goal_difference": 0,
+          "points": 7,
+          "form": null,
+          "note": "Playoffs Sul-Americana"
+        },
+        {
+          "position": 4,
+          "team": {
+            "id": null,
+            "name": "Cusco",
+            "logo": null,
+            "score": null
+          },
+          "played": 6,
+          "won": 0,
+          "drawn": 1,
+          "lost": 5,
+          "goals_for": 4,
+          "goals_against": 12,
+          "goal_difference": 0,
+          "points": 1,
+          "form": null,
+          "note": null
+        }
+      ],
+      "kind": "league",
+      "group": "Grupo A",
+      "stage": null,
+      "team_stage": null,
+      "description": "Copa Libertadores — Grupo A",
+      "phase": "Fase de grupos",
+      "phase_order": 0,
+      "is_current": false,
+      "team_alive": false,
+      "bracket": []
+    },
+    {
+      "competition": {
+        "id": "4501",
+        "name": "Copa Libertadores",
+        "logo": null,
+        "kind": "league",
+        "country": null
+      },
+      "season": "2026",
+      "updated_at": null,
+      "highlight_team_id": "134294",
+      "rows": [
+        {
+          "position": 1,
+          "team": {
+            "id": null,
+            "name": "Coquimbo Unido",
+            "logo": null,
+            "score": null
+          },
+          "played": 6,
+          "won": 3,
+          "drawn": 1,
+          "lost": 2,
+          "goals_for": 8,
+          "goals_against": 6,
+          "goal_difference": 2,
+          "points": 10,
+          "form": null,
+          "note": "Fase final"
+        },
+        {
+          "position": 2,
+          "team": {
+            "id": null,
+            "name": "Deportes Tolima",
+            "logo": null,
+            "score": null
+          },
+          "played": 6,
+          "won": 2,
+          "drawn": 2,
+          "lost": 2,
+          "goals_for": 7,
+          "goals_against": 6,
+          "goal_difference": 1,
+          "points": 8,
+          "form": null,
+          "note": null
+        },
+        {
+          "position": 3,
+          "team": {
+            "id": null,
+            "name": "Nacional",
+            "logo": null,
+            "score": null
+          },
+          "played": 6,
+          "won": 2,
+          "drawn": 2,
+          "lost": 2,
+          "goals_for": 7,
+          "goals_against": 9,
+          "goal_difference": 0,
+          "points": 8,
+          "form": null,
+          "note": "Playoffs Sul-Americana"
+        },
+        {
+          "position": 4,
+          "team": {
+            "id": null,
+            "name": "Universitario",
+            "logo": null,
+            "score": null
+          },
+          "played": 6,
+          "won": 1,
+          "drawn": 3,
+          "lost": 2,
+          "goals_for": 5,
+          "goals_against": 6,
+          "goal_difference": 0,
+          "points": 6,
+          "form": null,
+          "note": null
+        }
+      ],
+      "kind": "league",
+      "group": "Grupo B",
+      "stage": null,
+      "team_stage": null,
+      "description": "Copa Libertadores — Grupo B",
+      "phase": "Fase de grupos",
+      "phase_order": 0,
+      "is_current": false,
+      "team_alive": false,
+      "bracket": []
+    },
+    {
+      "competition": {
+        "id": "4501",
+        "name": "Copa Libertadores",
+        "logo": null,
+        "kind": "league",
+        "country": null
+      },
+      "season": "2026",
+      "updated_at": null,
+      "highlight_team_id": "134294",
+      "rows": [
+        {
+          "position": 1,
+          "team": {
+            "id": null,
+            "name": "Independiente Rivadavia",
+            "logo": null,
+            "score": null
+          },
+          "played": 6,
+          "won": 5,
+          "drawn": 1,
+          "lost": 0,
+          "goals_for": 15,
+          "goals_against": 6,
+          "goal_difference": 9,
+          "points": 16,
+          "form": null,
+          "note": "Fase final"
+        },
+        {
+          "position": 2,
+          "team": {
+            "id": null,
+            "name": "Fluminense",
+            "logo": null,
+            "score": null
+          },
+          "played": 6,
+          "won": 2,
+          "drawn": 2,
+          "lost": 2,
+          "goals_for": 7,
+          "goals_against": 7,
+          "goal_difference": 0,
+          "points": 8,
+          "form": null,
+          "note": null
+        },
+        {
+          "position": 3,
+          "team": {
+            "id": null,
+            "name": "Bolívar",
+            "logo": null,
+            "score": null
+          },
+          "played": 6,
+          "won": 1,
+          "drawn": 2,
+          "lost": 3,
+          "goals_for": 6,
+          "goals_against": 8,
+          "goal_difference": 0,
+          "points": 5,
+          "form": null,
+          "note": "Playoffs Sul-Americana"
+        },
+        {
+          "position": 4,
+          "team": {
+            "id": null,
+            "name": "Deportivo La Guaira",
+            "logo": null,
+            "score": null
+          },
+          "played": 6,
+          "won": 0,
+          "drawn": 3,
+          "lost": 3,
+          "goals_for": 6,
+          "goals_against": 13,
+          "goal_difference": 0,
+          "points": 3,
+          "form": null,
+          "note": null
+        }
+      ],
+      "kind": "league",
+      "group": "Grupo C",
+      "stage": null,
+      "team_stage": null,
+      "description": "Copa Libertadores — Grupo C",
+      "phase": "Fase de grupos",
+      "phase_order": 0,
+      "is_current": false,
+      "team_alive": false,
+      "bracket": []
+    },
+    {
+      "competition": {
+        "id": "4501",
+        "name": "Copa Libertadores",
+        "logo": null,
+        "kind": "league",
+        "country": null
+      },
+      "season": "2026",
+      "updated_at": null,
+      "highlight_team_id": "134294",
+      "rows": [
+        {
+          "position": 1,
+          "team": {
+            "id": null,
+            "name": "Universidad Católica",
+            "logo": null,
+            "score": null
+          },
+          "played": 6,
+          "won": 4,
+          "drawn": 1,
+          "lost": 1,
+          "goals_for": 8,
+          "goals_against": 4,
+          "goal_difference": 4,
+          "points": 13,
+          "form": null,
+          "note": "Fase final"
+        },
+        {
+          "position": 2,
+          "team": {
+            "id": null,
+            "name": "Cruzeiro",
+            "logo": null,
+            "score": null
+          },
+          "played": 6,
+          "won": 3,
+          "drawn": 2,
+          "lost": 1,
+          "goals_for": 8,
+          "goals_against": 3,
+          "goal_difference": 5,
+          "points": 11,
+          "form": null,
+          "note": null
+        },
+        {
+          "position": 3,
+          "team": {
+            "id": null,
+            "name": "Boca Juniors",
+            "logo": null,
+            "score": null
+          },
+          "played": 6,
+          "won": 2,
+          "drawn": 1,
+          "lost": 3,
+          "goals_for": 6,
+          "goals_against": 5,
+          "goal_difference": 1,
+          "points": 7,
+          "form": null,
+          "note": "Playoffs Sul-Americana"
+        },
+        {
+          "position": 4,
+          "team": {
+            "id": null,
+            "name": "Barcelona de Guayaquil",
+            "logo": null,
+            "score": null
+          },
+          "played": 6,
+          "won": 1,
+          "drawn": 0,
+          "lost": 5,
+          "goals_for": 2,
+          "goals_against": 12,
+          "goal_difference": 0,
+          "points": 3,
+          "form": null,
+          "note": null
+        }
+      ],
+      "kind": "league",
+      "group": "Grupo D",
+      "stage": null,
+      "team_stage": null,
+      "description": "Copa Libertadores — Grupo D",
+      "phase": "Fase de grupos",
+      "phase_order": 0,
+      "is_current": false,
+      "team_alive": false,
+      "bracket": []
+    },
+    {
+      "competition": {
+        "id": "4501",
+        "name": "Copa Libertadores",
+        "logo": null,
+        "kind": "league",
+        "country": null
+      },
+      "season": "2026",
+      "updated_at": null,
+      "highlight_team_id": "134294",
+      "rows": [
+        {
+          "position": 1,
+          "team": {
+            "id": null,
+            "name": "Corinthians",
+            "logo": null,
+            "score": null
+          },
+          "played": 6,
+          "won": 3,
+          "drawn": 2,
+          "lost": 1,
+          "goals_for": 8,
+          "goals_against": 4,
+          "goal_difference": 4,
+          "points": 11,
+          "form": null,
+          "note": "Fase final"
+        },
+        {
+          "position": 2,
+          "team": {
+            "id": null,
+            "name": "Platense",
+            "logo": null,
+            "score": null
+          },
+          "played": 6,
+          "won": 3,
+          "drawn": 1,
+          "lost": 2,
+          "goals_for": 8,
+          "goals_against": 7,
+          "goal_difference": 1,
+          "points": 10,
+          "form": null,
+          "note": null
+        },
+        {
+          "position": 3,
+          "team": {
+            "id": null,
+            "name": "Santa Fe",
+            "logo": null,
+            "score": null
+          },
+          "played": 6,
+          "won": 2,
+          "drawn": 2,
+          "lost": 2,
+          "goals_for": 6,
+          "goals_against": 7,
+          "goal_difference": 0,
+          "points": 8,
+          "form": null,
+          "note": "Playoffs Sul-Americana"
+        },
+        {
+          "position": 4,
+          "team": {
+            "id": null,
+            "name": "Peñarol",
+            "logo": null,
+            "score": null
+          },
+          "played": 6,
+          "won": 0,
+          "drawn": 3,
+          "lost": 3,
+          "goals_for": 4,
+          "goals_against": 8,
+          "goal_difference": 0,
+          "points": 3,
+          "form": null,
+          "note": null
+        }
+      ],
+      "kind": "league",
+      "group": "Grupo E",
+      "stage": null,
+      "team_stage": null,
+      "description": "Copa Libertadores — Grupo E",
+      "phase": "Fase de grupos",
+      "phase_order": 0,
+      "is_current": false,
+      "team_alive": false,
+      "bracket": []
+    },
+    {
+      "competition": {
+        "id": "4501",
+        "name": "Copa Libertadores",
+        "logo": null,
+        "kind": "league",
+        "country": null
+      },
+      "season": "2026",
+      "updated_at": null,
+      "highlight_team_id": "134294",
+      "rows": [
+        {
+          "position": 1,
+          "team": {
+            "id": null,
+            "name": "Cerro Porteño",
+            "logo": null,
+            "score": null
+          },
+          "played": 6,
+          "won": 4,
+          "drawn": 1,
+          "lost": 1,
+          "goals_for": 6,
+          "goals_against": 2,
+          "goal_difference": 4,
+          "points": 13,
+          "form": null,
+          "note": "Fase final"
+        },
+        {
+          "position": 2,
+          "team": {
+            "id": null,
+            "name": "Palmeiras",
+            "logo": null,
+            "score": null
+          },
+          "played": 6,
+          "won": 3,
+          "drawn": 2,
+          "lost": 1,
+          "goals_for": 10,
+          "goals_against": 5,
+          "goal_difference": 5,
+          "points": 11,
+          "form": null,
+          "note": null
+        },
+        {
+          "position": 3,
+          "team": {
+            "id": null,
+            "name": "Sporting Cristal",
+            "logo": null,
+            "score": null
+          },
+          "played": 6,
+          "won": 2,
+          "drawn": 0,
+          "lost": 4,
+          "goals_for": 6,
+          "goals_against": 9,
+          "goal_difference": 0,
+          "points": 6,
+          "form": null,
+          "note": "Playoffs Sul-Americana"
+        },
+        {
+          "position": 4,
+          "team": {
+            "id": null,
+            "name": "Junior de Barranquilla",
+            "logo": null,
+            "score": null
+          },
+          "played": 6,
+          "won": 1,
+          "drawn": 1,
+          "lost": 4,
+          "goals_for": 5,
+          "goals_against": 11,
+          "goal_difference": 0,
+          "points": 4,
+          "form": null,
+          "note": null
+        }
+      ],
+      "kind": "league",
+      "group": "Grupo F",
+      "stage": null,
+      "team_stage": null,
+      "description": "Copa Libertadores — Grupo F",
+      "phase": "Fase de grupos",
+      "phase_order": 0,
+      "is_current": false,
+      "team_alive": false,
+      "bracket": []
+    },
+    {
+      "competition": {
+        "id": "4501",
+        "name": "Copa Libertadores",
+        "logo": null,
+        "kind": "league",
+        "country": null
+      },
+      "season": "2026",
+      "updated_at": null,
+      "highlight_team_id": "134294",
+      "rows": [
+        {
+          "position": 1,
+          "team": {
+            "id": null,
+            "name": "LDU Quito",
+            "logo": null,
+            "score": null
+          },
+          "played": 6,
+          "won": 4,
+          "drawn": 0,
+          "lost": 2,
+          "goals_for": 8,
+          "goals_against": 5,
+          "goal_difference": 3,
+          "points": 12,
+          "form": null,
+          "note": "Fase final"
+        },
+        {
+          "position": 2,
+          "team": {
+            "id": null,
+            "name": "Mirassol",
+            "logo": null,
+            "score": null
+          },
+          "played": 6,
+          "won": 4,
+          "drawn": 0,
+          "lost": 2,
+          "goals_for": 7,
+          "goals_against": 4,
+          "goal_difference": 3,
+          "points": 12,
+          "form": null,
+          "note": null
+        },
+        {
+          "position": 3,
+          "team": {
+            "id": null,
+            "name": "Lanús",
+            "logo": null,
+            "score": null
+          },
+          "played": 6,
+          "won": 3,
+          "drawn": 0,
+          "lost": 3,
+          "goals_for": 3,
+          "goals_against": 7,
+          "goal_difference": 0,
+          "points": 9,
+          "form": null,
+          "note": "Playoffs Sul-Americana"
+        },
+        {
+          "position": 4,
+          "team": {
+            "id": null,
+            "name": "Always Ready",
+            "logo": null,
+            "score": null
+          },
+          "played": 6,
+          "won": 1,
+          "drawn": 0,
+          "lost": 5,
+          "goals_for": 7,
+          "goals_against": 9,
+          "goal_difference": 0,
+          "points": 3,
+          "form": null,
+          "note": null
+        }
+      ],
+      "kind": "league",
+      "group": "Grupo G",
+      "stage": null,
+      "team_stage": null,
+      "description": "Copa Libertadores — Grupo G",
+      "phase": "Fase de grupos",
+      "phase_order": 0,
+      "is_current": false,
+      "team_alive": false,
+      "bracket": []
+    },
+    {
+      "competition": {
+        "id": "4501",
+        "name": "Copa Libertadores",
+        "logo": null,
+        "kind": "league",
+        "country": null
+      },
+      "season": "2026",
+      "updated_at": null,
+      "highlight_team_id": "134294",
+      "rows": [
+        {
+          "position": 1,
+          "team": {
+            "id": null,
+            "name": "Independiente del Valle",
+            "logo": null,
+            "score": null
+          },
+          "played": 6,
+          "won": 4,
+          "drawn": 1,
+          "lost": 1,
+          "goals_for": 11,
+          "goals_against": 6,
+          "goal_difference": 5,
+          "points": 13,
+          "form": null,
+          "note": "Fase final"
+        },
+        {
+          "position": 2,
+          "team": {
+            "id": null,
+            "name": "Rosario Central",
+            "logo": null,
+            "score": null
+          },
+          "played": 6,
+          "won": 4,
+          "drawn": 1,
+          "lost": 1,
+          "goals_for": 9,
+          "goals_against": 1,
+          "goal_difference": 8,
+          "points": 13,
+          "form": null,
+          "note": null
+        },
+        {
+          "position": 3,
+          "team": {
+            "id": null,
+            "name": "Universidad Central",
+            "logo": null,
+            "score": null
+          },
+          "played": 6,
+          "won": 3,
+          "drawn": 0,
+          "lost": 3,
+          "goals_for": 7,
+          "goals_against": 11,
+          "goal_difference": 0,
+          "points": 9,
+          "form": null,
+          "note": "Playoffs Sul-Americana"
+        },
+        {
+          "position": 4,
+          "team": {
+            "id": null,
+            "name": "Libertad",
+            "logo": null,
+            "score": null
+          },
+          "played": 6,
+          "won": 0,
+          "drawn": 0,
+          "lost": 6,
+          "goals_for": 4,
+          "goals_against": 13,
+          "goal_difference": 0,
+          "points": 0,
+          "form": null,
+          "note": null
+        }
+      ],
+      "kind": "league",
+      "group": "Grupo H",
+      "stage": null,
+      "team_stage": null,
+      "description": "Copa Libertadores — Grupo H",
+      "phase": "Fase de grupos",
+      "phase_order": 0,
+      "is_current": false,
+      "team_alive": false,
+      "bracket": []
     }
   ],
   "news": [
     {
-      "id": "b78987112d422fc0",
-      "title": "Ao vivo: Bragantino x Cruzeiro | Rodada 30 | Campeonato Brasileiro - ge",
-      "summary": "Ao vivo: Bragantino x Cruzeiro | Rodada 30 | Campeonato Brasileiro &nbsp;&nbsp; ge Bragantino x Cruzeiro: onde assistir ao vivo, horário, palpite e prováveis escalações do jogo do Brasileirão &nbsp;&nbsp; ESPN Brasil Red Bull Bragantino x Cruzeiro: onde assistir, horário e escalações do jogo pelo Brasileirão &nbsp;&nbsp; Lance!",
-      "url": "https://news.google.com/rss/articles/CBMitwFBVV95cUxQN1RFWDE4U25ZZWRXbzVKR2Noam9vNnFkSXZHeFVJV29kaUdvWnRObEdMZHZtS3V4TW5TRHJicGd2azhBUHRrSk84QzJMeDlqUWpuLUtMOG1PU092eW5jdjBtZzIycXhvR242RmlrRGYtSW80NDFmelBpUGJoVTJMd1BaN0h1NW1udi15WjhKQ1EzaEFqN3M2cDFEWG03c1dBUUJVcE5UellJUU5NVjhNeG1USVdmVkE?oc=5",
-      "image": null,
-      "published_at": "2026-10-11 14:48:40+00:00",
+      "id": "396255b15667b091",
+      "title": "'Homem forte' do futebol do Cruzeiro, Paulinho define postura sobre Gabigol - Rádio Itatiaia",
+      "summary": "'Homem forte' do futebol do Cruzeiro, Paulinho define postura sobre Gabigol &nbsp;&nbsp; Rádio Itatiaia",
+      "url": "https://news.google.com/rss/articles/CBMi8gFBVV95cUxNcmcwWkl6S3N5U05TS1lrWkJNTEdkSURvTXhVaWRYbFVWN05FSjN3SDczRUJDMDh5N1hQM2pDWXIwOWVWOEFHYlFLVDVKdHdhdkpiSVNRTlNyTDA5TVNuMXM5R2tFVEJiNmw5eTVERVc1YUtEMlE4RWVLb3FRZXZqaXZ4VlFzblZIaFBWNWhUZ2dreVZ2VmFWQ0xGTHE0b3ZMcUJKdHRqbGlCZEZsMmtEbTJNU18wbmF6MllfRVBXY2xvcnRUWDJPZ25wQ28tMXd3LThDYmVOMHVGRkFneVNRMVlIejR4U2h1dWtuaHZJRDdSZw?oc=5",
+      "image": "https://admin.itatiaia.com.br/wp-content/uploads/sites/27/2026/10/FotoJet-48-1.jpg?resize=1280%2C720&w=1280&h=720&quality=75&crop=1",
+      "published_at": "2026-10-15 07:01:07+00:00",
       "source": "\"Cruzeiro\" - Google Notícias"
     },
     {
-      "id": "aa4cf87959971740",
-      "title": "Dá para sonhar? Veja a projeção do Cruzeiro com a campanha de campeão de Artur Jorge - ge",
-      "summary": "Dá para sonhar? Veja a projeção do Cruzeiro com a campanha de campeão de Artur Jorge &nbsp;&nbsp; ge",
-      "url": "https://news.google.com/rss/articles/CBMi5wFBVV95cUxNWXB5UFZoclozWGFJNTB6c0FkaEhfUVZPRGpUUGJzNklVNmFuM3NVMkVqZlVMLUxtZlhGR0hobFUxdU1DWHpad0MtOFRUem9uZVI3X1gydlhweUlmSDlSbWZETVg4WWMwSmpTYkhvSEh4OUtQOFVUWXlNdFhjUjhXa2J3emdLMjJIdUZ6X0NRLXZqdVRjX3hfbUNsaV92SWtzSkJXejBhZENUdnR4QTBWT0RMNEt2ZzBCRGJlMTV4N1Fza2Mtc19yM0FpRndyT3h5NUlVbFZfWmJDWm8tS01oMXByaDhZbW_SAfYBQVVfeXFMUDFYRlM4S3o4bzBxdXJqX3pTUWd6d2t4bG1pR1lIbW1BQThxQmxKbW1Ra0tnay1GNG5zdkJPZmkzUHFZZzg4bHhmQnRiSEFUa20zVUJXZy1UdDB3SmVYRTJDdjFGNlctX3dpWWRkMXRFeDJvRk03MEFRUHJCNjNaYUxoS2tSanJkSHFtcDRTaWI4TVU1RTA0a2FfLUp0RC1NR01hQ2U2NTBXYTFHdU53WDBvSUs5b1BBWVlWdWVTekVWZzF6T0dYXzZoMmtJYTBBQmlXVU5JU1F6S01ZNDc5eExYbjJROU11dG9BaFh5SHdnM1JrMlJB?oc=5",
+      "id": "7deace6eb861af8b",
+      "title": "Grêmio tem ao menos cinco problemas físicos às vésperas de jogo com o Cruzeiro - ge",
+      "summary": "Grêmio tem ao menos cinco problemas físicos às vésperas de jogo com o Cruzeiro &nbsp;&nbsp; ge Grêmio pode ter três zagueiros contra o Cruzeiro &nbsp;&nbsp; Correio do Povo Grêmio x Cruzeiro: onde assistir ao vivo, horário, palpite e prováveis escalações do jogo do Brasileirão &nbsp;&nbsp; ESPN Brasil",
+      "url": "https://news.google.com/rss/articles/CBMi4gFBVV95cUxPWVdrdE9rWjFQYV9WeDN2NzV0UXBlNkdhcHllQVF5R1M5VG05ZlZoUU9CX1luZ1Q5MDNSRUstSk50cDZqOTBoN3R6Q3ZCTEU2bktlQ3g3Y3d1ekk5T0J5bVppWUd4QUZabGp4VmVWT2VBYkRJV3dLSTNCSkRHbnNvY2NnVUdhcllnOXo4Rlc2amk4SXFmdnZSR2tLRFp6elFzSUNJaEJDLXlsX053OGR6NUdTTDdnWlp4V2FqVDlsSEpoQ3VvbFhiamhlbGtrY1RjMGp1Q3NFcV92cVlIWGNsNWRn0gHwAUFVX3lxTFA5RGdxb0Zwc1dtQ1hwSW1zYlRwMTlocjRwQ1NEZlZjMm81cFZRSmJ1djd5RThTMGRwUkxqb1A3TV8yVEViU3hvUHR3V2wzT0xoOTA0RXVWejVTcnRNclcyTWxteXNoY3cwX1NqQW1Nb2l2YTNYbjFPNVdPeVFqTE1QeFZCOEhtaU1XT0VXdlpOT01hOUk3d2gwTjE2cGZWbGxDbDBlanl6SmFKVWdaRnU4REFpb3dEMlpIQnk4YlFkVEN5QjE0RDFLc3ZMM1dydWd0WjJXY01jNkhJT0lYTW12NlZHbHVVbGlwaGR4Wk5veQ?oc=5",
+      "image": "https://s2-ge.glbimg.com/7iOmV8x8emQu6gy7xHET15mAfIc=/2048x0/filters:format(jpeg)/https://i.s3.glbimg.com/v1/AUTH_bc8228b6673f488aa253bbcb03c80ec5/internal_photos/bs/2026/q/o/jim7UiQN6vh8wXzQfvig/renato-treino-gremio.jpg",
+      "published_at": "2026-10-16 16:50:38+00:00",
+      "source": "\"Cruzeiro\" - Google Notícias"
+    },
+    {
+      "id": "ccdaa56716d60bdc",
+      "title": "Família de garoto autista será indenizada por acusação de furto em cruzeiro - Consultor Jurídico",
+      "summary": "Família de garoto autista será indenizada por acusação de furto em cruzeiro &nbsp;&nbsp; Consultor Jurídico",
+      "url": "https://news.google.com/rss/articles/CBMisAFBVV95cUxPcWY0b0xMUDNQeXVydHRjRnMxZVN0dnBJSXA0amhSYVlvcDFueWNxc1NNTjNMWWxpQml3eWt3YU1CajJYSkVSWFlPay14SnhYTWFkckUxR3NYX3JRSFkzVy0yZzJTdEdEZzhzeDNzTzdyd3ZDVTI5LUNYTzVROThId3phU0pOZGg3MUdnZjEtWXl2VTk0aDk2RlRWWDFucUVKMWhfV3pPa0ctUzgxd3pmWg?oc=5",
       "image": null,
-      "published_at": "2026-10-11 11:10:28+00:00",
+      "published_at": "2026-10-16 16:03:15+00:00",
+      "source": "\"Cruzeiro\" - Google Notícias"
+    },
+    {
+      "id": "887a8bbb7b1555be",
+      "title": "Cruzeiro enfrenta LDU em estreia na Copa Libertadores Feminina - Rádio Itatiaia",
+      "summary": "Cruzeiro enfrenta LDU em estreia na Copa Libertadores Feminina &nbsp;&nbsp; Rádio Itatiaia",
+      "url": "https://news.google.com/rss/articles/CBMi5AFBVV95cUxQUnlZZk44cGRZbUlFWEFSRUczRGNiYzhOd1JHSkRpUWEtRk81SHRMRXNKM3Z2X2JfcjdkV3BnbzA0MnNmMF9MTGZIMEx4THNmOGJ2T3YyVV9faWVwUEExdkM4MFR4UGpwc2F0ckMwTEtXTEVTTHlBS1BKYm13aUozckx5SXBfdzRiMC04aUw1MVpERnpWcE1hMkRoNl9XRHV4RU9MTjJzaTcyaGVJT1lVSDBTZER1VjlnZFZ6SmRXXzVXbXYxRDROTUhrQnJ2WjUxX3loalBwb2FOQjVlcHRaNm8wb1Y?oc=5",
+      "image": "https://admin.itatiaia.com.br/wp-content/uploads/sites/27/2026/10/FotoJet-2026-10-16T113522.892.jpg?resize=1280%2C720&w=1280&h=720&quality=75&crop=1",
+      "published_at": "2026-10-16 14:30:47+00:00",
+      "source": "\"Cruzeiro\" - Google Notícias"
+    },
+    {
+      "id": "66acb05e29adb6a9",
+      "title": "Ao vivo: Cruzeiro x LDU | Rodada 1 | Taça Libertadores Feminina - ge",
+      "summary": "Ao vivo: Cruzeiro x LDU | Rodada 1 | Taça Libertadores Feminina &nbsp;&nbsp; ge",
+      "url": "https://news.google.com/rss/articles/CBMiyAFBVV95cUxPaGJ5TEFYdzQzUVZyb0d5TWRwMTJJTnhNXzdGOTV2bTZXMEpKd204NWJoWXdERVVHZUJNVlI5dkJGbzRDbmd6QkgxTWFLd3pKVWQyenVFRjdMdlF5RUJSZHQ3VDZsNm9CT3p0UWJIak9KYUI5NDBsYV9pMGQyLXEzamhXTUtYcnVKenRBTUplQ3dVVzN4UXZpNXBmZkZKUjhWNjdtVDlpS3o2R2NBQmxsM1lRcy1zUURWSUdidl9ad1hleVh2eWpWQg?oc=5",
+      "image": "https://s3.glbimg.com/v1/AUTH_378ee63fe83141e69caddd838034e850/static/preview-share-min.png",
+      "published_at": "2026-10-16 14:49:27+00:00",
+      "source": "\"Cruzeiro\" - Google Notícias"
+    },
+    {
+      "id": "3587c0ad3ce70243",
+      "title": "Estreante, Cruzeiro será 15º brasileiro na Libertadores Feminina - Agência Brasil",
+      "summary": "Estreante, Cruzeiro será 15º brasileiro na Libertadores Feminina &nbsp;&nbsp; Agência Brasil",
+      "url": "https://news.google.com/rss/articles/CBMivgFBVV95cUxQbi1DeXJPRzJwVjJNT20wcEtxQ3lqbWFGOE85T1hkMW9uQi1VemtvR0F6MlNrY0xBWDNHbTJsSllHWnMxeWtjNktVSmFtREljM0t1T3NpR0ptOUJ3RjZZVDRsU25Pd2VScUVWRzl3X1NoN0V5Z0pjWUdwWkladldrWXlrVXFnWmdUUGlVc3QwSEg1Z1pCUkJCZTlUemRwSFBpU1lGOERvbklhRFV6ZnM1X21xX19oVkE0R0JJV3Vn?oc=5",
+      "image": "https://imagens.ebc.com.br/O5OVwnOx9LJFmzQ7J0ycufiSU2o=/1600x800/https://agenciabrasil.ebc.com.br/sites/default/files/thumbnails/image/2026/10/16/estreante_cruzeiro_sera_15_brasileiro_na_libertadores_feminina.jpg?itok=w5vAI79Z",
+      "published_at": "2026-10-16 10:02:00+00:00",
       "source": "\"Cruzeiro\" - Google Notícias"
     },
     {
@@ -482,82 +2446,46 @@
       "source": "\"Cruzeiro\" - Google Notícias"
     },
     {
-      "id": "907958f8af61e0cc",
-      "title": "Atlético x Cruzeiro: Hoje tem Vingadoras! - Clube Atlético Mineiro",
-      "summary": "Atlético x Cruzeiro: Hoje tem Vingadoras! &nbsp;&nbsp; Clube Atlético Mineiro",
-      "url": "https://news.google.com/rss/articles/CBMickFVX3lxTE1tMnEwWnVrYnRuVVh3NGhaanNSbWxPSExmZkQwLTdlcnlaTzQ3UHRBYUFMMFVlY0Z6Mi1YRUxXcWdOVzFySDJOdWpxeEp2UGRYVE9jdFQ0UzcwN0NrZDFIU0VROEFIZDEzUHMtZVlGR1dZZw?oc=5",
+      "id": "6eb5b886d32b4100",
+      "title": "Jesus Valenzuela colecionou lances polêmicos no jogo Boca Juniors x Cruzeiro - NETVASCO",
+      "summary": "Jesus Valenzuela colecionou lances polêmicos no jogo Boca Juniors x Cruzeiro &nbsp;&nbsp; NETVASCO",
+      "url": "https://news.google.com/rss/articles/CBMiswFBVV95cUxNSFhUNTJYMzJfRGVQTU82TnJoZWc2OHYtc3lXSXdnWHlJcUI0NUNuY21ydkY2dnpNRUc0ckxabFViaFZRd3hES0t2Z1UtcWRHQWZvSkoyME9XMnRITWExRlJCU2V3SkNpVnRUTWxBSjNfeExRQ1ppSVJkcjJhOTZTY2FNTldibUtXUFExTHNvb0ktbzhzNWU3d1BQZkY0OVQ5VkN4YWVINHA4MUFHcXFqeEtaRQ?oc=5",
       "image": null,
-      "published_at": "2026-10-10 13:00:00+00:00",
+      "published_at": "2026-10-16 21:39:00+00:00",
       "source": "\"Cruzeiro\" - Google Notícias"
     },
     {
-      "id": "7ef9646834f60cef",
-      "title": "Em jogo de sete gols, Cruzeiro vence Atlético e garante liderança no Campeonato Mineiro Feminino - Rádio Itatiaia",
-      "summary": "Em jogo de sete gols, Cruzeiro vence Atlético e garante liderança no Campeonato Mineiro Feminino &nbsp;&nbsp; Rádio Itatiaia",
-      "url": "https://news.google.com/rss/articles/CBMi7wFBVV95cUxNckh0b081WGlCdk1sUUNsTFE1OVZLYW5sRk9CZUkyZ1pLRVNVeXJJSEdmZUNsczdlcFdKb0xNc25LMVgyUW9od0RlSENiS09lV0pLYzFWR0FmTDc2RGlMZ1Eyd3NnVlRJSTFDR2RIaHhBRVRTUkZyb2Q1LUs5MVBldnFpUi1wcEVLcjZWTEhJd2UzaWJyVUVMeEhtVTYxOV9xRnAwQUhCZXNiSEJ6VlhFbVo4azhIdDdpUklLaFZxclV3NHZoT0VEanNVSTNlWXJ3T290VUVYQm5LT3M4eUI2ZzBrMTVkX1ByY2tLRVctcw?oc=5",
+      "id": "1a67c8fe34c6d966",
+      "title": "Como fica a organização do Cruzeiro com a chegada de Paulinho - LANCE!",
+      "summary": "Como fica a organização do Cruzeiro com a chegada de Paulinho &nbsp;&nbsp; LANCE!",
+      "url": "https://news.google.com/rss/articles/CBMiogFBVV95cUxPZXFQUktpOEUzNllPS1g0TEtXZlloR3BKT25YTmtKZnZrcE9qN1lOSmVZa0VlaHE1Y2t3RDZPd0RNUVd3eE5MY2R2TXBJTmExZi1TaF93RHpWMzdlUTRpVERsOEZvelloNlNfeExtWTNvT3NmdHFZYmhjb09oYUx0S2NaU1BvamhkX3VTZGZWQmNiR2FSU2poZWhmbkNGa3BZcmc?oc=5",
       "image": null,
-      "published_at": "2026-10-10 20:02:39+00:00",
+      "published_at": "2026-10-16 14:31:00+00:00",
       "source": "\"Cruzeiro\" - Google Notícias"
     },
     {
-      "id": "434ae1dd901044ac",
-      "title": "Em jogo de 7 gols, Cruzeiro vence clássico contra o Atlético e garante liderança no Mineiro Feminino - O TEMPO",
-      "summary": "Em jogo de 7 gols, Cruzeiro vence clássico contra o Atlético e garante liderança no Mineiro Feminino &nbsp;&nbsp; O TEMPO",
-      "url": "https://news.google.com/rss/articles/CBMi8gFBVV95cUxNUGwxSWVteGpFQ0RXSzlUY08wYWRld19SRkVrUEY5TDd3eGd6REMtNVAySGpYWDNNbnMtSzRoRE55QmdrUjFIVm15ZnBadHlqeWtUYzdYMThYbmJxSW90NWxwdGRaV193ZXE0ZU9PSjlzN3A1MGU4NU1fZXVJcjNVbmdINDlfaThIeDBUVy1mOUtFMHI0WFNJQ2JZSlNVaHlsSEpWVGdXbEFJUG14bW5TNlhSWDF3NmNISS1wbk54bVVpOXpRbTZGTTFpZUZRc3piN3NfYkhESkIyWUlQZDJLbDZ0YTIwaEM1emxqZjBkX01iUQ?oc=5",
+      "id": "d3b763952721d850",
+      "title": "Saudade: Há seis anos morria Marquinhos, ex-zagueiro do Cruzeiro e Palmeiras - Terceiro Tempo",
+      "summary": "Saudade: Há seis anos morria Marquinhos, ex-zagueiro do Cruzeiro e Palmeiras &nbsp;&nbsp; Terceiro Tempo",
+      "url": "https://news.google.com/rss/articles/CBMitwFBVV95cUxNc0pPNzR0cG1qNUdCODAzdzJXX0JHMnpqQmhHSkpRODR0dnJ6cjJrTVhqdWdVLXh2Qk5nQ01hWU1yQ19kR3l6bXlQb3UxQm5RRkpySkpaOHBVV05LTjJheDFHcE0zZEtkNGxZWFBsVzg0X3h4RkR1dE5GQmd5bmxZdk9HUGRkM1VOM3NCdkE4bUVTVmd5VkhWQVBwZkJJMnRtcFpzXzR5d25Qd1YyRWVZa0R0NV9QQTg?oc=5",
       "image": null,
-      "published_at": "2026-10-10 20:32:12+00:00",
-      "source": "\"Cruzeiro\" - Google Notícias"
-    },
-    {
-      "id": "c5e304b0e8a1bb5e",
-      "title": "Futsal: América enfrenta Cruzeiro de Assú pelas quartas do Estadual neste sábado - Tribuna do Norte",
-      "summary": "Futsal: América enfrenta Cruzeiro de Assú pelas quartas do Estadual neste sábado &nbsp;&nbsp; Tribuna do Norte",
-      "url": "https://news.google.com/rss/articles/CBMiuwFBVV95cUxPWUJ6cS1XbkdCd0hsYnU3ejBIbFhtM0l2MS1LZC12OGxTYlY5TWJoMTNtX3lSaEJEbzktclFlVkJ4SWVFUEtqUlpEZ2lTOW90dHlTQnB1SUItblVQZHNNYUl4TVh3dzdrRm52WXFRWE5PNjVCdlBJR2twTzI4YXB1ajdtUTZReG9OS0E1UWVEaUNaWGhyUHlUZEY1ZEsxTmZGOHhTLWU0am1lTHpGRTR2TVhNTjVxV1h1TFBF?oc=5",
-      "image": null,
-      "published_at": "2026-10-10 12:45:00+00:00",
-      "source": "\"Cruzeiro\" - Google Notícias"
-    },
-    {
-      "id": "1aefd0f92153ee1b",
-      "title": "Sonho de consumo do Cruzeiro quer vir para o clube em 2027; Artur Jorge confirma saídas da Raposa - www.jornalcruzeiro.com.br",
-      "summary": "Sonho de consumo do Cruzeiro quer vir para o clube em 2027; Artur Jorge confirma saídas da Raposa &nbsp;&nbsp; www.jornalcruzeiro.com.br",
-      "url": "https://news.google.com/rss/articles/CBMi2gFBVV95cUxObGwyR3FMNVBUcmhOcTFBWUVuam02NjBZTXJXbVJURGxCTHRoQ2Y0XzBFTW5MTlRUN0REVURYb2RPTDVaX1RoMEFDREFJRXQtRnV5cFdMeVJWRXpGMWRsbUduTThLUVh4Sk1RblFReTV4NmRSLVBpeWsyVDJjTnYxZ3JYb0pLSnlZNElwZTg4Uy1TaHNGeFBsMGtJOWhFTGhXdWZUR0xNbzhHejZpSWtVME1sOW8zbUJ1cmhhQldhbGtQR2w3dzRHTTVMbG0tMkhZbnVHalRrbS1adw?oc=5",
-      "image": null,
-      "published_at": "2026-10-09 20:00:00+00:00",
-      "source": "\"Cruzeiro\" - Google Notícias"
-    },
-    {
-      "id": "8b9c30372a6d32d8",
-      "title": "Ex-dono da SAF do Cruzeiro, Ronaldo se une a ídolo mineiro em negócio milionário: 'Paixão que muda de patamar' - No Ataque",
-      "summary": "Ex-dono da SAF do Cruzeiro, Ronaldo se une a ídolo mineiro em negócio milionário: 'Paixão que muda de patamar' &nbsp;&nbsp; No Ataque",
-      "url": "https://news.google.com/rss/articles/CBMi7wFBVV95cUxNaWx1UGk3bVJjM3hXWGtBSUtNSlYtSnhIeVVkV3dzX2FwTWRKakd3eUl6UXIzeko2YTVZUEJvUEw5YlRfUGE3WUpxdm5YOGx2WVNoME5VZFdRdlh1OE1GX3RlWUFJSmVadk1PSDdkdW1qa0MyMzNMajdMLUJRZHBQWkliOXlZcFpDT2k0WlV5dlRFQ2VFRTVyVXBMcGVHTjlMeEJOTDJNcGkzNjFPSWlQUFVFSE83cS1jUjNtVEt6UGd2b1pIRWcwemRkVUVDd0hUcm9JMlpUeUhiWkZjTktNcnNmMVVDLVMwdmpkVjFuaw?oc=5",
-      "image": null,
-      "published_at": "2026-10-11 11:00:00+00:00",
-      "source": "\"Cruzeiro\" - Google Notícias"
-    },
-    {
-      "id": "59632e1ccafb2b14",
-      "title": "Otávio, do Cruzeiro, é o segundo goleiro que evitou mais gols no Brasileirão - O TEMPO",
-      "summary": "Otávio, do Cruzeiro, é o segundo goleiro que evitou mais gols no Brasileirão &nbsp;&nbsp; O TEMPO",
-      "url": "https://news.google.com/rss/articles/CBMixgFBVV95cUxPR3Z3SEhDVHJXVV82WDFvbzVWTjFGZlo4OFp1QUdqVVV5MWtpQjBBaEZ6M2w1UVhRMFlnanp0aHJFQndWZFcyUTduUDBRX2tmWVF4dGxmLWJDYVluRHRiSVdTbXFxMVdtUjhNSlNlcm5yWE1QdUtjTThyd2hVSGJmMEZ3d3d4NUk4RzEyNFBBcFdxbnNsZXlZZnV6UHE2YUdkU0h1dXBYb3pPQnRTWjVrWGZsdzFMZ1RsUkNoNEs0dUxUeF9sNkE?oc=5",
-      "image": null,
-      "published_at": "2026-10-10 19:47:59+00:00",
+      "published_at": "2026-10-16 13:36:08+00:00",
       "source": "\"Cruzeiro\" - Google Notícias"
     }
   ],
   "stats": {
     "season": {
-      "competition": "2026 Brasileiro Serie A",
+      "competition": "2026 Brasileirão Série A",
       "position": null,
-      "played": 29,
+      "played": 30,
       "won": 14,
       "drawn": 6,
-      "lost": 9,
-      "goals_for": 44,
-      "goals_against": 40,
-      "goal_difference": 4,
+      "lost": 10,
+      "goals_for": 46,
+      "goals_against": 44,
+      "goal_difference": 2,
       "points": 48,
-      "form": "LWLWW"
+      "form": "WLWWL"
     },
     "home": {
       "played": 15,
@@ -568,22 +2496,31 @@
       "goals_against": 16
     },
     "away": {
-      "played": 14,
+      "played": 15,
       "won": 6,
       "drawn": 2,
-      "lost": 6,
-      "goals_for": 18,
-      "goals_against": 24
+      "lost": 7,
+      "goals_for": 20,
+      "goals_against": 28
     },
-    "goals_scored": 44,
-    "goals_conceded": 40,
+    "goals_scored": 46,
+    "goals_conceded": 44,
     "clean_sheets": 6,
-    "avg_goals_scored": 1.52,
-    "avg_goals_conceded": 1.38,
-    "unbeaten_streak": 2,
-    "win_streak": 2,
+    "avg_goals_scored": 1.53,
+    "avg_goals_conceded": 1.47,
+    "unbeaten_streak": 0,
+    "win_streak": 0,
     "goalless_draws": 1,
     "recent_form": [
+      {
+        "id": "401841260",
+        "date": "2026-10-13",
+        "opponent": "Red Bull Bragantino",
+        "result": "L",
+        "score": "2-4",
+        "venue": "away",
+        "competition": "2026 Brasileirão Série A"
+      },
       {
         "id": "401841249",
         "date": "2026-10-08",
@@ -591,7 +2528,7 @@
         "result": "W",
         "score": "2-0",
         "venue": "home",
-        "competition": "2026 Brasileiro Serie A"
+        "competition": "2026 Brasileirão Série A"
       },
       {
         "id": "401841242",
@@ -600,7 +2537,7 @@
         "result": "W",
         "score": "3-1",
         "venue": "away",
-        "competition": "2026 Brasileiro Serie A"
+        "competition": "2026 Brasileirão Série A"
       },
       {
         "id": "401841233",
@@ -609,7 +2546,7 @@
         "result": "L",
         "score": "1-2",
         "venue": "away",
-        "competition": "2026 Brasileiro Serie A"
+        "competition": "2026 Brasileirão Série A"
       },
       {
         "id": "401841218",
@@ -618,29 +2555,19 @@
         "result": "W",
         "score": "3-1",
         "venue": "home",
-        "competition": "2026 Brasileiro Serie A"
-      },
-      {
-        "id": "401841212",
-        "date": "2026-08-30",
-        "opponent": "Vasco da Gama",
-        "result": "L",
-        "score": "1-3",
-        "venue": "away",
-        "competition": "2026 Brasileiro Serie A"
+        "competition": "2026 Brasileirão Série A"
       }
     ],
     "top_scorers": []
   },
   "team": {
-    "id": "134294",
+    "id": "2022",
     "name": "Cruzeiro",
-    "short_name": "CRU",
-    "logo": "https://r2.thesportsdb.com/images/media/team/badge/upsvvu1473538059.png",
-    "city": "Belo Horizonte",
-    "stadium": "Estádio Mineirão",
-    "formed": "1921",
-    "league": "Brazilian Serie A"
+    "short_name": "Cruzeiro",
+    "logo": "https://a.espncdn.com/i/teamlogos/soccer/500/2022.png",
+    "city": "Cruzeiro",
+    "stadium": null,
+    "color": "0093EC"
   },
   "teams": [
     {

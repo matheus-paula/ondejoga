@@ -6,10 +6,16 @@ de backup `app/data/fallback.json` quando todas as fontes externas falham.
 from __future__ import annotations
 
 import json
+import time
 from datetime import datetime, timezone
 
 import pytest
+from sqlalchemy import select
 
+from app.config import get_settings
+from app.models import ApiSource
+from app.seed import upgrade_scopes
+from app.services import dashboard as dashboard_svc
 from app.services import resolver
 from app.services.fallback import DATA_FILE
 
@@ -209,7 +215,58 @@ def test_status_reports_capabilities_and_fallbacks(client) -> None:
     assert by_capability["standings"]["active_source"] == "Wikipédia"
     assert by_capability["news"]["active_source"] == "Google Notícias (RSS)"
     assert by_capability["next_match"]["status"] in {"ok", "fallback", "error"}
-    assert "ESPN" in by_capability["next_match"]["fallbacks_available"]
+    # A ESPN é a primeira escolha; a TheSportsDB fica como alternativa.
+    assert by_capability["next_match"]["active_source"] == "ESPN"
+    assert "TheSportsDB" in by_capability["next_match"]["fallbacks_available"]
+
+
+def test_startup_migration_retunes_primary_sources(db) -> None:
+    """Chave morta da TheSportsDB trocada e a ESPN promovida a primeira escolha.
+
+    Instalações antigas guardam a chave gratuita que a API deles desligou (o
+    que derruba a busca de times) e a TheSportsDB na frente — mas ela entrega
+    o último jogo com atraso, enquanto a ESPN acompanha o campeonato no dia.
+    """
+    db.add(
+        ApiSource(
+            name="TheSportsDB", kind="thesportsdb", capabilities=["last_match"],
+            enabled=True, priority=10, api_key="3",
+            base_url="https://www.thesportsdb.com/api/v1/json/{api_key}/",
+        )
+    )
+    db.add(
+        ApiSource(
+            name="ESPN", kind="espn", capabilities=["last_match"],
+            enabled=True, priority=20, base_url="https://example.org/",
+        )
+    )
+    db.commit()
+
+    upgrade_scopes(db)
+
+    rows = {row.kind: row for row in db.scalars(select(ApiSource)).all()}
+    assert rows["thesportsdb"].api_key == "123"
+    assert rows["thesportsdb"].priority == 20
+    assert rows["espn"].priority == 10
+
+
+def test_startup_migration_keeps_hand_edited_sources(db) -> None:
+    """Fonte calibrada à mão não é reordenada pela migração."""
+    db.add(
+        ApiSource(
+            name="TheSportsDB", kind="thesportsdb", capabilities=["last_match"],
+            enabled=True, priority=5, api_key="minha-chave",
+            base_url="https://www.thesportsdb.com/api/v1/json/{api_key}/",
+        )
+    )
+    db.commit()
+
+    upgrade_scopes(db)
+
+    # A cobertura de capacidades traz outras fontes junto; olhamos só esta.
+    row = db.scalars(select(ApiSource).where(ApiSource.kind == "thesportsdb")).one()
+    assert row.api_key == "minha-chave"
+    assert row.priority == 5
 
 
 # --------------------------------------------------------------------------- #
@@ -232,6 +289,65 @@ def test_dashboard_returns_full_payload(seeded_client) -> None:
     assert payload["meta"]["cached"] is False
     capabilities = {s["capability"] for s in payload["meta"]["sources"]}
     assert {"next_match", "last_match", "standings", "news", "stats"} <= capabilities
+
+
+def _with_dashboard_cache(**overrides):
+    """Config real, só com o cache do dashboard ligado para estes testes.
+
+    O `conftest` desliga esse cache (`DASHBOARD_CACHE_TTL=0`) para o resto da
+    suíte sempre ver dado fresco — aqui é justamente o cache que queremos.
+    """
+
+    def _get():
+        return {
+            **get_settings(),
+            "dashboard_cache_ttl": 60,
+            "dashboard_stale_seconds": 600,
+            **overrides,
+        }
+
+    return _get
+
+
+def test_dashboard_is_reused_while_the_cache_is_warm(seeded_client, monkeypatch) -> None:
+    """A segunda chamada vem do cache.
+
+    Sem gravar nada ali, toda tela pagaria uma volta à rede por capacidade
+    (a Wikipedia sozinha leva ~3s) mesmo com o payload já na mão.
+    """
+    monkeypatch.setattr(dashboard_svc, "get_settings", _with_dashboard_cache())
+
+    first = seeded_client.get("/api/dashboard").json()
+    second = seeded_client.get("/api/dashboard").json()
+
+    assert first["meta"]["cached"] is False
+    assert second["meta"]["cached"] is True
+
+
+def test_expired_dashboard_is_delivered_now_and_refreshed_behind(
+    seeded_client, monkeypatch
+) -> None:
+    """Dado expirado ainda sai na hora, com o refresco em segundo plano.
+
+    A tela não espera a rede por um payload que já temos. O refresco é
+    agendado em thread própria (aqui substituído por um espião: o trabalho
+    de verdade usaria outra sessão, que não é a da requisição).
+    """
+    monkeypatch.setattr(
+        dashboard_svc, "get_settings", _with_dashboard_cache(dashboard_cache_ttl=1)
+    )
+    scheduled: list = []
+    monkeypatch.setattr(
+        dashboard_svc, "_recompose_in_background", lambda *args: scheduled.append(args)
+    )
+
+    seeded_client.get("/api/dashboard")
+    time.sleep(1.1)  # o TTL de 1s expira; o limite de stale (600s) não
+
+    payload = seeded_client.get("/api/dashboard").json()
+
+    assert payload["meta"]["cached"] is True
+    assert scheduled, "o refresco em segundo plano tinha de ser agendado"
 
 
 def _backup_next_match_is_upcoming() -> bool:

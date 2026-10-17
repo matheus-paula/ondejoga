@@ -73,7 +73,8 @@ describe('widget "Meu Time"', () => {
     // estatísticas antes fundidas em outro widget
     expect(screen.getByText('Aproveitamento')).toBeInTheDocument();
     expect(screen.getByText('Marcados')).toBeInTheDocument();
-    expect(screen.getByText('Forma recente')).toBeInTheDocument();
+    // a forma recente é do widget `form`; aqui ela só duplicaria a tela
+    expect(screen.queryByText('Forma recente')).not.toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Artilheiros' })).toBeInTheDocument();
     expect(document.querySelector('[data-testid="scorers-table"]')).not.toBeNull();
   });

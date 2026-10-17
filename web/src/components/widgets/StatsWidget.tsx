@@ -51,13 +51,17 @@ const SCORER_HEAD =
   'px-2 py-[7px] border-b border-line text-right text-muted text-[0.74rem] uppercase';
 const SCORER_CELL = 'px-2 py-[7px] border-b border-line text-right';
 
-/** Bloco de estatística: rótulo em cima, valor grande embaixo. */
+/** Bloco de estatística: rótulo em cima, valor grande embaixo.
+
+    O `[&_dd]:ml-0` é obrigatório: sem o preflight, o `dd` herda do navegador
+    `margin-left: 40px`. O `text-center` centra o texto dentro da caixa, mas a
+    caixa estava deslocada — o valor saía para a direita do tile. */
 export const STATS_GRID =
   'grid grid-cols-[repeat(auto-fill,minmax(112px,1fr))] gap-2.5 m-0';
 export const STATS_CELL =
   'bg-surface-2 border border-line rounded-ctl p-2.5 text-center ' +
   '[&_dt]:text-muted [&_dt]:text-[0.72rem] [&_dt]:uppercase [&_dt]:tracking-[0.05em] ' +
-  '[&_dd]:mt-1 [&_dd]:text-[1.3rem] [&_dd]:font-extrabold [&_dd]:tabular-nums';
+  '[&_dd]:m-0 [&_dd]:mt-1 [&_dd]:text-[1.3rem] [&_dd]:font-extrabold [&_dd]:tabular-nums';
 /** Título de seção dentro do cartão de estatísticas. */
 export const STATS_SUBTITLE = 'text-[0.85rem] uppercase tracking-[0.06em] text-muted';
 /** Tabela de artilheiros: o descendente cobre `thead` e a última linha, que

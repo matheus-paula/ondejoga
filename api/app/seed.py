@@ -60,10 +60,10 @@ DEFAULT_SOURCES: list[dict] = [
         "name": "TheSportsDB",
         "kind": "thesportsdb",
         "enabled": True,
-        "priority": 10,
+        "priority": 20,
         "capabilities": ["team", "next_match", "last_match"],
         "base_url": "https://www.thesportsdb.com/api/v1/json/{api_key}/",
-        "api_key": "3",
+        "api_key": "123",
         "headers": {},
         "endpoints": THESPORTSDB_ENDPOINTS,
         "mapping": {},
@@ -79,7 +79,7 @@ DEFAULT_SOURCES: list[dict] = [
         "name": "ESPN",
         "kind": "espn",
         "enabled": True,
-        "priority": 20,
+        "priority": 10,
         "capabilities": ["team", "teams", "next_match", "last_match", "stats", "broadcasts",
                          "live_match"],
         "base_url": "https://site.api.espn.com/apis/site/v2/sports/soccer/{league}/",
@@ -180,6 +180,33 @@ def _upgrade_defaults(db: Session, rows: list[ApiSource]) -> int:
     return changed
 
 
+def _retune_primary_sources(db: Session, rows: list[ApiSource]) -> int:
+    """Troca a chave morta da TheSportsDB e põe a ESPN na frente.
+
+    A chave gratuita antiga (`3`) foi desligada pela API da TheSportsDB e com
+    ela caiu a busca de times. Mesmo viva, porém, ela entrega o último jogo
+    com atraso — a ESPN acompanha o campeonato no dia, então passa a ser a
+    primeira escolha.
+
+    Só mexe no que ainda está com o valor padrão antigo: quem editou a fonte
+    à mão mantém a escolha que fez.
+    """
+    changed = 0
+    for row in rows:
+        if row.kind == "thesportsdb" and (row.api_key or "3") == "3":
+            row.api_key = "123"
+            changed += 1
+        if row.kind == "thesportsdb" and row.priority == 10:
+            row.priority = 20
+            changed += 1
+        if row.kind == "espn" and row.priority == 20:
+            row.priority = 10
+            changed += 1
+    if changed:
+        db.commit()
+    return changed
+
+
 def _disable_legacy_tv(db: Session, rows: list[ApiSource]) -> int:
     """Desliga a lista estática de TV que era a fonte padrão de transmissão.
 
@@ -252,6 +279,7 @@ def seed_sources(db: Session, user_id: int | None = None) -> int:
         db.commit()
         return len(DEFAULT_SOURCES)
     _upgrade_defaults(db, rows)
+    _retune_primary_sources(db, rows)
     _disable_legacy_tv(db, rows)
     _ensure_capability_coverage(db, rows, user_id)
     return 0
@@ -271,6 +299,7 @@ def upgrade_scopes(db: Session) -> int:
             db.scalars(select(ApiSource).where(ApiSource.owner_filter(owner))).all()
         )
         changed += _upgrade_defaults(db, rows)
+        changed += _retune_primary_sources(db, rows)
         changed += _disable_legacy_tv(db, rows)
         changed += _ensure_capability_coverage(db, rows, owner)
     return changed

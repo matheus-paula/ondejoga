@@ -34,6 +34,11 @@ def get_settings() -> dict:
         "default_cache_ttl": int(os.getenv("DEFAULT_CACHE_TTL", "300")),
         # Cache do payload agregado (protege as APIs gratuitas).
         "dashboard_cache_ttl": int(os.getenv("DASHBOARD_CACHE_TTL", "60")),
+        # Por quanto tempo um payload expirado ainda pode ser entregue de
+        # imediato, enquanto o refresco corre em segundo plano (stale-while-
+        # revalidate). Além disso a tela volta a esperar a rede — dado muito
+        # velho de futebol é pior que a espera.
+        "dashboard_stale_seconds": int(os.getenv("DASHBOARD_STALE_SECONDS", "600")),
         "user_agent": os.getenv(
             "USER_AGENT",
             "OndeJoga/1.0 (dashboard de time; +https://github.com/ondejoga)",

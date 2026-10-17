@@ -1,6 +1,6 @@
 import { WidgetShell } from './WidgetShell';
 import { EmptyState } from '../ui/States';
-import { BarChart, buildMetrics, RecentForm, STATS_GRID, STATS_CELL, STATS_SUBTITLE, SCORERS_TABLE } from './StatsWidget';
+import { BarChart, buildMetrics, STATS_GRID, STATS_CELL, STATS_SUBTITLE, SCORERS_TABLE } from './StatsWidget';
 import { ordinalPosition } from '../../lib/format';
 import { optBool, optStringArray } from '../../lib/widgetOptions';
 import type { Stats } from '../../api/types';
@@ -36,7 +36,6 @@ export function MyTeamWidget({ widget, data, config }: WidgetProps) {
     : [];
   const scored = stats?.goals_scored ?? season?.goals_for ?? 0;
   const conceded = stats?.goals_conceded ?? season?.goals_against ?? 0;
-  const recent = (stats?.recent_form ?? []).slice(0, 10);
   const scorers = stats?.top_scorers ?? [];
 
   return (
@@ -95,12 +94,9 @@ export function MyTeamWidget({ widget, data, config }: WidgetProps) {
             </>
           ) : null}
 
-          {recent.length > 0 ? (
-            <>
-              <h3 className={`${STATS_SUBTITLE} mt-[18px]`}>Forma recente</h3>
-              <RecentForm entries={recent} />
-            </>
-          ) : null}
+          {/* A "forma recente" não mora aqui: quem mostra é o widget de
+              resultados (`form`). Repetir os dois só jogava a mesma lista na
+              tela duas vezes. */}
 
           {showTopScorers && scorers.length > 0 ? (
             <>
@@ -138,7 +134,7 @@ export function MyTeamWidget({ widget, data, config }: WidgetProps) {
             </>
           ) : null}
 
-          {!season && metrics.length === 0 && recent.length === 0 && scorers.length === 0 ? (
+          {!season && metrics.length === 0 && scorers.length === 0 ? (
             <p className="text-muted">Sem dados da temporada no momento.</p>
           ) : null}
         </>
