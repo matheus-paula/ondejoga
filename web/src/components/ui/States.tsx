@@ -1,6 +1,6 @@
-import type { ReactNode } from 'react';
+import { useRef, type ReactNode } from 'react';
 import type { LayoutWidget } from '../../api/types';
-import { WIDGET_GRID, WIDGET_SPAN, WIDGET_SLOT, visibleWidgets } from '../layout/WidgetGrid';
+import { WIDGET_GRID, WIDGET_SPAN, WIDGET_SLOT, visibleWidgets, usePackedRows } from '../layout/WidgetGrid';
 import { Icon } from './Icon';
 
 /** Forma de reserva, para quando o layout ainda não chegou: sm, md, md, full. */
@@ -24,8 +24,13 @@ export function SkeletonGrid({ widgets }: { widgets?: LayoutWidget[] | null }) {
   const shape = visibleWidgets(widgets, null);
   const sizes = shape.length > 0 ? shape.map((widget) => widget.size) : DEFAULT_SHAPE;
 
+  // Mesmo empacotamento da grade real: quando os cards chegarem, nada pula.
+  // O dep vai como texto — `sizes` é reconstruído a cada render.
+  const gridRef = useRef<HTMLDivElement>(null);
+  usePackedRows(gridRef, sizes.join('|'));
+
   return (
-    <div className={WIDGET_GRID} aria-hidden="true">
+    <div ref={gridRef} className={WIDGET_GRID} aria-hidden="true">
       {sizes.map((size, index) => (
         <div
           key={index}
