@@ -134,7 +134,31 @@ igual a `release`) os campos de git vêm `null`.
 ```
 
 `dirty: true` significa que o que está de pé não veio de um commit limpo.
-Os mesmos campos aparecem em `GET /api`.
+
+Este endpoint é o **healthcheck dos containers** (`HEALTHCHECK` na imagem da
+API e do Nginx) e por isso fica estritamente local: não faz nenhuma chamada de
+rede, para nunca depender do GitHub para responder. Quem quer saber se há
+versão nova pergunta em `GET /api`, abaixo.
+
+### `GET /api`
+
+Os mesmos campos de `/api/health`, mais a comparação com o remoto:
+
+```json
+"update_available": false
+```
+
+| valor | significa |
+|---|---|
+| `true` | o remoto já tem commit que esta máquina não tem |
+| `false` | estamos em dia com o remoto |
+| `null` | não deu para saber (sem repositório ou sem rede) |
+
+A consulta vai por **HTTPS anônimo** (`git ls-remote` no repositório público),
+porque o `origin` é SSH e o container não tem chave. Fica guardada por 10
+minutos — a resposta só muda no ritmo dos commits, não no das atualizações de
+tela — e uma resposta `null` vale 1 minuto, para recuperar assim que a rede
+voltar. `APP_UPDATE_REMOTE` muda a URL se o repositório mudar de lugar.
 
 ## 2. `GET /api/config` · `PUT /api/config`
 

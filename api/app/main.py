@@ -11,7 +11,7 @@ from .db import get_sessionmaker, init_db
 from .routers import admin, auth, data, settings, teams
 from .seed import seed_sources, upgrade_scopes
 from .services.auth import purge_expired
-from .version import build_info
+from .version import build_info, update_available
 
 
 @asynccontextmanager
@@ -61,6 +61,9 @@ def create_app() -> FastAPI:
             # Release versionada + commit exato de pé, lidos do repositório
             # que o docker-compose monta no container.
             **build_info(),
+            # Só aqui, e nunca em `/api/health`: a saúde é o healthcheck dos
+            # containers e não pode ficar de pé sobre o GitHub para responder.
+            "update_available": update_available(),
             "docs": "/api/docs",
             "openapi": "/api/openapi.json",
             "endpoints": [

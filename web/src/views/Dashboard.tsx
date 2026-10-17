@@ -43,7 +43,7 @@ function DashboardContent() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col" style={style}>
+    <div className="flex flex-1 flex-col" style={style}>
       <Header />
       <main
         id="conteudo"

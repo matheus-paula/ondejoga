@@ -576,10 +576,10 @@ export function SettingsView() {
   if (loading) return null;
 
   return (
-    <div className="min-h-screen bg-bg" data-testid="settings-page">
+    <div className="flex flex-1 flex-col bg-bg" data-testid="settings-page">
       <SettingsHeader />
 
-      <main id="conteudo" className="mx-auto max-w-[780px] px-4 pt-6 pb-16">
+      <main id="conteudo" className="mx-auto max-w-[780px] flex-1 px-4 pt-6 pb-16">
         <h1 className="mb-1 text-[1.5rem] font-bold">Configurações</h1>
 
         {user ? null : (

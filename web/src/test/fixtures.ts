@@ -268,6 +268,7 @@ export const buildInfoFixture: BuildInfo = {
   tag: '0606bad',
   dirty: false,
   source: 'git',
+  update_available: false,
 };
 
 /** Response fake compatível com o pouco que o cliente HTTP usa. */

@@ -5,6 +5,7 @@ import { LayoutProvider } from './context/LayoutContext';
 import { DashboardView } from './views/Dashboard';
 import { SettingsView } from './views/Settings';
 import { Admin } from './views/Admin';
+import { VersionFooter } from './components/layout/VersionFooter';
 
 /** Roteamento interno minúsculo via `window.location.hash` (sem biblioteca). */
 function useHashRoute(): string {
@@ -27,7 +28,14 @@ export default function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <LayoutProvider>{view}</LayoutProvider>
+        <LayoutProvider>
+          {/* Casca da tela: a view cresce (`flex-1`) e o rodapé de versão
+              encosta no pé, sem ninguém precisar rolar para vê-lo. */}
+          <div className="flex min-h-screen flex-col">
+            {view}
+            <VersionFooter />
+          </div>
+        </LayoutProvider>
       </AuthProvider>
     </ThemeProvider>
   );

@@ -421,6 +421,11 @@ export interface AdminStatus {
  * `commit`, `branch`, `tag` e `dirty` vêm do repositório em tempo de execução
  * e mudam sozinhos a cada commit — mesmo esquema do `pihole -v`.
  * `source` diz de onde veio: `git`, ou só `release` quando não há repositório.
+ *
+ * `update_available` é a comparação com o remoto: `true` quando há commit lá
+ * que ainda não chegou aqui, `false` quando estamos em dia, e `null` quando não
+ * deu para saber (sem repositório ou sem rede). Não aparece em `/api/health`,
+ * que é o healthcheck dos containers e não pode depender do GitHub.
  */
 export interface BuildInfo {
   version: string;
@@ -429,4 +434,5 @@ export interface BuildInfo {
   tag: string | null;
   dirty: boolean;
   source: 'git' | 'release';
+  update_available: boolean | null;
 }

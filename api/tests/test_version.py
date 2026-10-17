@@ -16,10 +16,12 @@ from app import version
 
 @pytest.fixture(autouse=True)
 def _fresh_cache():
-    """Cada teste começa com o cache limpo — ele guarda o resultado por processo."""
+    """Cada teste começa com os caches limpos — ambos guardam por processo."""
     version.build_info.cache_clear()
+    version.reset_update_cache()
     yield
     version.build_info.cache_clear()
+    version.reset_update_cache()
 
 
 def _git_in(path, *args: str) -> str:
@@ -118,11 +120,107 @@ def test_git_recebe_a_excecao_de_propriedade_do_repositorio(monkeypatch, tmp_pat
     assert chamada[:3] == ["git", "-c", f"safe.directory={repo}"]
 
 
-def test_health_e_raiz_publicam_a_versao(client):
-    """Os dois endpoints expõem release + commit com o mesmo formato."""
+def test_health_fica_local_e_a_raiz_diz_se_ha_versao_nova(client, monkeypatch, tmp_path):
+    """`/api/health` é o healthcheck dos containers: não pode depender do GitHub.
+
+    Quem pergunta se há atualização é `GET /api`, que só o rodapé chama.
+    """
+    monkeypatch.setattr(version, "REPO_DIR", str(tmp_path))
+
     health = client.get("/api/health").json()
     info = client.get("/api").json()
 
     for payload in (health, info):
         assert payload["version"] == version.APP_VERSION
         assert {"commit", "branch", "tag", "dirty", "source"} <= payload.keys()
+
+    assert "update_available" not in health
+    assert info["update_available"] is None  # sem repositório: sem como saber
+
+
+def test_remoto_na_mesma_estaca_diz_atualizado(monkeypatch, tmp_path):
+    repo = _make_repo(tmp_path)
+    monkeypatch.setattr(version, "REPO_DIR", str(repo))
+    head = _git_in(repo, "rev-parse", "HEAD")
+    monkeypatch.setattr(version, "_remote_head", lambda: head)
+
+    assert version.update_available() is False
+
+
+def test_commit_novo_no_remoto_sinaliza_atualizacao(monkeypatch, tmp_path):
+    """Remoto com SHA que nunca passou por aqui: há o que baixar."""
+    repo = _make_repo(tmp_path)
+    monkeypatch.setattr(version, "REPO_DIR", str(repo))
+    monkeypatch.setattr(version, "_remote_head", lambda: "a" * 40)
+
+    assert version.update_available() is True
+
+
+def test_commit_local_sem_empurrar_nao_conta_como_atualizacao(monkeypatch, tmp_path):
+    """Quem está à frente é o local — dizer "atualização" aqui seria mentira."""
+    repo = _make_repo(tmp_path)
+    monkeypatch.setattr(version, "REPO_DIR", str(repo))
+    antigo = _git_in(repo, "rev-parse", "HEAD")
+
+    (repo / "arquivo.txt").write_text("novo", encoding="utf-8")
+    _git_in(repo, "add", "-A")
+    _git_in(repo, "commit", "-q", "-m", "commit local ainda no forno")
+
+    monkeypatch.setattr(version, "_remote_head", lambda: antigo)
+
+    assert version.update_available() is False
+
+
+def test_github_fora_nao_quebra_nada(monkeypatch, tmp_path):
+    """Sem resposta do remoto a resposta é `None` — sem exceção, sem `False`."""
+    repo = _make_repo(tmp_path)
+    monkeypatch.setattr(version, "REPO_DIR", str(repo))
+    monkeypatch.setattr(version, "_remote_head", lambda: None)
+
+    assert version.update_available() is None
+
+
+def test_sem_repositorio_nem_vai_perguntar_ao_remoto(monkeypatch, tmp_path):
+    """Sem repo local não há o que comparar: nem adianta gastar a rede."""
+    monkeypatch.setattr(version, "REPO_DIR", str(tmp_path))
+    chamado: list[bool] = []
+    monkeypatch.setattr(version, "_remote_head", lambda: chamado.append(True) or None)
+
+    assert version.update_available() is None
+    assert chamado == []
+
+
+def test_consulta_o_remoto_uma_vez_por_periodo(monkeypatch, tmp_path):
+    """TTL: a resposta não muda no ritmo das atualizações de tela."""
+    repo = _make_repo(tmp_path)
+    monkeypatch.setattr(version, "REPO_DIR", str(repo))
+    head = _git_in(repo, "rev-parse", "HEAD")
+    chamadas: list[int] = []
+
+    def _fake():
+        chamadas.append(1)
+        return head
+
+    monkeypatch.setattr(version, "_remote_head", _fake)
+
+    assert version.update_available() is False
+    assert version.update_available() is False
+    assert len(chamadas) == 1
+
+
+def test_remoto_e_consultado_por_https_anonimo(monkeypatch):
+    """O `origin` é SSH e o container não tem chave: a consulta é por HTTPS."""
+    comando: list[str] = []
+    sha = "b" * 40
+
+    def _fake_run(cmd, **kwargs):
+        comando.extend(cmd)
+        return subprocess.CompletedProcess(
+            cmd, 0, stdout=f"{sha}\trefs/heads/main\n", stderr=""
+        )
+
+    monkeypatch.setattr(version.subprocess, "run", _fake_run)
+
+    assert version._remote_head() == sha
+    assert comando[1] == "ls-remote"
+    assert comando[2].startswith("https://")
